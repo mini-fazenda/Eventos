@@ -36,7 +36,46 @@ function action(name){
  window.parent.postMessage(m,hostOrigin);
  setTimeout(()=>{if(locked&&m.requestId==='layout-natal-'+seq){locked=false;updateBindings()}},13000);
 }
-function page(delta){const count=Math.max(1,Math.ceil(levels().length/2));passPage=(passPage+delta+count)%count;buildScene();}
+// Os niveis do Passe deslizam horizontalmente entre as paginas, enquanto
+// o fundo, o cabecalho, o Papai Noel e as setas permanecem parados.
+let passPaging=false;
+function passCardNodes(){
+ return [...stage.querySelectorAll('.natal-item')].filter(n=>
+  /^(?:Card nível|Badge nível|Número do nível|Fundo prêmio|Faixa grátis|Faixa premium|Sprite grátis|Sprite premium|Nome grátis|Nome premium|Resgatar grátis|Resgatar premium|Estrelas para liberar) [12]$/.test(n.dataset.name||'')
+ );
+}
+async function page(delta){
+ if(scene!=='pass'||passPaging||transitioning)return;
+ const count=Math.max(1,Math.ceil(levels().length/2));
+ if(count<2)return;
+ passPaging=true;
+ const next=(passPage+delta+count)%count;
+ const direction=delta>0?-1:1;
+ try{
+  const nodes=passCardNodes();
+  if(nodes.length&&typeof nodes[0].animate==='function'){
+   await Promise.all(nodes.map((n,i)=>n.animate([
+    {transform:'translateX(0)',opacity:1},
+    {transform:`translateX(${direction*155}px)`,opacity:0}
+   ],{duration:210,delay:Math.floor(i/16)*24,easing:'ease-in',fill:'forwards'}).finished.catch(()=>{})));
+   nodes.forEach(n=>n.getAnimations().forEach(a=>a.cancel()));
+  }
+  if(scene!=='pass')return;
+  passPage=next;
+  // Mantem os sprites e GIFs carregados; atualiza apenas os dados dos niveis.
+  updateBindings();
+  const incoming=passCardNodes();
+  if(incoming.length&&typeof incoming[0].animate==='function'){
+   await Promise.all(incoming.map((n,i)=>n.animate([
+    {transform:`translateX(${-direction*155}px)`,opacity:0},
+    {transform:'translateX(0)',opacity:1}
+   ],{duration:270,delay:Math.floor(i/16)*35,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}).finished.catch(()=>{})));
+  }
+ }finally{
+  passCardNodes().forEach(n=>n.getAnimations().forEach(a=>a.cancel()));
+  passPaging=false;
+ }
+}
 const motionNames=new Set(['float','sway','pulse','bounce','drift','spin']);
 function element(item){
  const n=document.createElement(item.type==='button'?'button':item.type==='image'?'img':'div');
