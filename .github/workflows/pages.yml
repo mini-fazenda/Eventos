@@ -8,6 +8,10 @@ on:
       - 'menu.css'
       - 'event.json'
       - 'index.html'
+      - 'natal-layout.json'
+      - 'natal-runtime.js'
+      - 'natal-runtime.css'
+      - 'assets/natal/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
