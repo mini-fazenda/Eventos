@@ -189,8 +189,25 @@ function syncFriends(){const d=$('#natal-friends-dialog');if(!d)return;
  m.replaceChildren(...project.materials.map(x=>new Option(x.name,x.key)));
  if(friend)f.value=friend;if(mat)m.value=mat;
 }
-function fit(){if(!root||!stage)return;scale=Math.min(root.clientWidth/960,root.clientHeight/600);scale=Math.max(0.1,scale);
- const wrap=$('#natal-wrap');wrap.style.width=960*scale+'px';wrap.style.height=600*scale+'px';stage.style.transform=`scale(${scale})`;
+function fit(){
+ if(!root||!stage||!project)return;
+ // A arte exportada inclui elementos propositalmente alem da area-base
+ // (decoracoes, cabecalho e rodape). Enquadrar TODOS os elementos sem
+ // alterar o tamanho da janela do jogo ou a disposicao desenhada no Atelie.
+ const all=[...project.scenes.factory,...project.scenes.pass];
+ const x0=Math.min(0,...all.map(e=>Number(e.x)||0));
+ const y0=Math.min(0,...all.map(e=>Number(e.y)||0));
+ const x1=Math.max(960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
+ const y1=Math.max(600,...all.map(e=>(Number(e.y)||0)+(Number(e.h)||0)));
+ const fullW=x1-x0,fullH=y1-y0;
+ const w=root.clientWidth,h=root.clientHeight;
+ if(!w||!h)return;
+ scale=Math.max(.05,Math.min(w/fullW,h/fullH));
+ const offsetX=(w-fullW*scale)/2-x0*scale;
+ const offsetY=(h-fullH*scale)/2-y0*scale;
+ const wrap=$('#natal-wrap');
+ wrap.style.width=w+'px';wrap.style.height=h+'px';
+ stage.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`;
 }
 function mount(){
  root=document.createElement('div');root.id='natal-layout-root';root.setAttribute('aria-label','Evento de Natal');
