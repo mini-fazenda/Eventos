@@ -1,7 +1,11 @@
 /* Camada de apresentação. Todo o fluxo de compras/ações permanece na engine. */
-.oficina.natal-native-hidden{position:absolute!important;visibility:hidden!important;pointer-events:none!important;inset:0}
-#natal-layout-root{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:transparent;z-index:10000}
+/* O layout original nunca aparece por baixo, nem durante as animacoes. */
+.oficina{visibility:hidden!important}
+html.natal-native-fallback .oficina{visibility:visible!important}
+.oficina.natal-native-hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#natal-layout-root{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff2cc;z-index:10000}
 #natal-wrap{position:relative;flex:none;perspective:1600px}
+#natal-stage-anchor{position:absolute;left:0;top:0;perspective:1600px}
 #natal-stage{width:960px;height:600px;position:absolute;left:0;top:0;overflow:visible;transform-origin:0 0;transform-style:preserve-3d;backface-visibility:visible}
 .natal-item{position:absolute;box-sizing:border-box;display:flex;align-items:center;justify-content:center;white-space:pre-wrap;overflow:hidden;line-height:1.2;overflow-wrap:anywhere;user-select:none}
 .natal-item[hidden]{display:none!important}
