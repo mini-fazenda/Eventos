@@ -4,7 +4,7 @@
  const labels={plastico:'Plástico',tinta:'Tinta',papel:'Papel de presente',laco:'Laço'};
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const el=id=>document.getElementById(id);
- let tab='fabrica',state=null,hostOrigin=null,busy=false,sequence=0;
+ let tab='fabrica',state=null,hostOrigin=null,busy=false,sequence=0,passPage=0,sliding=false;
  function progress(){
   el('stars').textContent=(state?.stars||0).toLocaleString('pt-BR');
   el('crafted').textContent=(state?.crafted||0).toLocaleString('pt-BR');
@@ -22,6 +22,7 @@
   progress();
   document.querySelectorAll('[data-tab]').forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});
   if(!state){el('content').innerHTML='<p class="aguarde">Aguardando conexão segura com a Mini Fazenda…</p>';return}
+  el('content').classList.toggle('pass-view',tab==='passe');
   el('content').innerHTML=tab==='fabrica'?factory():pass();
  }
  function factory(){
@@ -36,29 +37,60 @@
   const friends=s.friends||[];
   const choices=friends.length?friends.map(f=>'<option value="'+esc(f.uid)+'">'+esc(f.name)+'</option>').join(''):'<option value="">Nenhum amigo cadastrado</option>';
   const materialOptions=Object.keys(labels).map(k=>'<option value="'+k+'">'+icons[k]+' '+labels[k]+'</option>').join('');
-  return '<div class="section-title"><h2>🎁 Fábrica de Presentes</h2><span class="section-note">3 pedidos ativos • substituição aleatória</span></div>'+
+  return '<div class="factory-note">🎁 3 pedidos ativos • substituição aleatória após fabricar</div>'+
    '<div class="materiais">'+resources+'</div>'+
    '<div class="pedidos">'+orders+'</div>'+
-   '<section class="amigos"><h2>👥 Ajuda dos amigos</h2><p>Envie gratuitamente 1 material por amigo a cada dia. Cada envio confirmado concede ⭐ 2 estrelas. Os materiais recebidos entram na conta do destinatário.</p><div class="doacao"><select id="recipient" aria-label="Escolher amigo">'+choices+'</select><select id="material" aria-label="Escolher material">'+materialOptions+'</select><button class="cta" data-action="donate" '+(!friends.length||busy?'disabled':'')+'>Doar material</button></div></section>';
+   '<details class="amigos"><summary>👥 Ajuda dos amigos <span>Doar materiais • +2 ⭐</span></summary><p>Envie 1 material por amigo a cada dia. O destinatário recebe o item na fazenda.</p><div class="doacao"><select id="recipient" aria-label="Escolher amigo">'+choices+'</select><select id="material" aria-label="Escolher material">'+materialOptions+'</select><button class="cta" data-action="donate" '+(!friends.length||busy?'disabled':'')+'>Doar material</button></div></details>';
  }
  function pass(){
   const levels=state.levels||[];
   const next=levels.find(l=>!l.unlocked),final=levels[levels.length-1]?.need||1;
   const target=next?.need||final,percent=Math.min(100,Math.round(100*(state.stars||0)/target));
-  const items=levels.map(l=>{
-   const create=(track)=>{
-    const p=l[track],premium=track==='premium',claimed=!!p.claimed,hasAccess=l.unlocked&&(!premium||state.premium);
-    const title=premium?'🎖️ Premium':'🌱 Grátis';
-    const button=claimed?'Resgatado ✓':!l.unlocked?'Bloqueado 🔒':premium&&!state.premium?'Premium fechado':'Resgatar';
-    return '<div class="premio '+(premium?'premium':'')+'"><h4>'+title+'</h4><p>'+esc(p.name)+'</p><button data-action="claim" data-level="'+l.level+'" data-track="'+track+'" '+(claimed||!hasAccess||busy?'disabled':'')+'>'+button+'</button></div>';
-   };
-   return '<article class="nivel '+(!l.unlocked?'locked':'')+'"><div class="nivel-head"><span>Nível '+l.level+'</span><span>'+(l.unlocked?'🔓':'🔒')+' '+l.need+' ⭐</span></div><div class="nivel-items">'+create('free')+create('premium')+'</div></article>';
+  const pageSize=2,pages=Math.max(1,Math.ceil(levels.length/pageSize));
+  passPage=Math.max(0,Math.min(passPage,pages-1));
+  const visible=levels.slice(passPage*pageSize,(passPage+1)*pageSize);
+  const create=(l,track)=>{
+   const p=l[track],premium=track==='premium',claimed=!!p.claimed,hasAccess=l.unlocked&&(!premium||state.premium);
+   const title=premium?'🏅 PREMIUM':'🌱 GRÁTIS';
+   const button=claimed?'Resgatado ✓':!l.unlocked?'Bloqueado 🔒':premium&&!state.premium?'Premium fechado':'Resgatar';
+   return '<div class="trail-reward '+(premium?'premium':'')+'"><h4>'+title+'</h4><p>'+esc(p.name)+'</p><button data-action="claim" data-level="'+l.level+'" data-track="'+track+'" '+(claimed||!hasAccess||busy?'disabled':'')+'>'+button+'</button></div>';
+  };
+  const cards=visible.map((l,i)=>{
+   const left=i%2===0,locked=!l.unlocked;
+   return '<article class="trail-stop '+(left?'trail-left':'trail-right')+(locked?' locked':'')+'">'+
+      '<div class="trail-card"><div class="trail-level">Nível '+l.level+'</div><div class="trail-rewards">'+create(l,'free')+create(l,'premium')+'</div></div>'+
+      '<div class="trail-present" aria-hidden="true">🎁</div><div class="trail-stars">'+(locked?'🔒 ':'')+l.need+' ⭐</div></article>';
   }).join('');
-  const dev=state.developer&&!state.premium?'<div class="demo">Modo de desenvolvimento: permite ativar a trilha premium apenas para testar a mecânica. <button data-action="premium-test" '+(busy?'disabled':'')+'>Ativar premium (teste)</button></div>':'';
-  return '<div class="passe-top"><h2>🎟️ Passe de Natal</h2><p>'+state.stars+' / '+target+' ⭐</p></div><div class="barra" aria-label="Progresso do passe"><i style="width:'+percent+'%"></i></div><p class="section-note">As estrelas acumulam para as duas trilhas. Itens conquistados continuam na fazenda ao fim do evento.</p>'+dev+'<div class="nivel-grid">'+items+'</div>';
+  const dev=state.developer&&!state.premium?'<div class="demo">Premium experimental <button data-action="premium-test" '+(busy?'disabled':'')+'>Ativar para teste</button></div>':'';
+  return '<div class="pass-summary"><span>⭐ '+esc(state.stars||0)+' / '+target+' estrelas até o próximo nível</span><span>Níveis '+(passPage*2+1)+'–'+Math.min((passPage+1)*2,levels.length)+' de '+levels.length+'</span></div>'+
+   '<div class="barra" aria-label="Progresso do passe"><i style="width:'+percent+'%"></i></div>'+
+   '<div class="trail-controls"><button class="trail-arrow" data-page="-1" aria-label="Ver níveis anteriores" '+(passPage===0||sliding?'disabled':'')+'>❮</button>'+
+   '<span>🎄 Trilha de Natal <small>• Página '+(passPage+1)+' de '+pages+'</small></span>'+
+   '<button class="trail-arrow" data-page="1" aria-label="Ver próximos níveis" '+(passPage>=pages-1||sliding?'disabled':'')+'>❯</button></div>'+
+   '<div class="trail-viewport" aria-label="Caminho de recompensas do passe"><div class="trail-scene" id="trail-scene">'+
+   '<svg class="trail-road" viewBox="0 0 860 365" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 248 C85 248 108 160 207 206 S395 320 479 256 S649 143 735 195 S848 247 880 204" fill="none" stroke="#fffaf0" stroke-width="25" stroke-linecap="round" stroke-dasharray="none"/><path d="M-20 248 C85 248 108 160 207 206 S395 320 479 256 S649 143 735 195 S848 247 880 204" fill="none" stroke="#b86e32" stroke-width="15" stroke-linecap="round" stroke-dasharray="26 12"/></svg>'+
+   '<span class="trail-deco deco-tree-1" aria-hidden="true">🌲</span><span class="trail-deco deco-tree-2" aria-hidden="true">🌲</span><span class="trail-deco deco-gift" aria-hidden="true">🎁</span><span class="trail-deco deco-snow" aria-hidden="true">❄️</span>'+
+   '<span class="trail-node node-a"></span><span class="trail-node node-b"></span><span class="trail-node node-c"></span>'+cards+'</div></div>'+
+   '<p class="pass-footnote">As estrelas valem para as duas trilhas. Os prêmios resgatados permanecem na fazenda.</p>'+dev;
  }
+ function movePass(delta){
+  const count=Math.max(1,Math.ceil((state?.levels?.length||0)/2));
+  const next=Math.max(0,Math.min(passPage+delta,count-1));
+  if(sliding||next===passPage)return;
+  const old=el('trail-scene');
+  sliding=true;
+  if(old){old.classList.add(delta>0?'slide-out-left':'slide-out-right');}
+  setTimeout(()=>{
+   passPage=next;render();
+   const fresh=el('trail-scene');
+   if(fresh){fresh.classList.add(delta>0?'slide-in-right':'slide-in-left');fresh.addEventListener('animationend',()=>fresh.classList.remove('slide-in-right','slide-in-left'),{once:true});}
+   sliding=false;
+  },180);
+ }
+
  document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{tab=button.dataset.tab;notice('');render()}));
  document.addEventListener('click',e=>{
+  const pageButton=e.target.closest('button[data-page]');if(pageButton&&!pageButton.disabled){movePass(Number(pageButton.dataset.page));return;}
   const button=e.target.closest('button[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='craft')request('craft',{slot:Number(button.dataset.slot)});
