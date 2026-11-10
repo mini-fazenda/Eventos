@@ -29,6 +29,9 @@
  }
  function factory(){
   const s=state,resources=Object.entries(labels).map(([key,name])=>'<div class="material"><span>'+icons[key]+' '+name+'</span><b>'+esc(s.materials?.[key]||0)+'</b></div>').join('');
+  const ends=Math.max(0,Math.ceil(((s.windowEndsAt||Date.now())-Date.now())/1000));
+  const clock=Math.floor(ends/3600)+'h '+String(Math.floor(ends%3600/60)).padStart(2,'0')+'m';
+  const limitLine='<div class="event-window '+(!s.canCraft?'full':'')+'"><span>⭐ Nesta janela de 4h: <b>'+s.windowStars+' / '+s.windowLimit+'</b></span><span>'+(s.canCraft?'⏳ Reinicia em '+clock:'⏳ Novos pedidos em '+clock)+'</span></div>';
   const orders=(s.orders||[]).map(r=>{
    const needs=Object.entries(r.needs||{});
    const enough=needs.every(([k,v])=>Number(s.materials?.[k]||0)>=v);
@@ -48,13 +51,13 @@
    return '<article class="pedido '+(r.rare?'rare':'')+(crafting?' pedido-crafting':'')+'" data-slot="'+r.slot+'">'+
     '<span class="toy">'+icon+'</span><span class="pill '+(r.rare?'rare':'')+'">'+(r.rare?'Pedido raro':'Pedido comum')+'</span><h3>'+esc(r.name)+'</h3>'+
     (crafting?'<div class="crafting-status"><strong>🔨 Fabricando… <span class="crafting-time">'+seconds+'s</span></strong><div class="crafting-track"><i style="width:'+progress+'%"></i></div><small>Aguarde a conclusão</small></div>':
-    '<ul>'+items+'</ul><strong>⭐ +'+r.stars+' estrelas</strong><button class="cta" data-action="craft" data-slot="'+r.slot+'" '+(!enough||busy?'disabled':'')+'>'+(enough?'Fabricar presente':'Faltam materiais')+'</button>')+
+    '<ul>'+items+'</ul><strong>⭐ +'+r.stars+' estrelas</strong><button class="cta" data-action="craft" data-slot="'+r.slot+'" '+(!enough||busy||!s.canCraft?'disabled':'')+'>'+(!s.canCraft?'Aguarde nova janela':enough?'Fabricar presente':'Faltam materiais')+'</button>')+
     '</article>';
   }).join('');
   const friends=s.friends||[];
   const choices=friends.length?friends.map(f=>'<option value="'+esc(f.uid)+'">'+esc(f.name)+'</option>').join(''):'<option value="">Nenhum amigo cadastrado</option>';
   const materialOptions=Object.keys(labels).map(k=>'<option value="'+k+'">'+icons[k]+' '+labels[k]+'</option>').join('');
-  return '<div class="factory-note">🎁 3 pedidos • 10s para fabricar • novo pedido após 1 min</div>'+
+  return '<div class="factory-note">🎁 3 pedidos • 10s para fabricar • novo pedido após 1 min</div>'+limitLine+
    '<div class="materiais">'+resources+'</div>'+
    '<div class="pedidos">'+orders+'</div>'+
    '<details class="amigos"><summary>👥 Ajuda dos amigos <span>Doar materiais • +2 ⭐</span></summary><p>Envie 1 material por amigo a cada dia. O destinatário recebe o item na fazenda.</p><div class="doacao"><select id="recipient" aria-label="Escolher amigo">'+choices+'</select><select id="material" aria-label="Escolher material">'+materialOptions+'</select><button class="cta" data-action="donate" '+(!friends.length||busy?'disabled':'')+'>Doar material</button></div></details>';
@@ -75,11 +78,15 @@
   const cards=visible.map((l,i)=>{
    const left=i%2===0,locked=!l.unlocked;
    return '<article class="trail-stop '+(left?'trail-left':'trail-right')+(locked?' locked':'')+'">'+
-      '<div class="trail-card"><div class="trail-level">Nível '+l.level+'</div><div class="trail-rewards">'+create(l,'free')+create(l,'premium')+'</div></div>'+
+      '<div class="trail-card"><div class="trail-level">Nível '+l.level+'</div><div class="trail-rewards">'+create(l,'free')+create(l,'premium')+'</div>'+
+      (!l.unlocked?'<button class="buy-level" data-action="buy-level" data-level="'+l.level+'" '+(busy||state.greenBalance<state.levelPrice?'disabled':'')+'>🔓 Desbloquear • '+state.levelPrice+' 💚</button>':l.paid?'<span class="level-paid">✅ Desbloqueado com GV</span>':'')+'</div>'+
       '<div class="trail-present" aria-hidden="true">🎁</div><div class="trail-stars">'+(locked?'🔒 ':'')+l.need+' ⭐</div></article>';
   }).join('');
   const dev=state.developer&&!state.premium?'<div class="demo">Premium experimental <button data-action="premium-test" '+(busy?'disabled':'')+'>Ativar para teste</button></div>':'';
-  return '<div class="pass-summary"><span>⭐ '+esc(state.stars||0)+' / '+target+' estrelas até o próximo nível</span><span>Níveis '+(passPage*2+1)+'–'+Math.min((passPage+1)*2,levels.length)+' de '+levels.length+'</span></div>'+
+  const premiumBox='<div class="pass-premium">'+(state.premium?
+   '<span>✅ Passe Premium ativo • progresso mantido</span>':
+   '<span>🎖️ Grátis: seus níveis e estrelas continuam contando.</span><button data-action="buy-premium" '+(busy||state.greenBalance<state.premiumPrice?'disabled':'')+'>Ativar Premium • '+state.premiumPrice+' 💚</button>')+'</div>';
+  return premiumBox+'<div class="pass-summary"><span>⭐ '+esc(state.stars||0)+' / '+target+' estrelas até o próximo nível</span><span>Níveis '+(passPage*2+1)+'–'+Math.min((passPage+1)*2,levels.length)+' de '+levels.length+'</span></div>'+
    '<div class="barra" aria-label="Progresso do passe"><i style="width:'+percent+'%"></i></div>'+
    '<div class="trail-controls"><button class="trail-arrow" data-page="-1" aria-label="Ver níveis anteriores" '+(sliding?'disabled':'')+'>❮</button>'+
    '<span>🎄 Trilha de Natal <small>• Página '+(passPage+1)+' de '+pages+'</small></span>'+
@@ -98,10 +105,9 @@
   sliding=true;
   if(old){old.classList.add(delta>0?'slide-out-left':'slide-out-right');}
   setTimeout(()=>{
-   passPage=next;render();
+   passPage=next;sliding=false;render();
    const fresh=el('trail-scene');
    if(fresh){fresh.classList.add(delta>0?'slide-in-right':'slide-in-left');fresh.addEventListener('animationend',()=>fresh.classList.remove('slide-in-right','slide-in-left'),{once:true});}
-   sliding=false;
   },180);
  }
 
@@ -113,6 +119,12 @@
   if(action==='craft')request('craft',{slot:Number(button.dataset.slot)});
   else if(action==='claim')request('claim',{level:Number(button.dataset.level),track:button.dataset.track});
   else if(action==='premium-test')request('premium-test');
+  else if(action==='buy-level'){
+   const level=Number(button.dataset.level);
+   if(window.confirm('Desbloquear o nível '+level+' por '+state.levelPrice+' Grana Verde?'))request('buy-level',{level});
+  }else if(action==='buy-premium'){
+   if(window.confirm('Ativar o Passe Premium por '+state.premiumPrice+' Grana Verde? O progresso será mantido e os prêmios premium já liberados serão concedidos.'))request('buy-premium');
+  }
   else if(action==='donate'){
    const friendId=el('recipient')?.value,material=el('material')?.value;
    if(!friendId||!material){notice('Escolha um amigo e um material.',true);return}
