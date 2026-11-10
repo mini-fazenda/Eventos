@@ -31,7 +31,7 @@
   const s=state,resources=Object.entries(labels).map(([key,name])=>'<div class="material"><span>'+icons[key]+' '+name+'</span><b>'+esc(s.materials?.[key]||0)+'</b></div>').join('');
   const ends=Math.max(0,Math.ceil(((s.windowEndsAt||Date.now())-Date.now())/1000));
   const clock=Math.floor(ends/3600)+'h '+String(Math.floor(ends%3600/60)).padStart(2,'0')+'m';
-  const limitLine='<div class="event-window '+(!s.canCraft?'full':'')+'"><span>⭐ Nesta janela de 4h: <b>'+s.windowStars+' / '+s.windowLimit+'</b></span><span>'+(s.canCraft?'⏳ Reinicia em '+clock:'⏳ Novos pedidos em '+clock)+'</span></div>';
+  const limitLine='<div class="event-window '+(!s.canCraft?'full':'')+'"><span>⭐ Nesta janela de 4h: <b>'+s.windowStars+' / '+s.windowLimit+'</b>'+(s.windowReserved?' <small>(+'+s.windowReserved+' ⭐ fabricando)</small>':'')+'</span><span>'+(s.canCraft?'⏳ Reinicia em '+clock:'⏳ Novos pedidos em '+clock)+'</span></div>';
   const orders=(s.orders||[]).map(r=>{
    const needs=Object.entries(r.needs||{});
    const enough=needs.every(([k,v])=>Number(s.materials?.[k]||0)>=v);
