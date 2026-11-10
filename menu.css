@@ -67,3 +67,27 @@ footer{padding:4px;font-size:10px}
 @keyframes trail-enter-left{from{transform:translateX(-110%);opacity:.25}to{transform:translateX(0);opacity:1}}
 @media(max-width:680px){.abas button{max-width:none}.trail-scene{gap:3%;padding:15px 3%}.trail-card{padding:22px 5px 6px}.trail-reward{padding:5px 3px;min-height:116px}.trail-reward h4{font-size:10px}.trail-reward p{font-size:11px}.trail-reward button{font-size:10px}.trail-level{font-size:14px;padding:1px 10px}.trail-viewport{min-height:275px}.trail-present{font-size:32px}.deco-tree-1,.deco-tree-2{font-size:35px}.pass-summary{font-size:11px}.trail-controls{font-size:13px}.trail-controls small{font-size:10px}}
 @media(max-height:610px){#content.pass-view{overflow-y:auto}.trail-viewport{min-height:285px}.trail-stop.trail-right{margin-top:24px}.trail-reward{min-height:105px}.trail-present{font-size:28px}}
+
+/* Fabricação: 10 segundos, brilho de conclusão e espera pela próxima encomenda. */
+.pedido{position:relative;overflow:hidden;min-height:214px}
+.pedido-crafting{background:linear-gradient(155deg,#fff8de,#ffe9b8);border-color:#ca8d3e}
+.crafting-status{margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;padding:8px 2px}
+.crafting-status strong{font-size:15px;color:#8a4c18;margin:0}
+.crafting-status small{font-size:12px;color:#8e6b3d}
+.crafting-track{width:100%;height:17px;background:#d2c19b;border:2px solid #a78351;border-radius:999px;overflow:hidden;box-shadow:inset 0 2px 3px #63411f3f}
+.crafting-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#74bb41,#d1e94a);border-radius:999px;transition:width .14s linear}
+.pedido-cooldown{display:grid;place-items:center;text-align:center}
+.pedido-success{border-color:#4a9b42!important;background:linear-gradient(135deg,#eaffc4,#78dc66,#a0f58b)!important;box-shadow:0 0 16px #82e955,0 0 5px #6ccf50,inset 0 0 12px #eeffb9!important;animation:pedido-glow-fade 1.5s ease-out forwards}
+.pedido-success::after{content:"";position:absolute;inset:-100%;background:linear-gradient(110deg,transparent 43%,#ffffff99 49%,transparent 55%);animation:pedido-shine .8s ease-out both;pointer-events:none}
+.pedido-finished{display:flex;flex-direction:column;align-items:center;gap:10px;color:#28692b;z-index:1}
+.pedido-finished-icon{font-size:32px}.pedido-finished strong{font-size:17px}
+.pedido-waiting{background:#f5efde!important;border:2px dashed #cda76b!important;box-shadow:none!important;animation:pedido-wait-enter .35s ease-out both}
+.pedido-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#876942}
+.pedido-placeholder>span{font-size:26px;opacity:.55}
+.pedido-placeholder strong{font-size:15px}
+.pedido-placeholder small{font-size:12px}
+.pedido-placeholder b{font-size:22px;color:#956024}
+@keyframes pedido-glow-fade{0%{opacity:0;transform:scale(.96)}18%{opacity:1;transform:scale(1.025)}65%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.92)}}
+@keyframes pedido-shine{from{transform:translateX(-55%)}to{transform:translateX(55%)}}
+@keyframes pedido-wait-enter{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@media(max-width:680px){.pedido{min-height:190px}.crafting-status{gap:6px}}
