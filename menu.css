@@ -91,3 +91,15 @@ footer{padding:4px;font-size:10px}
 @keyframes pedido-shine{from{transform:translateX(-55%)}to{transform:translateX(55%)}}
 @keyframes pedido-wait-enter{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 @media(max-width:680px){.pedido{min-height:190px}.crafting-status{gap:6px}}
+
+/* Limite em janelas de quatro horas e compras opcionais com Grana Verde. */
+.event-window{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;padding:5px 10px;border:1px solid #a2bc73;border-radius:9px;background:#e7f2d0;color:#426922;font-size:12px;font-weight:700}
+.event-window.full{background:#ffedcc;border-color:#d4a65c;color:#90562a}
+.event-window b{font-size:14px}
+.pass-premium{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;padding:5px 10px;border:1px solid #c89e71;border-radius:10px;background:linear-gradient(90deg,#ffefc8,#eee0ff);font-size:12px;font-weight:800}
+.pass-premium button,.buy-level{border:2px solid #658a35;border-radius:9px;background:linear-gradient(#9ecf5c,#65982f);color:white;font-weight:900;text-shadow:0 1px #476221;cursor:pointer}
+.pass-premium button{padding:5px 8px;white-space:nowrap}
+.buy-level{display:block;margin:7px auto 0;padding:5px 7px;width:100%;font-size:11px;line-height:1.15}
+.buy-level:disabled,.pass-premium button:disabled{opacity:.6;cursor:not-allowed}
+.level-paid{display:block;margin-top:7px;color:#397337;text-align:center;font-size:11px;font-weight:800}
+@media(max-width:680px){.event-window{font-size:10px;flex-wrap:wrap;padding:3px 6px}.pass-premium{font-size:10px;padding:4px 6px}.pass-premium button{font-size:10px;padding:4px}.buy-level{font-size:10px}}
