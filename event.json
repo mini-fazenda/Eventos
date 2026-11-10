@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-10-fabrica-4",
+  "version": "2026-11-10-balance-5",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -20,16 +20,16 @@
   },
   "pass": {
     "thresholds": [
-      10,
-      25,
-      45,
-      70,
-      100,
-      135,
-      175,
-      220,
-      270,
-      330
+      150,
+      300,
+      450,
+      600,
+      750,
+      900,
+      1050,
+      1200,
+      1350,
+      1500
     ]
   },
   "recipes": [
