@@ -246,11 +246,21 @@ function fit(){
  const offsetY=(h-fullH*scale)/2-y0*scale;
  const wrap=$('#natal-wrap');
  wrap.style.width=w+'px';wrap.style.height=h+'px';
- stage.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+ const anchor=$('#natal-stage-anchor');
+ // Usar zoom de layout, nao transform scale: fontes e botoes ficam nitidos,
+ // e as transicoes 3D continuam livres para animar o transform do stage.
+ anchor.style.left=offsetX+'px';anchor.style.top=offsetY+'px';
+ stage.style.zoom=String(scale);
+ stage.style.transform='';
+
 }
 function mount(){
  root=document.createElement('div');root.id='natal-layout-root';root.setAttribute('aria-label','Evento de Natal');
- const wrap=document.createElement('div');wrap.id='natal-wrap';stage=document.createElement('div');stage.id='natal-stage';wrap.append(stage);root.append(wrap);document.body.append(root);
+ const wrap=document.createElement('div');wrap.id='natal-wrap';
+ const anchor=document.createElement('div');anchor.id='natal-stage-anchor';
+ stage=document.createElement('div');stage.id='natal-stage';
+ anchor.append(stage);wrap.append(anchor);root.append(wrap);document.body.append(root);
+ root.style.background=project.settings.factoryBg||'#fff2cc';
  window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
  active=true;buildScene();fit();
  // A engine continua sendo a única autoridade por trás das ações e dos salvamentos.
@@ -282,5 +292,8 @@ document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMod
 fetch(cfgUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
  project=p;mount();
-}).catch(e=>{console.warn('[Natal] Layout opcional indisponível, usando menu original:',e)});
+}).catch(e=>{
+ document.documentElement.classList.add('natal-native-fallback');
+ console.warn('[Natal] Layout opcional indisponível, usando menu original:',e);
+});
 })();
