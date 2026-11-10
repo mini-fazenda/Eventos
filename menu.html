@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Oficina do Fazendeiro Noel — Mini Fazenda</title>
+ <link rel="stylesheet" href="menu.css?v=1">
+</head>
+<body>
+ <main class="oficina">
+  <header class="topo">
+   <div class="topo-emblema" aria-hidden="true">🎅</div>
+   <div><h1>Oficina do Fazendeiro Noel</h1><p>Colha, fabrique e conquiste prêmios!</p></div>
+  </header>
+  <nav class="abas" aria-label="Áreas do evento">
+   <button class="active" data-tab="fabrica" aria-selected="true">🎁 Fábrica de Presentes</button>
+   <button data-tab="passe" aria-selected="false">🎟️ Passe de Natal</button>
+  </nav>
+  <section class="resumo" aria-live="polite">
+   <span>⭐ <strong id="stars">0</strong> estrelas</span>
+   <span>🎁 <strong id="crafted">0</strong> presentes feitos</span>
+   <span>🏅 <strong id="owned">0</strong> prêmios conquistados</span>
+  </section>
+  <p id="feedback" role="status" aria-live="polite"></p>
+  <div id="content"><p class="aguarde">Abrindo a oficina…</p></div>
+  <footer>Evento experimental • Sua coleção e seu progresso são salvos na fazenda principal.</footer>
+ </main>
+ <script src="menu.js?v=1" defer></script>
+</body></html>
