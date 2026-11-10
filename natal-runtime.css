@@ -1,0 +1,30 @@
+/* Camada de apresentação. Todo o fluxo de compras/ações permanece na engine. */
+.oficina.natal-native-hidden{position:absolute!important;visibility:hidden!important;pointer-events:none!important;inset:0}
+#natal-layout-root{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:transparent;z-index:10000}
+#natal-wrap{position:relative;flex:none;perspective:1600px}
+#natal-stage{width:960px;height:600px;position:absolute;left:0;top:0;overflow:hidden;transform-origin:0 0;transform-style:preserve-3d;backface-visibility:visible}
+.natal-item{position:absolute;box-sizing:border-box;display:flex;align-items:center;justify-content:center;white-space:pre-wrap;overflow:hidden;line-height:1.2;overflow-wrap:anywhere;user-select:none}
+.natal-item[hidden]{display:none!important}
+.natal-item.natal-image{object-fit:contain;pointer-events:none}
+.natal-item.natal-santa{overflow:visible;pointer-events:none}
+.natal-item.natal-santa img{width:100%;height:100%;object-fit:contain}
+.natal-item.natal-button{cursor:pointer;white-space:pre-wrap;padding:0 5px;font-family:inherit}
+.natal-item.natal-button:disabled{cursor:default;filter:grayscale(.3);opacity:.78!important}
+.natal-item.natal-text{pointer-events:none}
+.natal-item.natal-text[data-name="Ajuda dos amigos"],.natal-item.natal-text[data-name^="Estrelas para liberar"]{pointer-events:auto;cursor:pointer}
+.natal-item .natal-injected{display:block;width:100%;height:100%;object-fit:contain}
+#natal-friends-dialog{position:fixed;z-index:11000;left:50%;top:50%;transform:translate(-50%,-50%);min-width:min(360px,92vw);max-width:95vw;background:#fff5df;border:4px solid #b78341;border-radius:18px;box-shadow:0 14px 70px #291a0b99;padding:18px;color:#51361f}
+#natal-friends-dialog[hidden]{display:none}
+#natal-friends-dialog h2{font-size:19px;margin:0 0 8px}
+#natal-friends-dialog p{font-size:13px}
+#natal-friends-dialog label{display:block;margin:12px 0;font-weight:bold}
+#natal-friends-dialog select{display:block;width:100%;padding:9px;margin-top:5px}
+#natal-friends-dialog button{padding:9px;margin:5px;border-radius:7px;border:1px solid #af8042;background:#f9d58c;cursor:pointer}
+@keyframes natal-float{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--motion-distance,12px)*-1))}}
+@keyframes natal-sway{0%,100%{transform:rotate(calc(var(--motion-angle,8deg)*-1))}50%{transform:rotate(var(--motion-angle,8deg))}}
+@keyframes natal-pulse{0%,100%{transform:scale(1)}50%{transform:scale(var(--motion-magnify,1.08))}}
+@keyframes natal-bounce{0%,100%{transform:translateY(0)}48%{transform:translateY(calc(var(--motion-distance,12px)*-1))}70%{transform:translateY(0)}85%{transform:translateY(calc(var(--motion-distance,12px)*-.22))}}
+@keyframes natal-drift{0%,100%{transform:translateX(calc(var(--motion-distance,12px)*-1))}50%{transform:translateX(var(--motion-distance,12px))}}
+@keyframes natal-spin{to{transform:rotate(360deg)}}
+
+.natal-material-icon{height:21px;width:24px;object-fit:contain;margin-right:3px;flex:none}
