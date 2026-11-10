@@ -64,9 +64,9 @@
   const dev=state.developer&&!state.premium?'<div class="demo">Premium experimental <button data-action="premium-test" '+(busy?'disabled':'')+'>Ativar para teste</button></div>':'';
   return '<div class="pass-summary"><span>⭐ '+esc(state.stars||0)+' / '+target+' estrelas até o próximo nível</span><span>Níveis '+(passPage*2+1)+'–'+Math.min((passPage+1)*2,levels.length)+' de '+levels.length+'</span></div>'+
    '<div class="barra" aria-label="Progresso do passe"><i style="width:'+percent+'%"></i></div>'+
-   '<div class="trail-controls"><button class="trail-arrow" data-page="-1" aria-label="Ver níveis anteriores" '+(passPage===0||sliding?'disabled':'')+'>❮</button>'+
+   '<div class="trail-controls"><button class="trail-arrow" data-page="-1" aria-label="Ver níveis anteriores" '+(sliding?'disabled':'')+'>❮</button>'+
    '<span>🎄 Trilha de Natal <small>• Página '+(passPage+1)+' de '+pages+'</small></span>'+
-   '<button class="trail-arrow" data-page="1" aria-label="Ver próximos níveis" '+(passPage>=pages-1||sliding?'disabled':'')+'>❯</button></div>'+
+   '<button class="trail-arrow" data-page="1" aria-label="Ver próximos níveis" '+(sliding?'disabled':'')+'>❯</button></div>'+
    '<div class="trail-viewport" aria-label="Caminho de recompensas do passe"><div class="trail-scene" id="trail-scene">'+
    '<svg class="trail-road" viewBox="0 0 860 365" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 248 C85 248 108 160 207 206 S395 320 479 256 S649 143 735 195 S848 247 880 204" fill="none" stroke="#fffaf0" stroke-width="25" stroke-linecap="round" stroke-dasharray="none"/><path d="M-20 248 C85 248 108 160 207 206 S395 320 479 256 S649 143 735 195 S848 247 880 204" fill="none" stroke="#b86e32" stroke-width="15" stroke-linecap="round" stroke-dasharray="26 12"/></svg>'+
    '<span class="trail-deco deco-tree-1" aria-hidden="true">🌲</span><span class="trail-deco deco-tree-2" aria-hidden="true">🌲</span><span class="trail-deco deco-gift" aria-hidden="true">🎁</span><span class="trail-deco deco-snow" aria-hidden="true">❄️</span>'+
@@ -75,7 +75,7 @@
  }
  function movePass(delta){
   const count=Math.max(1,Math.ceil((state?.levels?.length||0)/2));
-  const next=Math.max(0,Math.min(passPage+delta,count-1));
+  const next=(passPage+delta+count)%count;
   if(sliding||next===passPage)return;
   const old=el('trail-scene');
   sliding=true;
