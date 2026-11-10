@@ -23,7 +23,9 @@
   document.querySelectorAll('[data-tab]').forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});
   if(!state){el('content').innerHTML='<p class="aguarde">Aguardando conexão segura com a Mini Fazenda…</p>';return}
   el('content').classList.toggle('pass-view',tab==='passe');
+  const friendsOpen=el('content').querySelector('.amigos')?.open===true;
   el('content').innerHTML=tab==='fabrica'?factory():pass();
+  if(friendsOpen&&tab==='fabrica'){const details=el('content').querySelector('.amigos');if(details)details.open=true;}
  }
  function factory(){
   const s=state,resources=Object.entries(labels).map(([key,name])=>'<div class="material"><span>'+icons[key]+' '+name+'</span><b>'+esc(s.materials?.[key]||0)+'</b></div>').join('');
@@ -32,12 +34,27 @@
    const enough=needs.every(([k,v])=>Number(s.materials?.[k]||0)>=v);
    const items=needs.map(([k,v])=>'<li class="'+((s.materials?.[k]||0)>=v?'ready':'missing')+'">'+icons[k]+' '+esc(labels[k])+' — '+(s.materials?.[k]||0)+' / '+v+'</li>').join('');
    const icon=r.rare?'🎁':({carrinho:'🚗',boneca:'🪆',robo:'🤖',urso:'🧸',trenzinho:'🚂'}[r.id]||'🎄');
-   return '<article class="pedido '+(r.rare?'rare':'')+'"><span class="toy">'+icon+'</span><span class="pill '+(r.rare?'rare':'')+'">'+(r.rare?'Pedido raro':'Pedido comum')+'</span><h3>'+esc(r.name)+'</h3><ul>'+items+'</ul><strong>⭐ +'+r.stars+' estrelas</strong><button class="cta" data-action="craft" data-slot="'+r.slot+'" '+(!enough||busy?'disabled':'')+'>'+(enough?'Fabricar presente':'Faltam materiais')+'</button></article>';
+   const now=Date.now(),crafting=r.phase==='crafting'&&now<r.finishesAt;
+   const cooldown=r.phase==='cooldown'||(r.phase==='crafting'&&now>=r.finishesAt);
+   const seconds=Math.max(0,Math.ceil(((crafting?r.finishesAt:r.replaceAt)||now)-now)/1000);
+   const progress=crafting?Math.max(0,Math.min(100,(now-r.startedAt)/100)):0;
+   if(cooldown){
+    const elapsed=now-r.finishesAt,celebrate=elapsed<1500;
+    return '<article class="pedido pedido-cooldown '+(celebrate?'pedido-success':'pedido-waiting')+'" data-slot="'+r.slot+'">'+
+     (celebrate?'<div class="pedido-finished"><span class="pedido-finished-icon">✨🎁✨</span><strong>Presente fabricado!</strong><span>⭐ +'+r.stars+' estrelas</span></div>':
+     '<div class="pedido-placeholder"><span>🎁</span><strong>Pedido concluído!</strong><small>Próximo presente em</small><b class="pedido-clock">'+seconds+'s</b></div>')+
+     '</article>';
+   }
+   return '<article class="pedido '+(r.rare?'rare':'')+(crafting?' pedido-crafting':'')+'" data-slot="'+r.slot+'">'+
+    '<span class="toy">'+icon+'</span><span class="pill '+(r.rare?'rare':'')+'">'+(r.rare?'Pedido raro':'Pedido comum')+'</span><h3>'+esc(r.name)+'</h3>'+
+    (crafting?'<div class="crafting-status"><strong>🔨 Fabricando… <span class="crafting-time">'+seconds+'s</span></strong><div class="crafting-track"><i style="width:'+progress+'%"></i></div><small>Aguarde a conclusão</small></div>':
+    '<ul>'+items+'</ul><strong>⭐ +'+r.stars+' estrelas</strong><button class="cta" data-action="craft" data-slot="'+r.slot+'" '+(!enough||busy?'disabled':'')+'>'+(enough?'Fabricar presente':'Faltam materiais')+'</button>')+
+    '</article>';
   }).join('');
   const friends=s.friends||[];
   const choices=friends.length?friends.map(f=>'<option value="'+esc(f.uid)+'">'+esc(f.name)+'</option>').join(''):'<option value="">Nenhum amigo cadastrado</option>';
   const materialOptions=Object.keys(labels).map(k=>'<option value="'+k+'">'+icons[k]+' '+labels[k]+'</option>').join('');
-  return '<div class="factory-note">🎁 3 pedidos ativos • substituição aleatória após fabricar</div>'+
+  return '<div class="factory-note">🎁 3 pedidos • 10s para fabricar • novo pedido após 1 min</div>'+
    '<div class="materiais">'+resources+'</div>'+
    '<div class="pedidos">'+orders+'</div>'+
    '<details class="amigos"><summary>👥 Ajuda dos amigos <span>Doar materiais • +2 ⭐</span></summary><p>Envie 1 material por amigo a cada dia. O destinatário recebe o item na fazenda.</p><div class="doacao"><select id="recipient" aria-label="Escolher amigo">'+choices+'</select><select id="material" aria-label="Escolher material">'+materialOptions+'</select><button class="cta" data-action="donate" '+(!friends.length||busy?'disabled':'')+'>Doar material</button></div></details>';
@@ -112,6 +129,34 @@
    busy=false;notice(m.message|| (m.ok?'Concluído.':'Não foi possível concluir.'),!m.ok);render();
   }
  });
+ // O cronômetro é baseado nos horários persistidos pelo jogo, não em um contador local.
+ // O menu solicita o estado à fazenda; a fazenda decide quando concluir e repor.
+ let lastRefresh=0;
+ setInterval(()=>{
+  if(tab!=='fabrica'||!state||!hostOrigin)return;
+  const jobs=(state.orders||[]).filter(r=>r.phase==='crafting'||r.phase==='cooldown');
+  if(!jobs.length)return;
+  const now=Date.now();
+  for(const job of jobs){
+   const card=el('content').querySelector('.pedido[data-slot="'+job.slot+'"]');
+   if(!card)continue;
+   if(job.phase==='crafting'){
+    const pct=Math.max(0,Math.min(100,(now-job.startedAt)/100));
+    const bar=card.querySelector('.crafting-track i');
+    if(bar)bar.style.width=pct+'%';
+    const remaining=card.querySelector('.crafting-time');
+    if(remaining)remaining.textContent=Math.max(0,Math.ceil((job.finishesAt-now)/1000))+'s';
+   }else{
+    const clock=card.querySelector('.pedido-clock');
+    if(clock)clock.textContent=Math.max(0,Math.ceil((job.replaceAt-now)/1000))+'s';
+   }
+  }
+  if(now-lastRefresh>=1000){
+   lastRefresh=now;
+   window.parent.postMessage({type:'mf-event-refresh'},hostOrigin);
+  }
+ },150);
+
  window.parent.postMessage({type:'mf-event-ready'},'*');
  render();
 })();
