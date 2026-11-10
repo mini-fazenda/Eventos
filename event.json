@@ -1,0 +1,121 @@
+{
+  "id": "natal-2026",
+  "version": "2026-11-10-teste-1",
+  "title": "Oficina do Fazendeiro Noel",
+  "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
+  "drops": {
+    "short": {
+      "chance": 0.4,
+      "max": 1
+    },
+    "medium": {
+      "chance": 0.6,
+      "max": 2
+    },
+    "long": {
+      "chance": 0.8,
+      "max": 3
+    }
+  },
+  "pass": {
+    "thresholds": [
+      10,
+      25,
+      45,
+      70,
+      100,
+      135,
+      175,
+      220,
+      270,
+      330
+    ]
+  },
+  "recipes": [
+    {
+      "id": "carrinho",
+      "name": "Carrinho de brinquedo",
+      "needs": {
+        "plastico": 2,
+        "tinta": 1
+      },
+      "stars": 7
+    },
+    {
+      "id": "boneca",
+      "name": "Boneca colorida",
+      "needs": {
+        "plastico": 1,
+        "tinta": 2,
+        "papel": 1
+      },
+      "stars": 9
+    },
+    {
+      "id": "robo",
+      "name": "Robô de Natal",
+      "needs": {
+        "plastico": 3,
+        "tinta": 1,
+        "laco": 1
+      },
+      "stars": 12
+    },
+    {
+      "id": "urso",
+      "name": "Ursinho embrulhado",
+      "needs": {
+        "plastico": 1,
+        "papel": 2,
+        "laco": 1
+      },
+      "stars": 10
+    },
+    {
+      "id": "trenzinho",
+      "name": "Trenzinho de madeira (modelo)",
+      "needs": {
+        "plastico": 2,
+        "tinta": 2,
+        "papel": 1
+      },
+      "stars": 13
+    },
+    {
+      "id": "foguete",
+      "name": "Foguete espacial raro",
+      "needs": {
+        "plastico": 3,
+        "tinta": 3,
+        "papel": 2,
+        "laco": 2
+      },
+      "stars": 24,
+      "rare": true
+    },
+    {
+      "id": "castelo",
+      "name": "Castelo de brinquedo raro",
+      "needs": {
+        "plastico": 3,
+        "tinta": 3,
+        "papel": 3,
+        "laco": 2
+      },
+      "stars": 27,
+      "rare": true
+    },
+    {
+      "id": "presente-ouro",
+      "name": "Baú surpresa raro",
+      "needs": {
+        "plastico": 2,
+        "tinta": 2,
+        "papel": 3,
+        "laco": 3
+      },
+      "stars": 30,
+      "rare": true
+    }
+  ]
+}
