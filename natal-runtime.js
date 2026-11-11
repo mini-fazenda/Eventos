@@ -230,9 +230,12 @@ function updateBindings(){
    node.style.width= Math.max(0,Math.min(910,910*(state?.stars||0)/target))+'px';
   }
  }
- updateSanta();
+ updateSanta();if(scene==='factory'){updateFactoryEffects();syncOrderQueue();}
 }
 function buildScene(){if(!project||!stage)return;
+ sceneGeneration++;queueOrder=[1,2,3];
+ const cooled=state?.orders?.map((j,i)=>j.phase==='cooldown'?i+1:null).filter(Boolean)||[];
+ queueOrder=queueOrder.filter(i=>!cooled.includes(i)).concat(cooled);
  stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background='transparent';
  const frag=document.createDocumentFragment();for(const item of [...project.scenes[scene]].sort((a,b)=>(a.z||0)-(b.z||0)))frag.append(element(item));
  stage.append(frag);if(scene==='factory')mountDelivery();updateBindings();if(scene==='factory')syncOrderQueue();
@@ -260,19 +263,48 @@ function giftNodes(slot){
 function slotX(slot){
  return project.scenes.factory.find(e=>new RegExp('^Card pedido '+slot+'$','i').test(e.name||''))?.x??(19+(slot-1)*312);
 }
+
+let queueOrder=[1,2,3],deliveryQueue=Promise.resolve(),sceneGeneration=0;
 function syncOrderQueue(){
  if(!active||scene!=='factory'||!state)return;
- const jobs=state.orders||[],moving=jobs.map((r,i)=>({slot:i+1,job:r})).filter(x=>x.job.phase!=='cooldown'||finishInProgress.has(x.slot));
- const origin=slotX(1),spacing=slotX(2)-origin;
+ const jobs=state.orders||[];
+ const spacing=slotX(2)-slotX(1);
+ // A ordem visual acompanha as entregas: um pedido concluído vai ao final.
  jobs.forEach((job,i)=>{
-  const slot=i+1,order=moving.findIndex(x=>x.slot===slot),shift=order<0?0:origin+order*spacing-slotX(slot);
-  if(finishInProgress.has(slot))return;
-  giftNodes(slot).forEach(n=>{
-   n.style.transition='translate '+Math.max(100,Number(delivery().bag?.shiftDuration)||530)+'ms ease, opacity 180ms ease';
-   n.style.translate=shift+'px 0px';
-   n.style.opacity=order<0?'0':String(Number(project.scenes.factory.find(e=>e.id===n.dataset.elementId)?.opacity??100)/100);
-   n.style.pointerEvents=order<0?'none':'';
-  });
+   const slot=i+1,nodes=giftNodes(slot),idx=queueOrder.indexOf(slot),shift=(idx-(slot-1))*spacing;
+   for(const node of nodes){
+     if(finishInProgress.has(slot))continue;
+     node.style.transition='translate '+Math.max(100,Number(delivery().bag?.shiftDuration)||530)+'ms cubic-bezier(.2,.7,.2,1),opacity 170ms ease';
+     node.style.translate=shift+'px 0px';
+     const card=node.dataset.name==='Card pedido '+slot;
+     const cooling=job.phase==='cooldown';
+     node.style.opacity= cooling&&!card?'0':'1';
+     node.style.pointerEvents=cooling?'none':'';
+     if(card){
+       let wait=node.querySelector('.natal-delivery-wait');
+       if(cooling&&delivery().bag?.showWaiting!==false){
+         if(!wait){wait=document.createElement('div');wait.className='natal-delivery-wait';node.append(wait);}
+         const remaining=Math.max(0,Number(job.replaceAt||0)-Date.now()),cooldown=Math.max(1000,Number(delivery().cooldownSeconds||60)*1000);
+         wait.textContent=(delivery().cooldownLabel||'Carregando novo pedido')+' • '+Math.ceil(remaining/1000)+'s';
+         wait.style.setProperty('--wait-progress',Math.min(100,100*(1-remaining/cooldown))+'%');
+       }else if(wait)wait.remove();
+     }
+   }
+ });
+}
+function updateFactoryEffects(){
+ if(scene!=='factory'||!state)return;
+ (state.orders||[]).forEach((job,i)=>{
+   const slot=i+1,card=giftNodes(slot).find(n=>n.dataset.name==='Card pedido '+slot);
+   if(!card)return;
+   let meter=card.querySelector('.natal-craft-meter');
+   if(job.phase==='crafting'&&Number(job.finishesAt)>Date.now()){
+     if(!meter){meter=document.createElement('div');meter.className='natal-craft-meter';meter.innerHTML='<div class="natal-craft-meter-bar"></div>';card.append(meter);}
+     const from=Number(job.startedAt)||Date.now(),until=Number(job.finishesAt);
+     const progress=Math.min(100,Math.max(0,100*(Date.now()-from)/Math.max(1,until-from)));
+     meter.querySelector('.natal-craft-meter-bar').style.width=progress+'%';
+     card.classList.add('natal-is-crafting');
+   }else{meter?.remove();card.classList.remove('natal-is-crafting');}
  });
 }
 function nodeCenter(n){
@@ -331,7 +363,7 @@ async function completeGift(slot,stamp){
  if(finishedOrders.has(key)||finishInProgress.has(slot))return;
  finishedOrders.add(key);if(finishedOrders.size>150)finishedOrders.delete(finishedOrders.values().next().value);
  finishInProgress.add(slot);
- try{await animateGift(slot);finishInProgress.delete(slot);if(scene==='factory'){syncOrderQueue();await departBag();}}
+ try{await animateGift(slot);if(scene==='factory'){await departBag();queueOrder=queueOrder.filter(x=>x!==slot).concat(slot);}}
  finally{finishInProgress.delete(slot);if(scene==='factory')syncOrderQueue()}
 }
 
@@ -430,7 +462,7 @@ window.addEventListener('message',e=>{
    }
   }}
   if(active){updateBindings();syncFriends();if(scene==='factory'){
-    newlyCompleted.forEach(job=>completeGift(Number(job.slot)+1,job.startedAt));syncOrderQueue();
+    newlyCompleted.forEach(job=>{deliveryQueue=deliveryQueue.catch(()=>{}).then(()=>completeGift(Number(job.slot)+1,job.startedAt));});syncOrderQueue();
   }}
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
