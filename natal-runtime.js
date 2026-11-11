@@ -41,9 +41,9 @@ function action(name){
 // o fundo, o cabecalho, o Papai Noel e as setas permanecem parados.
 let passPaging=false, outbound=[], inbound=[];
 function passCardNodes(){
- return [...stage.querySelectorAll('.natal-item')].filter(n=>
-  /^(?:Card nível|Badge nível|Número do nível|Fundo prêmio|Faixa grátis|Faixa premium|Sprite grátis|Sprite premium|Nome grátis|Nome premium|Resgatar grátis|Resgatar premium|Estrelas para liberar) [12]$/.test(n.dataset.name||'')
- );
+ const ids=project?.settings?.engine?.passPaging?.layers;
+ const selected=Array.isArray(ids)&&ids.length?new Set(ids):null;
+ return [...stage.querySelectorAll('.natal-item')].filter(n=>selected?selected.has(n.dataset.elementId):/^(?:Card nível|Badge nível|Número do nível|Fundo prêmio|Faixa grátis|Faixa premium|Sprite grátis|Sprite premium|Nome grátis|Nome premium|Resgatar grátis|Resgatar premium|Estrelas para liberar) [12]$/.test(n.dataset.name||''));
 }
 async function page(delta){
  if(scene!=='pass'||passPaging||transitioning)return;
@@ -52,14 +52,15 @@ async function page(delta){
  passPaging=true;
  const next=(passPage+delta+count)%count;
  const direction=delta>0?-1:1;
+ const paging=project?.settings?.engine?.passPaging||{},distance=Math.max(20,Number(paging.distance)||180),duration=Math.max(200,Number(paging.duration)||480);
  try{
   const nodes=passCardNodes();
   outbound=[];inbound=[];
   if(nodes.length&&typeof nodes[0].animate==='function'){
    outbound=nodes.map((n,i)=>n.animate([
     {transform:'translateX(0)',opacity:1},
-    {transform:`translateX(${direction*155}px)`,opacity:0}
-   ],{duration:210,delay:Math.floor(i/16)*24,easing:'ease-in',fill:'forwards'}));
+    {transform:`translateX(${direction*distance}px)`,opacity:0}
+   ],{duration:duration/2,delay:Math.floor(i/16)*24,easing:'ease-in',fill:'forwards'}));
    await Promise.all(outbound.map(a=>a.finished.catch(()=>{})));
    outbound.forEach(a=>a.cancel());
   }
@@ -70,9 +71,9 @@ async function page(delta){
   const incoming=passCardNodes();
   if(incoming.length&&typeof incoming[0].animate==='function'){
    inbound=incoming.map((n,i)=>n.animate([
-    {transform:`translateX(${-direction*155}px)`,opacity:0},
+    {transform:`translateX(${-direction*distance}px)`,opacity:0},
     {transform:'translateX(0)',opacity:1}
-   ],{duration:270,delay:Math.floor(i/16)*35,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}));
+   ],{duration:duration/2,delay:Math.floor(i/16)*35,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}));
    await Promise.all(inbound.map(a=>a.finished.catch(()=>{})));
   }
  }finally{
@@ -164,7 +165,8 @@ function bindImages(item,node){
  let src='';
  if(name.startsWith('Sprite do presente')){const r=state?.orders?.[Number(m[1])-1];src=recipeById(r?.id)?.sprite}
  else{const l=getLevel(Number(m[2])-1);src=l?.[m[1]==='grátis'?'free':'premium']?.sprite}
- if(src){let im=node.querySelector('img.natal-injected');if(!im){im=document.createElement('img');im.className='natal-injected';node.replaceChildren(im)}const abs=url(src);if(im.src!==abs)im.src=abs;}
+ if(src){let im=node.querySelector('img.natal-injected');if(!im){im=document.createElement('img');im.className='natal-injected';node.replaceChildren(im)}const abs=url(src);if(im.src!==abs)im.src=abs;
+ const scaling=Number(project.settings?.engine?.spriteScale?.recipes)||1;im.style.transform='scale('+Math.min(3,Math.max(.2,scaling))+')';node.style.overflow='visible';}
 }
 function updateBindings(){
  if(!active||!project||!stage)return;
@@ -180,7 +182,7 @@ function updateBindings(){
     const signature=material.sprite+'|'+material.name;
     if(node.dataset.materialSignature!==signature){
      node.dataset.materialSignature=signature;
-     const icon=document.createElement('img');icon.src=url(material.sprite);icon.alt='';icon.className='natal-material-icon';
+     const icon=document.createElement('img');icon.src=url(material.sprite);icon.alt='';icon.className='natal-material-icon';icon.style.transform='scale('+Math.min(3,Math.max(.2,Number(project.settings?.engine?.spriteScale?.materials)||1))+')';
      const label=document.createElement('span');label.textContent=material.name;node.replaceChildren(icon,label);
     }
    }else{
