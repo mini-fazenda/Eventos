@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-11-drops-garantidos-1",
+  "version": "2026-11-11-ateliê-v25",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -119,5 +119,13 @@
       "stars": 30,
       "rare": true
     }
-  ]
+  ],
+  "ui": {
+    "materialSprites": {
+      "plastico": "assets/natal/d6a5d3c5066f9ef613e4.png",
+      "tinta": "assets/natal/d3ba705d13d5e8afbe59.png",
+      "papel": "assets/natal/4407c1e2da4711ef1379.png",
+      "laco": "assets/natal/1e48ec3ff91503f0d8db.png"
+    }
+  }
 }

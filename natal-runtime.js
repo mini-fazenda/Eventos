@@ -174,6 +174,31 @@ function updateBindings(){
  for(const item of list){
   const node=stage.querySelector(`[data-element-id="${item.id}"]`);if(!node)continue;
   if(item.type==='text'){
+   const ingredientMatch=item.name.match(/^Ingredientes do presente (\d+)$/);
+   if(ingredientMatch){
+     const order=state?.orders?.[Number(ingredientMatch[1])-1];
+     const needs=Object.entries(order?.needs||{}).filter(([,quantity])=>quantity>0);
+     const signature=JSON.stringify(needs.map(([key,qty])=>[key,qty,stock(key)]));
+     if(node.dataset.ingredientsSignature!==signature){
+       node.dataset.ingredientsSignature=signature;
+       const frag=document.createDocumentFragment();
+       for(const [key,qty] of needs){
+         const material=project.materials.find(v=>v.key===key);
+         const chip=document.createElement('span');chip.className='natal-ingredient-chip';
+         if(material?.sprite){
+           const icon=document.createElement('img');icon.src=url(material.sprite);
+           icon.alt=material.name||key;icon.className='natal-ingredient-sprite';chip.append(icon);
+         }else{
+           const fallback=document.createElement('span');fallback.textContent=material?.emoji||'•';chip.append(fallback);
+         }
+         const number=document.createElement('strong');number.textContent=stock(key)+'/'+qty;chip.append(number);
+         frag.append(chip);
+       }
+       node.replaceChildren(frag);
+     }
+     node.style.overflow='visible';node.style.flexWrap='wrap';node.style.alignContent='center';
+     continue;
+   }
    // Preserva a imagem de Amigos ao atualizar contadores a cada segundo.
    if(item.name==='Ajuda dos amigos'&&node.dataset.friendsImage==='1')continue;
    const materialIndex=item.name.match(/^Nome recurso (\d+)/);
@@ -182,7 +207,7 @@ function updateBindings(){
     const signature=material.sprite+'|'+material.name;
     if(node.dataset.materialSignature!==signature){
      node.dataset.materialSignature=signature;
-     const icon=document.createElement('img');icon.src=url(material.sprite);icon.alt='';icon.className='natal-material-icon';icon.style.transform='scale('+Math.min(3,Math.max(.2,Number(project.settings?.engine?.spriteScale?.materials)||1))+')';
+     const icon=document.createElement('img');icon.src=url(material.sprite);icon.alt='';icon.className='natal-material-icon';icon.style.transform='';node.style.overflow='visible';node.style.whiteSpace='nowrap';
      const label=document.createElement('span');label.textContent=material.name;node.replaceChildren(icon,label);
     }
    }else{

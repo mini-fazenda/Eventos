@@ -44,3 +44,12 @@ html.natal-native-fallback .oficina{visibility:visible!important}
 
 /* O fundo real é a arte de cada cena. Fora dela, mostra-se o jogo. */
 html,body,#natal-layout-root,#natal-wrap,#natal-stage-anchor,#natal-stage{background:transparent!important}
+
+/* Sprites de materiais preservam o tamanho e não ficam cortados pelo texto. */
+html,body{background:transparent!important}
+#natal-layout-root,#natal-stage,#natal-wrap,#natal-stage-anchor{border:0!important;box-shadow:none!important;background:transparent!important}
+.natal-item[data-name^="Ingredientes do presente"]{display:flex;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;gap:5px 9px;overflow:visible!important;line-height:1.15}
+.natal-ingredient-chip{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;font-size:18px;font-weight:900;color:#237a28}
+.natal-ingredient-sprite{width:23px;height:23px;max-width:none;max-height:none;object-fit:contain;flex:none}
+.natal-material-icon{width:25px;height:25px;max-width:none;max-height:none;object-fit:contain;flex:none}
+.natal-item[data-name^="Nome recurso"]{overflow:visible!important;white-space:nowrap}
