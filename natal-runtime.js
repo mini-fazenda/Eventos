@@ -1,8 +1,9 @@
 /* Vila da Colheita — camada fiel ao Ateliê de Natal, sem alterar a engine. */
 (()=>{'use strict';
-const $=s=>document.querySelector(s),cfgUrl='natal-layout.json';
+const $=s=>document.querySelector(s),cfgUrl='natal-layout-v21.json';
 let project=null,state=null,scene='factory',passPage=0,root=null,stage=null,content=null,scale=1,active=false,locked=false,transitioning=false,hostOrigin=null,seq=0,santaMode='idle',santaTimer=0,lastActivity=Date.now();
 const completed=new Set(),responses=new Set(),url=s=>new URL(s,document.baseURI).href;
+let bagNode=null,rollerNode=null,bagBusy=false,rollerBusy=false;const finishInProgress=new Set(),finishedOrders=new Set();
 const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||0));
 const find=(name)=>project.assetLibrary.find(a=>a.name.toLowerCase().includes(name.toLowerCase()))?.src;
 const materials=()=>Object.fromEntries(project.materials.map(x=>[x.key,x]));
@@ -53,12 +54,14 @@ async function page(delta){
  const direction=delta>0?-1:1;
  try{
   const nodes=passCardNodes();
+  let outbound=[];let inbound=[];
   if(nodes.length&&typeof nodes[0].animate==='function'){
-   await Promise.all(nodes.map((n,i)=>n.animate([
+   outbound=nodes.map((n,i)=>n.animate([
     {transform:'translateX(0)',opacity:1},
     {transform:`translateX(${direction*155}px)`,opacity:0}
-   ],{duration:210,delay:Math.floor(i/16)*24,easing:'ease-in',fill:'forwards'}).finished.catch(()=>{})));
-   nodes.forEach(n=>n.getAnimations().forEach(a=>a.cancel()));
+   ],{duration:210,delay:Math.floor(i/16)*24,easing:'ease-in',fill:'forwards'}));
+   await Promise.all(outbound.map(a=>a.finished.catch(()=>{})));
+   outbound.forEach(a=>a.cancel());
   }
   if(scene!=='pass')return;
   passPage=next;
@@ -66,13 +69,15 @@ async function page(delta){
   updateBindings();
   const incoming=passCardNodes();
   if(incoming.length&&typeof incoming[0].animate==='function'){
-   await Promise.all(incoming.map((n,i)=>n.animate([
+   inbound=incoming.map((n,i)=>n.animate([
     {transform:`translateX(${-direction*155}px)`,opacity:0},
     {transform:'translateX(0)',opacity:1}
-   ],{duration:270,delay:Math.floor(i/16)*35,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}).finished.catch(()=>{})));
+   ],{duration:270,delay:Math.floor(i/16)*35,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}));
+   await Promise.all(inbound.map(a=>a.finished.catch(()=>{})));
   }
  }finally{
-  passCardNodes().forEach(n=>n.getAnimations().forEach(a=>a.cancel()));
+  // Cancela só as animações desta paginação, não as flutuações independentes.
+  outbound.forEach(a=>a.cancel());inbound.forEach(a=>a.cancel());
   passPaging=false;
  }
 }
@@ -190,12 +195,28 @@ function updateBindings(){
  updateSanta();
 }
 function buildScene(){if(!project||!stage)return;
- stage.replaceChildren();stage.style.background=scene==='factory'?project.settings.factoryBg:project.settings.passBg;
+ stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background=scene==='factory'?project.settings.factoryBg:project.settings.passBg;
  const frag=document.createDocumentFragment();for(const item of [...project.scenes[scene]].sort((a,b)=>(a.z||0)-(b.z||0)))frag.append(element(item));
- stage.append(frag);updateBindings();
+ stage.append(frag);if(scene==='factory')mountDelivery();updateBindings();if(scene==='factory')syncOrderQueue();
 }
-function frames(kind,exit){const f={
+
+/* Ateliê v21: assets e geometria configurados; regras e persistência continuam no jogo. */
+const factoryFx=()=>project?.settings?.engine?.factoryCompletion||{};
+function fxImage(src,classname,x,y,w,h,z){
+ if(!src)return null;
+ const n=document.createElement('img');n.className=classname;n.alt='';n.draggable=false;n.decoding='async';
+ Object.assign(n.style,{position:'absolute',left:x+'px',top:y+'px',width:w+'px',height:h+'px',zIndex:String(z),objectFit:'contain',pointerEvents:'none'});
+ n.src=url(src);stage.append(n);return n;
+}
+function mountDelivery(){
+ const c=factoryFx(),b=c.bag||{},r=c.roller||{};
+ rollerNode=fxImage(r.staticImage||r.animatedImage,'natal-delivery-roller',Number(r.x)||0,Number(r.y)||0,Number(r.width)||500,Number(r.height)||80,Number(r.zIndex)||0);
+ bagNode=fxImage(b.image,'natal-delivery-bag',Number(b.appearX)||0,Number(b.appearY)||0,Number(b.size)||120,Number(b.size)||120,Number(b.zIndex??90));
+}
+function cardElements(slot){
+ return [...stage.querySelectorAll('.natal-item')].filter(n=>new RegExp('(?:pedido|presente|fabricar) '+slot+'{const f={
  turn:exit?['perspective(1200px) rotateY(0deg) scale(1)','perspective(1200px) rotateY(-78deg) scale(.93)']:['perspective(1200px) rotateY(78deg) scale(.93)','perspective(1200px) rotateY(0deg) scale(1)'],
+ pop:exit?['scale(1)','scale(.83) rotate(-3deg)']:['scale(.83) rotate(3deg)','scale(1)'],
  flip:exit?['rotateY(0deg)','rotateY(-90deg)']:['rotateY(90deg)','rotateY(0deg)'],
  slide:exit?['translateX(0)','translateX(-105%)']:['translateX(105%)','translateX(0)'],
  fold:exit?['scaleX(1) skewY(0deg)','scaleX(.06) skewY(-7deg)']:['scaleX(.06) skewY(7deg)','scaleX(1) skewY(0deg)'],
@@ -273,9 +294,303 @@ window.addEventListener('message',e=>{
   if(hostOrigin&&hostOrigin!==e.origin)return;
   hostOrigin=e.origin;const old=state;state=e.data.state||null;
   if(old&&state){for(const job of state.orders||[]){const was=(old.orders||[]).find(o=>o.slot===job.slot);
-   if(was?.phase==='crafting'&&job.phase==='cooldown')react('clap',`crafted:${job.slot}:${job.startedAt}`);
+   if(was?.phase==='crafting'&&job.phase==='cooldown'){
+    react('clap',`crafted:${job.slot}:${job.startedAt}`);
+    if(scene==='factory'&&active)queueMicrotask(()=>completeGift(job.slot,job.startedAt));
+   }
   }}
-  if(active){updateBindings();syncFriends()}
+  if(active){updateBindings();syncFriends();if(scene==='factory')syncOrderQueue()}
+ }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
+  const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
+  responses.add(id);locked=false;
+  if(e.data.ok)react('correct','result:'+id);
+  updateBindings();
+ }
+});
+setInterval(()=>{
+ if(!active)return;
+ updateBindings();
+ if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta()}
+},1000);
+document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta()}});
+fetch(cfgUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
+ if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
+ project=p;mount();
+}).catch(e=>{
+ document.documentElement.classList.add('natal-native-fallback');
+ console.warn('[Natal] Layout opcional indisponível, usando menu original:',e);
+});
+})();
+,'i').test(n.dataset.name||''));
+}
+function cardOffset(slot){
+ const group=project.scenes.factory.filter(n=>new RegExp('(?:Card pedido) '+slot+'{const f={
+ turn:exit?['perspective(1200px) rotateY(0deg) scale(1)','perspective(1200px) rotateY(-78deg) scale(.93)']:['perspective(1200px) rotateY(78deg) scale(.93)','perspective(1200px) rotateY(0deg) scale(1)'],
+ pop:exit?['scale(1)','scale(.83) rotate(-3deg)']:['scale(.83) rotate(3deg)','scale(1)'],
+ flip:exit?['rotateY(0deg)','rotateY(-90deg)']:['rotateY(90deg)','rotateY(0deg)'],
+ slide:exit?['translateX(0)','translateX(-105%)']:['translateX(105%)','translateX(0)'],
+ fold:exit?['scaleX(1) skewY(0deg)','scaleX(.06) skewY(-7deg)']:['scaleX(.06) skewY(7deg)','scaleX(1) skewY(0deg)'],
+ lift:exit?['translateY(0) rotateX(0deg) scale(1)','translateY(-35%) rotateX(55deg) scale(.88)']:['translateY(35%) rotateX(-55deg) scale(.88)','translateY(0) rotateX(0deg) scale(1)']};
+ return (f[kind]||[]).map(transform=>({transform}));
+}
+async function switchScene(next){
+ if(next===scene||transitioning)return;
+ transitioning=true;
+ const type=project.settings.transition?.type||'turn',duration=clamp(project.settings.transition?.duration||650,180,1800)/2;
+ try{
+  if(type!=='none'&&stage.animate){await stage.animate(frames(type,true),{duration,fill:'forwards',easing:'ease-in'}).finished;}
+  scene=next;nativeScene(next);buildScene();
+  if(type!=='none'&&stage.animate){await stage.animate(frames(type,false),{duration,fill:'forwards',easing:'ease-out'}).finished;}
+ }catch(e){scene=next;nativeScene(next);buildScene()}
+ finally{stage.getAnimations().forEach(a=>a.cancel());transitioning=false}
+}
+function showFriends(){
+ if(scene!=='factory')return;
+ let dialog=$('#natal-friends-dialog');if(dialog){dialog.hidden=false;return}
+ dialog=document.createElement('section');dialog.id='natal-friends-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-label','Ajuda dos amigos');
+ dialog.innerHTML='<h2>👥 Ajuda dos amigos</h2><p>Doe um material para um amigo. A fazenda valida as regras de doação.</p><label>Amigo <select id="natal-friend"></select></label><label>Material <select id="natal-material"></select></label><button id="natal-donate">Doar material</button><button id="natal-close-friends">Fechar</button>';
+ root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>dialog.hidden=true;
+ dialog.querySelector('#natal-donate').onclick=()=>{const friendId=dialog.querySelector('#natal-friend').value,material=dialog.querySelector('#natal-material').value;if(friendId&&material){action('donate',{friendId,material});dialog.hidden=true}};
+ syncFriends();
+}
+function syncFriends(){const d=$('#natal-friends-dialog');if(!d)return;
+ const f=d.querySelector('#natal-friend'),m=d.querySelector('#natal-material'),friend=f.value,mat=m.value;
+ f.replaceChildren(...(state?.friends||[]).map(x=>{let o=new Option(x.name,x.uid);return o}));
+ m.replaceChildren(...project.materials.map(x=>new Option(x.name,x.key)));
+ if(friend)f.value=friend;if(mat)m.value=mat;
+}
+function fit(){
+ if(!root||!stage||!project)return;
+ // A arte exportada inclui elementos propositalmente alem da area-base
+ // (decoracoes, cabecalho e rodape). Enquadrar TODOS os elementos sem
+ // alterar o tamanho da janela do jogo ou a disposicao desenhada no Atelie.
+ const all=[...project.scenes.factory,...project.scenes.pass];
+ const x0=Math.min(0,...all.map(e=>Number(e.x)||0));
+ const y0=Math.min(0,...all.map(e=>Number(e.y)||0));
+ const x1=Math.max(960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
+ const y1=Math.max(600,...all.map(e=>(Number(e.y)||0)+(Number(e.h)||0)));
+ const fullW=x1-x0,fullH=y1-y0;
+ const w=root.clientWidth,h=root.clientHeight;
+ if(!w||!h)return;
+ scale=Math.max(.05,Math.min(w/fullW,h/fullH));
+ const offsetX=(w-fullW*scale)/2-x0*scale;
+ const offsetY=(h-fullH*scale)/2-y0*scale;
+ const wrap=$('#natal-wrap');
+ wrap.style.width=w+'px';wrap.style.height=h+'px';
+ const anchor=$('#natal-stage-anchor');
+ // Usar zoom de layout, nao transform scale: fontes e botoes ficam nitidos,
+ // e as transicoes 3D continuam livres para animar o transform do stage.
+ anchor.style.left=offsetX+'px';anchor.style.top=offsetY+'px';
+ stage.style.zoom=String(scale);
+ stage.style.transform='';
+
+}
+function mount(){
+ root=document.createElement('div');root.id='natal-layout-root';root.setAttribute('aria-label','Evento de Natal');
+ const wrap=document.createElement('div');wrap.id='natal-wrap';
+ const anchor=document.createElement('div');anchor.id='natal-stage-anchor';
+ stage=document.createElement('div');stage.id='natal-stage';
+ anchor.append(stage);wrap.append(anchor);root.append(wrap);document.body.append(root);
+ root.style.background=project.settings.factoryBg||'#fff2cc';
+ window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
+ active=true;buildScene();fit();
+ // A engine continua sendo a única autoridade por trás das ações e dos salvamentos.
+ $('.oficina')?.classList.add('natal-native-hidden');
+ if(hostOrigin)window.parent.postMessage({type:'mf-event-refresh'},hostOrigin);
+}
+window.addEventListener('message',e=>{
+ if(e.source!==window.parent||!e.data||typeof e.data.type!=='string')return;
+ if(e.data.type==='mf-event-state'){
+  if(hostOrigin&&hostOrigin!==e.origin)return;
+  hostOrigin=e.origin;const old=state;state=e.data.state||null;
+  if(old&&state){for(const job of state.orders||[]){const was=(old.orders||[]).find(o=>o.slot===job.slot);
+   if(was?.phase==='crafting'&&job.phase==='cooldown'){
+    react('clap',`crafted:${job.slot}:${job.startedAt}`);
+    if(scene==='factory'&&active)queueMicrotask(()=>completeGift(job.slot,job.startedAt));
+   }
+  }}
+  if(active){updateBindings();syncFriends();if(scene==='factory')syncOrderQueue()}
+ }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
+  const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
+  responses.add(id);locked=false;
+  if(e.data.ok)react('correct','result:'+id);
+  updateBindings();
+ }
+});
+setInterval(()=>{
+ if(!active)return;
+ updateBindings();
+ if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta()}
+},1000);
+document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta()}});
+fetch(cfgUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
+ if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
+ project=p;mount();
+}).catch(e=>{
+ document.documentElement.classList.add('natal-native-fallback');
+ console.warn('[Natal] Layout opcional indisponível, usando menu original:',e);
+});
+})();
+,'i').test(n.name));
+ return group[0]?.x??(19+(slot-1)*312);
+}
+function syncOrderQueue(){
+ if(scene!=='factory'||!stage||!state)return;
+ const jobs=state.orders||[];
+ const ordered=jobs.map((r,i)=>({r,slot:i+1})).filter(({r,slot})=>r.phase!=='cooldown'&&!finishInProgress.has(slot));
+ const base=cardOffset(1);
+ for(let i=0;i<jobs.length;i++){
+  const slot=i+1,r=jobs[i],nodes=cardElements(slot),idx=ordered.findIndex(x=>x.slot===slot);
+  const target=idx>=0?base+idx*(cardOffset(2)-base):cardOffset(slot);
+  const delta=target-cardOffset(slot);
+  for(const node of nodes){
+   if(finishInProgress.has(slot))continue;
+   node.style.transition='translate '+Math.max(100,Number(factoryFx().bag?.shiftDuration)||530)+'ms ease, opacity 180ms ease';
+   node.style.translate=delta+'px 0px';
+   node.style.opacity=idx<0?'0':String((Number(project.scenes.factory.find(x=>x.id===node.dataset.elementId)?.opacity??100))/100);
+   node.style.pointerEvents=idx<0?'none':'';
+  }
+ }
+}
+function currentCenter(n){
+ const rect=n.getBoundingClientRect(),parent=stage.getBoundingClientRect();
+ const ratio=parent.width/960||1;
+ return {x:(rect.left+rect.width/2-parent.left)/ratio,y:(rect.top+rect.height/2-parent.top)/ratio};
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,Math.max(0,ms)));
+async function animateGift(slot){
+ const c=factoryFx(),b=c.bag||{},nodes=cardElements(slot);
+ if(!nodes.length||!stage||!bagNode)return;
+ const card=nodes.find(n=>(n.dataset.name||'').toLowerCase().startsWith('card pedido'))||nodes[0];
+ const rect=card.getBoundingClientRect(),parent=stage.getBoundingClientRect(),ratio=parent.width/960||1;
+ const x=(rect.left-parent.left)/ratio,y=(rect.top-parent.top)/ratio,w=rect.width/ratio,h=rect.height/ratio;
+ const balloon=Number(b.inflate)||1.09,shineTime=Math.max(100,Number(b.shineDuration)||500);
+ const grow=card.animate([{transform:'scale(1)'},{transform:'scale('+balloon+')'},{transform:'scale(1)'}],{duration:Math.max(280,Number(c.successDuration)||1250),easing:'ease-in-out'});
+ const stripe=document.createElement('div');stripe.className='natal-delivery-shine';
+ Object.assign(stripe.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px',zIndex:String((Number(card.style.zIndex)||20)+1)});
+ stage.append(stripe);
+ const glow=stripe.animate([{opacity:0,transform:'translateX(-110%) skewX(-22deg)'},{opacity:1,offset:.4},{opacity:0,transform:'translateX(110%) skewX(-22deg)'}],{duration:shineTime,easing:'ease-in-out'});
+ await Promise.all([grow.finished.catch(()=>{}),glow.finished.catch(()=>{})]);grow.cancel();glow.cancel();stripe.remove();
+ if(scene!=='factory'||!bagNode)return;
+ const destination={x:(Number(b.targetX)??Number(b.appearX)||0)+(Number(b.size)||120)/2,y:(Number(b.targetY)??Number(b.appearY)||0)+(Number(b.size)||120)/2};
+ const duration=Math.max(180,Number(b.enterDuration)||420);
+ const moves=nodes.map(n=>{const from=currentCenter(n);return n.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+(destination.x-from.x)+'px,'+(destination.y-from.y)+'px) scale(.04)',opacity:0}],{duration,easing:'ease-in',fill:'forwards'})});
+ await Promise.all(moves.map(a=>a.finished.catch(()=>{})));
+ moves.forEach(a=>a.cancel());
+}
+async function departBag(){
+ if(bagBusy||!bagNode||scene!=='factory')return;
+ bagBusy=true;const b=factoryFx().bag||{},r=factoryFx().roller||{},node=bagNode;
+ try{
+  if(rollerNode&&r.animatedImage){
+   const wait=Math.max(0,Number(r.startDelayMs)||0);
+   if(wait)await sleep(wait);
+   if(scene!=='factory'||node!==bagNode)return;
+   const animated=url(r.animatedImage);if(rollerNode.src!==animated)rollerNode.src=animated;rollerBusy=true;
+  }
+  const dx=(Number(b.exitX)||1100)-(Number(b.appearX)||0),dy=(Number(b.exitY)||0)-(Number(b.appearY)||0);
+  const duration=Math.max(220,Number(b.exitDuration)||1100);
+  const anim=node.animate([{transform:'translate(0,0)'},{transform:'translate('+dx+'px,'+dy+'px)'}],{duration,easing:'ease-in-out'});
+  await anim.finished.catch(()=>{});anim.cancel();
+ }finally{
+  if(node===bagNode&&rollerNode&&r.staticImage){const staticUrl=url(r.staticImage);if(rollerNode.src!==staticUrl)rollerNode.src=staticUrl;}
+  rollerBusy=false;bagBusy=false;
+ }
+}
+async function completeGift(slot,startedAt){
+ const token=slot+':'+startedAt;if(finishedOrders.has(token)||finishInProgress.has(slot))return;
+ finishedOrders.add(token);if(finishedOrders.size>150)finishedOrders.delete(finishedOrders.values().next().value);
+ finishInProgress.add(slot);
+ try{await animateGift(slot);if(scene==='factory'){syncOrderQueue();await departBag()}}
+ finally{finishInProgress.delete(slot);if(scene==='factory')syncOrderQueue()}
+}
+
+function frames(kind,exit){const f={
+ turn:exit?['perspective(1200px) rotateY(0deg) scale(1)','perspective(1200px) rotateY(-78deg) scale(.93)']:['perspective(1200px) rotateY(78deg) scale(.93)','perspective(1200px) rotateY(0deg) scale(1)'],
+ pop:exit?['scale(1)','scale(.83) rotate(-3deg)']:['scale(.83) rotate(3deg)','scale(1)'],
+ flip:exit?['rotateY(0deg)','rotateY(-90deg)']:['rotateY(90deg)','rotateY(0deg)'],
+ slide:exit?['translateX(0)','translateX(-105%)']:['translateX(105%)','translateX(0)'],
+ fold:exit?['scaleX(1) skewY(0deg)','scaleX(.06) skewY(-7deg)']:['scaleX(.06) skewY(7deg)','scaleX(1) skewY(0deg)'],
+ lift:exit?['translateY(0) rotateX(0deg) scale(1)','translateY(-35%) rotateX(55deg) scale(.88)']:['translateY(35%) rotateX(-55deg) scale(.88)','translateY(0) rotateX(0deg) scale(1)']};
+ return (f[kind]||[]).map(transform=>({transform}));
+}
+async function switchScene(next){
+ if(next===scene||transitioning)return;
+ transitioning=true;
+ const type=project.settings.transition?.type||'turn',duration=clamp(project.settings.transition?.duration||650,180,1800)/2;
+ try{
+  if(type!=='none'&&stage.animate){await stage.animate(frames(type,true),{duration,fill:'forwards',easing:'ease-in'}).finished;}
+  scene=next;nativeScene(next);buildScene();
+  if(type!=='none'&&stage.animate){await stage.animate(frames(type,false),{duration,fill:'forwards',easing:'ease-out'}).finished;}
+ }catch(e){scene=next;nativeScene(next);buildScene()}
+ finally{stage.getAnimations().forEach(a=>a.cancel());transitioning=false}
+}
+function showFriends(){
+ if(scene!=='factory')return;
+ let dialog=$('#natal-friends-dialog');if(dialog){dialog.hidden=false;return}
+ dialog=document.createElement('section');dialog.id='natal-friends-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-label','Ajuda dos amigos');
+ dialog.innerHTML='<h2>👥 Ajuda dos amigos</h2><p>Doe um material para um amigo. A fazenda valida as regras de doação.</p><label>Amigo <select id="natal-friend"></select></label><label>Material <select id="natal-material"></select></label><button id="natal-donate">Doar material</button><button id="natal-close-friends">Fechar</button>';
+ root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>dialog.hidden=true;
+ dialog.querySelector('#natal-donate').onclick=()=>{const friendId=dialog.querySelector('#natal-friend').value,material=dialog.querySelector('#natal-material').value;if(friendId&&material){action('donate',{friendId,material});dialog.hidden=true}};
+ syncFriends();
+}
+function syncFriends(){const d=$('#natal-friends-dialog');if(!d)return;
+ const f=d.querySelector('#natal-friend'),m=d.querySelector('#natal-material'),friend=f.value,mat=m.value;
+ f.replaceChildren(...(state?.friends||[]).map(x=>{let o=new Option(x.name,x.uid);return o}));
+ m.replaceChildren(...project.materials.map(x=>new Option(x.name,x.key)));
+ if(friend)f.value=friend;if(mat)m.value=mat;
+}
+function fit(){
+ if(!root||!stage||!project)return;
+ // A arte exportada inclui elementos propositalmente alem da area-base
+ // (decoracoes, cabecalho e rodape). Enquadrar TODOS os elementos sem
+ // alterar o tamanho da janela do jogo ou a disposicao desenhada no Atelie.
+ const all=[...project.scenes.factory,...project.scenes.pass];
+ const x0=Math.min(0,...all.map(e=>Number(e.x)||0));
+ const y0=Math.min(0,...all.map(e=>Number(e.y)||0));
+ const x1=Math.max(960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
+ const y1=Math.max(600,...all.map(e=>(Number(e.y)||0)+(Number(e.h)||0)));
+ const fullW=x1-x0,fullH=y1-y0;
+ const w=root.clientWidth,h=root.clientHeight;
+ if(!w||!h)return;
+ scale=Math.max(.05,Math.min(w/fullW,h/fullH));
+ const offsetX=(w-fullW*scale)/2-x0*scale;
+ const offsetY=(h-fullH*scale)/2-y0*scale;
+ const wrap=$('#natal-wrap');
+ wrap.style.width=w+'px';wrap.style.height=h+'px';
+ const anchor=$('#natal-stage-anchor');
+ // Usar zoom de layout, nao transform scale: fontes e botoes ficam nitidos,
+ // e as transicoes 3D continuam livres para animar o transform do stage.
+ anchor.style.left=offsetX+'px';anchor.style.top=offsetY+'px';
+ stage.style.zoom=String(scale);
+ stage.style.transform='';
+
+}
+function mount(){
+ root=document.createElement('div');root.id='natal-layout-root';root.setAttribute('aria-label','Evento de Natal');
+ const wrap=document.createElement('div');wrap.id='natal-wrap';
+ const anchor=document.createElement('div');anchor.id='natal-stage-anchor';
+ stage=document.createElement('div');stage.id='natal-stage';
+ anchor.append(stage);wrap.append(anchor);root.append(wrap);document.body.append(root);
+ root.style.background=project.settings.factoryBg||'#fff2cc';
+ window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
+ active=true;buildScene();fit();
+ // A engine continua sendo a única autoridade por trás das ações e dos salvamentos.
+ $('.oficina')?.classList.add('natal-native-hidden');
+ if(hostOrigin)window.parent.postMessage({type:'mf-event-refresh'},hostOrigin);
+}
+window.addEventListener('message',e=>{
+ if(e.source!==window.parent||!e.data||typeof e.data.type!=='string')return;
+ if(e.data.type==='mf-event-state'){
+  if(hostOrigin&&hostOrigin!==e.origin)return;
+  hostOrigin=e.origin;const old=state;state=e.data.state||null;
+  if(old&&state){for(const job of state.orders||[]){const was=(old.orders||[]).find(o=>o.slot===job.slot);
+   if(was?.phase==='crafting'&&job.phase==='cooldown'){
+    react('clap',`crafted:${job.slot}:${job.startedAt}`);
+    if(scene==='factory'&&active)queueMicrotask(()=>completeGift(job.slot,job.startedAt));
+   }
+  }}
+  if(active){updateBindings();syncFriends();if(scene==='factory')syncOrderQueue()}
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
   responses.add(id);locked=false;

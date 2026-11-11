@@ -32,3 +32,7 @@ html.natal-native-fallback .oficina{visibility:visible!important}
 @keyframes natal-spin{to{transform:rotate(360deg)}}
 
 .natal-material-icon{height:21px;width:24px;object-fit:contain;margin-right:3px;flex:none}
+
+/* V21 — efeitos do atelier, sem inserir duplicatas de elementos nativos */
+.natal-delivery-roller,.natal-delivery-bag{position:absolute;display:block;pointer-events:none;user-select:none;object-fit:contain}
+.natal-delivery-shine{position:absolute;pointer-events:none;overflow:hidden;border-radius:13px;background:linear-gradient(115deg,transparent 15%,rgba(255,255,255,.05) 35%,rgba(255,255,255,.7) 51%,rgba(255,255,255,.05) 65%,transparent 85%);mix-blend-mode:screen}
