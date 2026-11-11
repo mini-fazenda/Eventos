@@ -98,6 +98,15 @@ function element(item){
  } else if(item.type==='santa'){
   const im=document.createElement('img');im.alt='Papai Noel';im.dataset.natalSanta='1';im.decoding='async';n.append(im);
  } else if(item.type==='text'||item.type==='button')n.textContent=item.text||'';
+ // O botão Amigos exportado pelo Ateliê é uma imagem, não um texto gigante.
+ if(item.name==='Ajuda dos amigos'){
+  const friends=project.settings?.engine?.friendsButton;
+  if(friends?.mode==='image'&&friends.image){
+   const im=document.createElement('img');im.src=url(friends.image);im.alt='Amigos';im.draggable=false;
+   im.style.cssText='width:100%;height:100%;object-fit:contain;display:block;pointer-events:none';
+   n.replaceChildren(im);n.dataset.friendsImage='1';n.title='Ajuda dos amigos';
+  }
+ }
  if(item.type==='button'){n.type='button';n.addEventListener('click',()=>onButton(item.name));}
  if(item.name==='Ajuda dos amigos'){n.tabIndex=0;n.role='button';n.addEventListener('click',showFriends);n.addEventListener('keydown',e=>{if(e.key==='Enter')showFriends()})}
  if(item.name?.startsWith('Estrelas para liberar')){n.title='Desbloquear nível com Mini Grana';n.addEventListener('click',()=>{
@@ -163,6 +172,8 @@ function updateBindings(){
  for(const item of list){
   const node=stage.querySelector(`[data-element-id="${item.id}"]`);if(!node)continue;
   if(item.type==='text'){
+   // Preserva a imagem de Amigos ao atualizar contadores a cada segundo.
+   if(item.name==='Ajuda dos amigos'&&node.dataset.friendsImage==='1')continue;
    const materialIndex=item.name.match(/^Nome recurso (\d+)/);
    const material=materialIndex?project.materials[Number(materialIndex[1])-1]:null;
    if(material?.sprite){
@@ -195,7 +206,7 @@ function updateBindings(){
  updateSanta();
 }
 function buildScene(){if(!project||!stage)return;
- stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background=scene==='factory'?project.settings.factoryBg:project.settings.passBg;
+ stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background='transparent';
  const frag=document.createDocumentFragment();for(const item of [...project.scenes[scene]].sort((a,b)=>(a.z||0)-(b.z||0)))frag.append(element(item));
  stage.append(frag);if(scene==='factory')mountDelivery();updateBindings();if(scene==='factory')syncOrderQueue();
 }
@@ -213,7 +224,8 @@ function assetNode(src,cls,x,y,w,h,z){
 function mountDelivery(){
  const {bag:b={},roller:r={}}=delivery();
  rollerNode=assetNode(r.staticImage||r.animatedImage,'natal-delivery-roller',Number(r.x)||0,Number(r.y)||0,Number(r.width)||500,Number(r.height)||80,Number(r.zIndex)||0);
- bagNode=assetNode(b.image,'natal-delivery-bag',Number(b.appearX)||0,Number(b.appearY)||0,Number(b.size)||120,Number(b.size)||120,90);
+ // O saco só é criado quando um presente fica pronto; não aparece em repouso.
+ bagNode=null;
 }
 function giftNodes(slot){
  return [...stage.querySelectorAll('.natal-item')].filter(n=>new RegExp('(?:pedido|presente|fabricar) '+slot+'$','i').test(n.dataset.name||''));
@@ -242,7 +254,7 @@ function nodeCenter(n){
 }
 async function animateGift(slot){
  const b=delivery().bag||{},nodes=giftNodes(slot);
- if(!nodes.length||!bagNode)return;
+ if(!nodes.length)return;
  const card=nodes.find(n=>/^Card pedido/i.test(n.dataset.name||''))||nodes[0];
  const r=card.getBoundingClientRect(),p=stage.getBoundingClientRect(),factor=p.width/960||1;
  const stripe=document.createElement('div');stripe.className='natal-delivery-shine';
@@ -251,7 +263,14 @@ async function animateGift(slot){
  const bulge=card.animate([{transform:'scale(1)'},{transform:'scale('+ (Number(b.inflate)||1.09)+')'},{transform:'scale(1)'}],{duration:Math.max(280,Number(delivery().successDuration)||1250)});
  const flash=stripe.animate([{opacity:0,transform:'translateX(-100%) skewX(-25deg)'},{opacity:1,offset:.5},{opacity:0,transform:'translateX(100%) skewX(-25deg)'}],{duration:Math.max(100,Number(b.shineDuration)||500)});
  await Promise.all([bulge.finished.catch(()=>{}),flash.finished.catch(()=>{})]);bulge.cancel();flash.cancel();stripe.remove();
- if(scene!=='factory'||!bagNode)return;
+ if(scene!=='factory')return;
+ // No Ateliê, o saco surge no ponto configurado e fica imóvel até a saída.
+ const image=b.image;if(!image)return;
+ bagNode=assetNode(image,'natal-delivery-bag',Number(b.appearX)||0,Number(b.appearY)||0,Number(b.size)||120,Number(b.size)||120,90);
+ if(!bagNode)return;
+ const bagArrival=bagNode.animate([{opacity:0},{opacity:1}],{duration:Math.max(100,Number(b.appearDuration)||420),easing:'ease-out'});
+ await bagArrival.finished.catch(()=>{});bagArrival.cancel();
+ if(scene!=='factory')return;
  const dst={x:(Number.isFinite(Number(b.targetX))?Number(b.targetX):Number(b.appearX)||0)+(Number(b.size)||120)/2,y:(Number.isFinite(Number(b.targetY))?Number(b.targetY):Number(b.appearY)||0)+(Number(b.size)||120)/2};
  const movers=nodes.map(n=>{
   const c=nodeCenter(n);
@@ -273,7 +292,9 @@ async function departBag(){
   const motion=node.animate([{transform:'translate(0,0)'},{transform:'translate('+dx+'px,'+dy+'px)'}],{duration:Math.max(220,Number(b.exitDuration)||1100),easing:'ease-in-out'});
   await motion.finished.catch(()=>{});motion.cancel();
  }finally{
-  if(node===bagNode&&rollerNode&&r.staticImage)rollerNode.src=url(r.staticImage);
+  // Não deixa o saco estacionado depois da entrega.
+  if(node===bagNode){node.remove();bagNode=null;}
+  if(rollerNode&&r.staticImage)rollerNode.src=url(r.staticImage);
   bagBusy=false;
  }
 }
@@ -356,7 +377,7 @@ function mount(){
  const anchor=document.createElement('div');anchor.id='natal-stage-anchor';
  stage=document.createElement('div');stage.id='natal-stage';
  anchor.append(stage);wrap.append(anchor);root.append(wrap);document.body.append(root);
- root.style.background=project.settings.factoryBg||'#fff2cc';
+ root.style.background='transparent';
  window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
  active=true;buildScene();fit();
  // A engine continua sendo a única autoridade por trás das ações e dos salvamentos.
