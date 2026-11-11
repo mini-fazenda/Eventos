@@ -41,3 +41,6 @@ html.natal-native-fallback .oficina{visibility:visible!important}
 #natal-stage,#natal-stage-anchor,#natal-wrap{background:transparent!important}
 .natal-item[data-friends-image="1"]{overflow:visible!important;cursor:pointer}
 .natal-item[data-friends-image="1"] img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+
+/* O fundo real é a arte de cada cena. Fora dela, mostra-se o jogo. */
+html,body,#natal-layout-root,#natal-wrap,#natal-stage-anchor,#natal-stage{background:transparent!important}

@@ -307,13 +307,18 @@ async function completeGift(slot,stamp){
  finally{finishInProgress.delete(slot);if(scene==='factory')syncOrderQueue()}
 }
 
-function frames(kind,exit){const f={
- turn:exit?['perspective(1200px) rotateY(0deg) scale(1)','perspective(1200px) rotateY(-78deg) scale(.93)']:['perspective(1200px) rotateY(78deg) scale(.93)','perspective(1200px) rotateY(0deg) scale(1)'],
- pop:exit?['scale(1)','scale(.83) rotate(-3deg)']:['scale(.83) rotate(3deg)','scale(1)'],
- flip:exit?['rotateY(0deg)','rotateY(-90deg)']:['rotateY(90deg)','rotateY(0deg)'],
- slide:exit?['translateX(0)','translateX(-105%)']:['translateX(105%)','translateX(0)'],
- fold:exit?['scaleX(1) skewY(0deg)','scaleX(.06) skewY(-7deg)']:['scaleX(.06) skewY(7deg)','scaleX(1) skewY(0deg)'],
- lift:exit?['translateY(0) rotateX(0deg) scale(1)','translateY(-35%) rotateX(55deg) scale(.88)']:['translateY(35%) rotateX(-55deg) scale(.88)','translateY(0) rotateX(0deg) scale(1)']};
+function frames(kind,exit){
+ const f={
+  flip:exit?['perspective(1500px) rotateY(0deg)','perspective(1500px) rotateY(-90deg)']:['perspective(1500px) rotateY(90deg)','perspective(1500px) rotateY(0deg)'],
+  turn:exit?['perspective(1200px) rotateY(0deg) scale(1)','perspective(1200px) rotateY(-78deg) scale(.93)']:['perspective(1200px) rotateY(78deg) scale(.93)','perspective(1200px) rotateY(0deg) scale(1)'],
+  slide:exit?['translateX(0) rotate(0deg)','translateX(-105%) rotate(-5deg)']:['translateX(105%) rotate(5deg)','translateX(0) rotate(0deg)'],
+  fold:exit?['perspective(1400px) scaleX(1) skewY(0deg)','perspective(1400px) scaleX(.06) skewY(-7deg)']:['perspective(1400px) scaleX(.06) skewY(7deg)','perspective(1400px) scaleX(1) skewY(0deg)'],
+  lift:exit?['translateY(0) rotateX(0deg) scale(1)','translateY(-35%) rotateX(55deg) scale(.88)']:['translateY(35%) rotateX(-55deg) scale(.88)','translateY(0) rotateX(0deg) scale(1)'],
+  pop:exit?['scale(1)','scale(.12) rotate(-4deg)']:['scale(.12) rotate(4deg)','scale(1.08)','scale(1)'],
+  zoom:exit?['scale(1)','scale(1.4)']:['scale(.65)','scale(1)'],
+  swing:exit?['perspective(1300px) rotateZ(0deg) rotateY(0deg)','perspective(1300px) rotateZ(-12deg) rotateY(-78deg)']:['perspective(1300px) rotateZ(12deg) rotateY(78deg)','perspective(1300px) rotateZ(0deg) rotateY(0deg)'],
+  wipe:exit?['translateX(0) scaleX(1)','translateX(-110%) scaleX(.75)']:['translateX(110%) scaleX(.75)','translateX(0) scaleX(1)']
+ };
  return (f[kind]||[]).map(transform=>({transform}));
 }
 async function switchScene(next){

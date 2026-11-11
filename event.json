@@ -1,21 +1,21 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-10-balance-6",
+  "version": "2026-11-11-drops-garantidos-1",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
     "short": {
-      "chance": 0.4,
-      "max": 1
-    },
-    "medium": {
-      "chance": 0.6,
+      "chance": 1,
       "max": 2
     },
-    "long": {
-      "chance": 0.8,
+    "medium": {
+      "chance": 1,
       "max": 3
+    },
+    "long": {
+      "chance": 1,
+      "max": 4
     }
   },
   "pass": {
