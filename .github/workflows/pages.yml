@@ -10,6 +10,8 @@ on:
       - 'index.html'
       - 'natal-layout.json'
       - 'natal-runtime.js'
+      - 'natal-audio.js'
+      - 'natal-layout-v21.json'
       - 'natal-runtime.css'
       - 'assets/natal/**'
       - '.github/workflows/pages.yml'
