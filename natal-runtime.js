@@ -223,7 +223,7 @@ function slotX(slot){
 }
 function syncOrderQueue(){
  if(!active||scene!=='factory'||!state)return;
- const jobs=state.orders||[],moving=jobs.map((r,i)=>({slot:i+1,job:r})).filter(x=>x.job.phase!=='cooldown'&&!finishInProgress.has(x.slot));
+ const jobs=state.orders||[],moving=jobs.map((r,i)=>({slot:i+1,job:r})).filter(x=>x.job.phase!=='cooldown'||finishInProgress.has(x.slot));
  const origin=slotX(1),spacing=slotX(2)-origin;
  jobs.forEach((job,i)=>{
   const slot=i+1,order=moving.findIndex(x=>x.slot===slot),shift=order<0?0:origin+order*spacing-slotX(slot);
@@ -282,7 +282,7 @@ async function completeGift(slot,stamp){
  if(finishedOrders.has(key)||finishInProgress.has(slot))return;
  finishedOrders.add(key);if(finishedOrders.size>150)finishedOrders.delete(finishedOrders.values().next().value);
  finishInProgress.add(slot);
- try{await animateGift(slot);if(scene==='factory'){syncOrderQueue();await departBag();}}
+ try{await animateGift(slot);finishInProgress.delete(slot);if(scene==='factory'){syncOrderQueue();await departBag();}}
  finally{finishInProgress.delete(slot);if(scene==='factory')syncOrderQueue()}
 }
 
@@ -327,6 +327,9 @@ function fit(){
  // (decoracoes, cabecalho e rodape). Enquadrar TODOS os elementos sem
  // alterar o tamanho da janela do jogo ou a disposicao desenhada no Atelie.
  const all=[...project.scenes.factory,...project.scenes.pass];
+ const deliveryObjects=project.settings?.engine?.factoryCompletion;
+ if(deliveryObjects?.roller){const r=deliveryObjects.roller;all.push({x:r.x,y:r.y,w:r.width,h:r.height});}
+ if(deliveryObjects?.bag){const b=deliveryObjects.bag;all.push({x:b.appearX,y:b.appearY,w:b.size,h:b.size});}
  const x0=Math.min(0,...all.map(e=>Number(e.x)||0));
  const y0=Math.min(0,...all.map(e=>Number(e.y)||0));
  const x1=Math.max(960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
@@ -365,13 +368,16 @@ window.addEventListener('message',e=>{
  if(e.data.type==='mf-event-state'){
   if(hostOrigin&&hostOrigin!==e.origin)return;
   hostOrigin=e.origin;const old=state;state=e.data.state||null;
+  const newlyCompleted=[];
   if(old&&state){for(const job of state.orders||[]){const was=(old.orders||[]).find(o=>o.slot===job.slot);
    if(was?.phase==='crafting'&&job.phase==='cooldown'){
     react('clap',`crafted:${job.slot}:${job.startedAt}`);
-    if(scene==='factory'&&active)queueMicrotask(()=>completeGift(job.slot,job.startedAt));
+    if(scene==='factory'&&active)newlyCompleted.push(job);
    }
   }}
-  if(active){updateBindings();syncFriends();if(scene==='factory')syncOrderQueue()}
+  if(active){updateBindings();syncFriends();if(scene==='factory'){
+    newlyCompleted.forEach(job=>completeGift(job.slot,job.startedAt));syncOrderQueue();
+  }}
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
   responses.add(id);locked=false;
