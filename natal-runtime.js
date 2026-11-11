@@ -395,11 +395,11 @@ async function switchScene(next){
  finally{stage.getAnimations().forEach(a=>a.cancel());transitioning=false}
 }
 function showFriends(){
- if(scene!=='factory')return;
+ if(scene!=='factory')return;window.MFNatalAudio?.play('click');
  let dialog=$('#natal-friends-dialog');if(dialog){dialog.hidden=false;return}
  dialog=document.createElement('section');dialog.id='natal-friends-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-label','Ajuda dos amigos');
  dialog.innerHTML='<h2>👥 Ajuda dos amigos</h2><p>Doe um material para um amigo. A fazenda valida as regras de doação.</p><label>Amigo <select id="natal-friend"></select></label><label>Material <select id="natal-material"></select></label><button id="natal-donate">Doar material</button><button id="natal-close-friends">Fechar</button>';
- root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>dialog.hidden=true;
+ root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>{window.MFNatalAudio?.play('click');dialog.hidden=true};
  dialog.querySelector('#natal-donate').onclick=()=>{const friendId=dialog.querySelector('#natal-friend').value,material=dialog.querySelector('#natal-material').value;if(friendId&&material){action('donate',{friendId,material});dialog.hidden=true}};
  syncFriends();
 }
