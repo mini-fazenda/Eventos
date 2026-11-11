@@ -1,32 +1,20 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="color-scheme" content="light">
  <title>Oficina do Fazendeiro Noel — Mini Fazenda</title>
- <link rel="stylesheet" href="menu.css?v=6">
-<link rel="stylesheet" href="natal-runtime.css?v=natal-v25-1">
-<script src="natal-runtime.js?v=natal-v25-1" defer></script>
+ <style>
+  html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:transparent}
+  #natal-boot{position:fixed;inset:0;display:grid;place-items:center;color:#5e3b20;font:600 16px system-ui;background:transparent}
+  html.natal-loaded #natal-boot{display:none}
+  html.natal-error #natal-boot{color:#903733}
+ </style>
+ <link rel="stylesheet" href="natal-runtime.css?v=natal-v26-clean">
+ <script src="natal-runtime.js?v=natal-v26-clean" defer></script>
 </head>
 <body>
- <main class="oficina">
-  <header class="topo">
-   <div class="topo-emblema" aria-hidden="true">🎅</div>
-   <div><h1>Oficina do Fazendeiro Noel</h1><p>Colha, fabrique e conquiste prêmios!</p></div>
-  </header>
-  <nav class="abas" aria-label="Áreas do evento">
-   <button class="active" data-tab="fabrica" aria-selected="true">🎁 Fábrica de Presentes</button>
-   <button data-tab="passe" aria-selected="false">🎟️ Passe de Natal</button>
-  </nav>
-  <section class="resumo" aria-live="polite">
-   <span>⭐ <strong id="stars">0</strong> estrelas</span>
-   <span>🎁 <strong id="crafted">0</strong> presentes feitos</span>
-   <span>🏅 <strong id="owned">0</strong> prêmios conquistados</span>
-  </section>
-  <p id="feedback" role="status" aria-live="polite"></p>
-  <div id="content"><p class="aguarde">Abrindo a oficina…</p></div>
-  <footer>Evento experimental • Sua coleção e seu progresso são salvos na fazenda principal.</footer>
- </main>
- <script src="menu.js?v=6" defer></script>
-</body></html>
-
+ <div id="natal-boot" role="status" aria-live="polite">Carregando Oficina do Fazendeiro Noel…</div>
+</body>
+</html>

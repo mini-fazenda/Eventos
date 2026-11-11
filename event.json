@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-11-ateliê-v25",
+  "version": "2026-11-11-material-rotation-v26",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -127,5 +127,11 @@
       "papel": "assets/natal/4407c1e2da4711ef1379.png",
       "laco": "assets/natal/1e48ec3ff91503f0d8db.png"
     }
+  },
+  "materialWeights": {
+    "plastico": 32,
+    "tinta": 28,
+    "papel": 24,
+    "laco": 16
   }
 }

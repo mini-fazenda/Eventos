@@ -1,6 +1,7 @@
 /* Vila da Colheita — camada fiel ao Ateliê de Natal, sem alterar a engine. */
 (()=>{'use strict';
 const $=s=>document.querySelector(s),cfgUrl='natal-layout-v21.json';
+const standalone=window.parent===window;
 let project=null,state=null,scene='factory',passPage=0,root=null,stage=null,content=null,scale=1,active=false,locked=false,transitioning=false,hostOrigin=null,seq=0,santaMode='idle',santaTimer=0,lastActivity=Date.now();
 const completed=new Set(),responses=new Set(),url=s=>new URL(s,document.baseURI).href;
 let bagNode=null,rollerNode=null,bagBusy=false,rollerBusy=false;const finishInProgress=new Set(),finishedOrders=new Set();
@@ -25,10 +26,7 @@ function updateSanta(){
   const abs=url(source);if(n.dataset.current!==abs){n.dataset.current=abs;n.src=abs;}
  });
 }
-function nativeScene(which){
- const btn=document.querySelector('.oficina button[data-tab="'+(which==='factory'?'fabrica':'passe')+'"]');
- if(btn)btn.click();
-}
+function nativeScene(which){/* O Ateliê é o único menu: nenhum menu HTML antigo é mantido. */}
 function action(name){
  if(locked||!state||!hostOrigin)return;
  const m={type:'mf-event-action',action:name,requestId:'layout-natal-'+(++seq)};
@@ -437,6 +435,27 @@ function fit(){
  stage.style.transform='';
 
 }
+
+async function loadStandalonePreview(){
+ // Prévia exclusivamente visual: nenhuma moeda, estrela ou item é concedido sem a fazenda.
+ try{
+  const response=await fetch('event.json',{cache:'no-cache'});
+  if(!response.ok)throw Error('catálogo HTTP '+response.status);
+  const config=await response.json();
+  const recipes=config.recipes||project.recipes||[];
+  state={
+   id:config.id,stars:0,crafted:0,owned:{},
+   materials:Object.fromEntries(project.materials.map(m=>[m.key,0])),
+   windowStars:0,windowLimit:25,windowEndsAt:Date.now()+4*3600000,
+   canCraft:false,premium:false,premiumPrice:30,levelPrice:5,
+   orders:recipes.slice(0,3).map((r,i)=>({...r,slot:i,phase:'ready',startedAt:0,finishesAt:0,replaceAt:0})),
+   levels:(project.levels||[]).map((r,i)=>({...r,unlocked:i===0,paid:false,free:{...r.free,claimed:false},premium:{...r.premium,claimed:false}})),
+   friends:[]
+  };
+  if(active){updateBindings();syncOrderQueue();}
+ }catch(e){console.warn('[Natal] prévia sem catálogo:',e);}
+}
+
 function mount(){
  root=document.createElement('div');root.id='natal-layout-root';root.setAttribute('aria-label','Evento de Natal');
  const wrap=document.createElement('div');wrap.id='natal-wrap';
@@ -446,8 +465,9 @@ function mount(){
  root.style.background='transparent';
  window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
  active=true;buildScene();fit();
- // A engine continua sendo a única autoridade por trás das ações e dos salvamentos.
- $('.oficina')?.classList.add('natal-native-hidden');
+ // No modo iframe, informa que já pode receber o estado validado pelo jogo.
+ document.documentElement.classList.add('natal-loaded');
+ if(!standalone)window.parent.postMessage({type:'mf-event-ready'},'*');
  if(hostOrigin)window.parent.postMessage({type:'mf-event-refresh'},hostOrigin);
 }
 window.addEventListener('message',e=>{
@@ -484,8 +504,10 @@ document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMod
 fetch(cfgUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
  project=p;mount();
+ if(standalone)loadStandalonePreview();
 }).catch(e=>{
- document.documentElement.classList.add('natal-native-fallback');
- console.warn('[Natal] Layout opcional indisponível, usando menu original:',e);
+ document.documentElement.classList.add('natal-error');
+ const boot=$('#natal-boot');if(boot)boot.textContent='Não foi possível carregar o menu de Natal.';
+ console.error('[Natal] Falha ao carregar o Ateliê:',e);
 });
 })();
