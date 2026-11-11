@@ -139,6 +139,50 @@
       "tinta": "assets/natal/d3ba705d13d5e8afbe59.png",
       "papel": "assets/natal/4407c1e2da4711ef1379.png",
       "laco": "assets/natal/1e48ec3ff91503f0d8db.png"
+    },
+    "audio": {
+      "fadeInMs": 850,
+      "fadeOutMs": 700,
+      "music": {
+        "src": "assets/natal/christmas-farm-melody.mp3",
+        "volume": 0.55,
+        "enabled": true
+      },
+      "tab": {
+        "src": "",
+        "volume": 0.75,
+        "enabled": true
+      },
+      "click": {
+        "src": "",
+        "volume": 0.7,
+        "enabled": true
+      },
+      "craft": {
+        "src": "",
+        "volume": 0.85,
+        "enabled": true
+      },
+      "santaIdle": {
+        "src": "",
+        "volume": 0.7,
+        "enabled": true
+      },
+      "santaSleep": {
+        "src": "",
+        "volume": 0.7,
+        "enabled": true
+      },
+      "santaClap": {
+        "src": "",
+        "volume": 0.8,
+        "enabled": true
+      },
+      "santaCorrect": {
+        "src": "",
+        "volume": 0.8,
+        "enabled": true
+      }
     }
   },
   "materialWeights": {
