@@ -63,7 +63,6 @@ async function page(delta){
    outbound.forEach(a=>a.cancel());
   }
   if(scene!=='pass')return;
-  window.MFNatalAudio?.play('click');
   passPage=next;
   // Mantem os sprites e GIFs carregados; atualiza apenas os dados dos niveis.
   updateBindings();
@@ -116,12 +115,11 @@ function element(item){
  return n;
 }
 function onButton(name){
- if(!name.includes('Botão fabricar')&&!name.includes('Aba ')&&!name.includes('Seta voltar')&&!name.includes('Seta avançar'))window.MFNatalAudio?.play('click');
  if(name.includes('Aba Fábrica')){switchScene('factory');return}
  if(name.includes('Aba Passe')){switchScene('pass');return}
  if(name.includes('Seta voltar')){page(-1);return}
  if(name.includes('Seta avançar')){page(1);return}
- if(name.includes('Botão fabricar')){window.MFNatalAudio?.play('craft');
+ if(name.includes('Botão fabricar')){
   const i=Number(name.match(/\d+/)?.[0]||1)-1,job=state?.orders?.[i];
   if(job&&job.phase!=='crafting'&&job.phase!=='cooldown'&&state.canCraft&&Object.entries(job.needs||{}).every(([k,v])=>stock(k)>=v))action('craft',{slot:job.slot});
   return;
@@ -388,18 +386,17 @@ async function switchScene(next){
  const type=project.settings.transition?.type||'turn',duration=clamp(project.settings.transition?.duration||650,180,1800)/2;
  try{
   if(type!=='none'&&stage.animate){await stage.animate(frames(type,true),{duration,fill:'forwards',easing:'ease-in'}).finished;}
-  window.MFNatalAudio?.play('tab');
   scene=next;nativeScene(next);buildScene();
   if(type!=='none'&&stage.animate){await stage.animate(frames(type,false),{duration,fill:'forwards',easing:'ease-out'}).finished;}
  }catch(e){scene=next;nativeScene(next);buildScene()}
  finally{stage.getAnimations().forEach(a=>a.cancel());transitioning=false}
 }
 function showFriends(){
- if(scene!=='factory')return;window.MFNatalAudio?.play('click');
+ if(scene!=='factory')return;
  let dialog=$('#natal-friends-dialog');if(dialog){dialog.hidden=false;return}
  dialog=document.createElement('section');dialog.id='natal-friends-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-label','Ajuda dos amigos');
  dialog.innerHTML='<h2>👥 Ajuda dos amigos</h2><p>Doe um material para um amigo. A fazenda valida as regras de doação.</p><label>Amigo <select id="natal-friend"></select></label><label>Material <select id="natal-material"></select></label><button id="natal-donate">Doar material</button><button id="natal-close-friends">Fechar</button>';
- root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>{window.MFNatalAudio?.play('click');dialog.hidden=true};
+ root.append(dialog);dialog.querySelector('#natal-close-friends').onclick=()=>dialog.hidden=true;
  dialog.querySelector('#natal-donate').onclick=()=>{const friendId=dialog.querySelector('#natal-friend').value,material=dialog.querySelector('#natal-material').value;if(friendId&&material){action('donate',{friendId,material});dialog.hidden=true}};
  syncFriends();
 }
@@ -466,6 +463,13 @@ function mount(){
  stage=document.createElement('div');stage.id='natal-stage';
  anchor.append(stage);wrap.append(anchor);root.append(wrap);document.body.append(root);
  root.style.background='transparent';
+ // Uma só delegação para todos os botões, inclusive Amigos e diálogos.
+ root.addEventListener('click',e=>{const n=e.target.closest('.natal-item'),b=e.target.closest('button,[role="button"]'),name=n?.dataset.name||'';
+  if(!b&&!/^Estrelas para liberar/.test(name))return;
+  const type=/Botão fabricar/.test(name)?'craft':/Aba (?:Fábrica|Passe)/.test(name)?'tab':'click';
+  window.MFNatalAudio?.play(type);
+ },true);
+ window.MFNatalAudio?.play('santaIdle');
  window.addEventListener('resize',fit);new ResizeObserver(fit).observe(root);
  active=true;buildScene();fit();
  // No modo iframe, informa que já pode receber o estado validado pelo jogo.
@@ -503,7 +507,7 @@ setInterval(()=>{
  updateBindings();
  if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta();window.MFNatalAudio?.play('santaSleep')}
 },1000);
-document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta()}});
+document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta();window.MFNatalAudio?.play('santaIdle')}});
 fetch(cfgUrl+'?v=20261111-balance-v27',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
  project=p;window.MFNatalAudio?.setConfig(project.settings?.engine?.audio||{});mount();window.MFNatalAudio?.open({hosted:!standalone});
