@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
 /* Camada de apresentação. Todo o fluxo de compras/ações permanece na engine. */
 /* O layout original nunca aparece por baixo, nem durante as animacoes. */
 .oficina{visibility:hidden!important}
@@ -60,3 +61,6 @@ html,body{background:transparent!important}
 .natal-craft-meter-bar{height:100%;width:0;background:linear-gradient(90deg,#7ed352,#dcf58d);transition:width .18s linear}
 .natal-delivery-wait{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;color:white;background:linear-gradient(0deg,#39473ad9 var(--wait-progress,0%),#39473aaf var(--wait-progress,0%));font-weight:900;font-size:23px;line-height:1.25;text-shadow:0 2px 3px #17251b;border-radius:inherit;pointer-events:none}
 .natal-delivery-roller,.natal-delivery-bag{image-rendering:auto;will-change:transform,opacity}
+
+/* Fonte original do Ateliê restaurada sem carregar o menu HTML antigo. */
+html,body,#natal-layout-root,#natal-stage,.natal-item,.natal-item.natal-button{font-family:'Baloo 2',ui-rounded,system-ui,Arial,sans-serif!important}
