@@ -501,7 +501,7 @@ setInterval(()=>{
  if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta()}
 },1000);
 document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta()}});
-fetch(cfgUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
+fetch(cfgUrl+'?v=20261111-balance-v27',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
  project=p;mount();
  if(standalone)loadStandalonePreview();
