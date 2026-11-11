@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-11-material-rotation-v26",
+  "version": "2026-11-11-balance-v27",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -41,7 +41,9 @@
         "plastico": 2,
         "tinta": 1
       },
-      "stars": 7
+      "stars": 9,
+      "rare": false,
+      "tier": "common"
     },
     {
       "id": "boneca",
@@ -51,17 +53,21 @@
         "tinta": 2,
         "papel": 1
       },
-      "stars": 9
+      "stars": 11,
+      "rare": false,
+      "tier": "common"
     },
     {
       "id": "robo",
       "name": "Robô de Natal",
       "needs": {
         "plastico": 3,
-        "tinta": 1,
+        "tinta": 2,
         "laco": 1
       },
-      "stars": 12
+      "stars": 19,
+      "rare": false,
+      "tier": "medium"
     },
     {
       "id": "urso",
@@ -71,7 +77,9 @@
         "papel": 2,
         "laco": 1
       },
-      "stars": 10
+      "stars": 14,
+      "rare": false,
+      "tier": "common"
     },
     {
       "id": "trenzinho",
@@ -79,9 +87,11 @@
       "needs": {
         "plastico": 2,
         "tinta": 2,
-        "papel": 1
+        "papel": 2
       },
-      "stars": 13
+      "stars": 17,
+      "rare": false,
+      "tier": "medium"
     },
     {
       "id": "foguete",
@@ -92,8 +102,9 @@
         "papel": 2,
         "laco": 2
       },
-      "stars": 24,
-      "rare": true
+      "stars": 26,
+      "rare": true,
+      "tier": "rare"
     },
     {
       "id": "castelo",
@@ -104,8 +115,9 @@
         "papel": 3,
         "laco": 2
       },
-      "stars": 27,
-      "rare": true
+      "stars": 28,
+      "rare": true,
+      "tier": "rare"
     },
     {
       "id": "presente-ouro",
@@ -114,10 +126,11 @@
         "plastico": 2,
         "tinta": 2,
         "papel": 3,
-        "laco": 3
+        "laco": 4
       },
       "stars": 30,
-      "rare": true
+      "rare": true,
+      "tier": "rare"
     }
   ],
   "ui": {

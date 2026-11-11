@@ -146,7 +146,7 @@ function bindText(item){
  if(o==='Título da trilha')return `🎄 Trilha de Natal • Página ${passPage+1} de ${Math.max(1,Math.ceil(levels().length/2))}`;
  let m=o.match(/^Quantidade recurso (\d+)/);if(m)return String(stock(project.materials[Number(m[1])-1]?.key));
  m=o.match(/^Nome recurso (\d+)/);if(m){const v=project.materials[Number(m[1])-1];return v?(v.sprite?'':v.emoji+' ')+v.name:'';}
- m=o.match(/^Tipo do pedido (\d+)/);if(m)return state.orders?.[Number(m[1])-1]?.rare?'Pedido raro':'Pedido comum';
+ m=o.match(/^Tipo do pedido (\d+)/);if(m){const r=state.orders?.[Number(m[1])-1];return !r?'Pedido comum':r.stars>=26?'Pedido raro':r.stars>=15?'Pedido médio':'Pedido comum'};
  m=o.match(/^Sprite do presente (\d+)/);if(m){const r=state.orders?.[Number(m[1])-1];return recipeById(r?.id)?.emoji||'🎁'}
  m=o.match(/^Nome do presente (\d+)/);if(m)return state.orders?.[Number(m[1])-1]?.name||'';
  m=o.match(/^Ingredientes do presente (\d+)/);if(m){const r=state.orders?.[Number(m[1])-1];return Object.entries(r?.needs||{}).filter(([,v])=>v).map(([k,v])=>`${project.materials.find(x=>x.key===k)?.emoji||'•'} ${stock(k)}/${v}`).join('  ')}
