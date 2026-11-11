@@ -268,6 +268,7 @@ async function animateGift(slot){
  if(scene!=='factory')return;
  // No Ateliê, o saco surge no ponto configurado e fica imóvel até a saída.
  const image=b.image;if(!image)return;
+ if(bagNode){bagNode.remove();bagNode=null;}
  bagNode=assetNode(image,'natal-delivery-bag',Number(b.appearX)||0,Number(b.appearY)||0,Number(b.size)||120,Number(b.size)||120,90);
  if(!bagNode)return;
  const bagArrival=bagNode.animate([{opacity:0},{opacity:1}],{duration:Math.max(100,Number(b.appearDuration)||420),easing:'ease-out'});
@@ -404,7 +405,7 @@ window.addEventListener('message',e=>{
    }
   }}
   if(active){updateBindings();syncFriends();if(scene==='factory'){
-    newlyCompleted.forEach(job=>completeGift(job.slot,job.startedAt));syncOrderQueue();
+    newlyCompleted.forEach(job=>completeGift(Number(job.slot)+1,job.startedAt));syncOrderQueue();
   }}
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
