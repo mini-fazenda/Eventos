@@ -233,7 +233,7 @@ function updateBindings(){
  updateSanta();if(scene==='factory'){updateFactoryEffects();syncOrderQueue();}
 }
 function buildScene(){if(!project||!stage)return;
- sceneGeneration++;queueOrder=[1,2,3];
+ sceneGeneration++;pendingGiftSlots.clear();queueOrder=[1,2,3];
  const cooled=state?.orders?.map((j,i)=>j.phase==='cooldown'?i+1:null).filter(Boolean)||[];
  queueOrder=queueOrder.filter(i=>!cooled.includes(i)).concat(cooled);
  stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background='transparent';
@@ -264,7 +264,7 @@ function slotX(slot){
  return project.scenes.factory.find(e=>new RegExp('^Card pedido '+slot+'$','i').test(e.name||''))?.x??(19+(slot-1)*312);
 }
 
-let queueOrder=[1,2,3],deliveryQueue=Promise.resolve(),sceneGeneration=0;
+let queueOrder=[1,2,3],deliveryQueue=Promise.resolve(),sceneGeneration=0;const pendingGiftSlots=new Set();
 function syncOrderQueue(){
  if(!active||scene!=='factory'||!state)return;
  const jobs=state.orders||[];
@@ -273,7 +273,7 @@ function syncOrderQueue(){
  jobs.forEach((job,i)=>{
    const slot=i+1,nodes=giftNodes(slot),idx=queueOrder.indexOf(slot),shift=(idx-(slot-1))*spacing;
    for(const node of nodes){
-     if(finishInProgress.has(slot))continue;
+     if(finishInProgress.has(slot)||pendingGiftSlots.has(slot))continue;
      node.style.transition='translate '+Math.max(100,Number(delivery().bag?.shiftDuration)||530)+'ms cubic-bezier(.2,.7,.2,1),opacity 170ms ease';
      node.style.translate=shift+'px 0px';
      const card=node.dataset.name==='Card pedido '+slot;
@@ -360,6 +360,7 @@ async function departBag(){
 }
 async function completeGift(slot,stamp){
  const key=slot+':'+stamp;
+ pendingGiftSlots.delete(slot);
  if(finishedOrders.has(key)||finishInProgress.has(slot))return;
  finishedOrders.add(key);if(finishedOrders.size>150)finishedOrders.delete(finishedOrders.values().next().value);
  finishInProgress.add(slot);
@@ -461,9 +462,12 @@ window.addEventListener('message',e=>{
     if(scene==='factory'&&active)newlyCompleted.push(job);
    }
   }}
-  if(active){updateBindings();syncFriends();if(scene==='factory'){
-    newlyCompleted.forEach(job=>{deliveryQueue=deliveryQueue.catch(()=>{}).then(()=>completeGift(Number(job.slot)+1,job.startedAt));});syncOrderQueue();
-  }}
+  if(active){
+    if(scene==='factory')newlyCompleted.forEach(job=>pendingGiftSlots.add(Number(job.slot)+1));
+    updateBindings();syncFriends();if(scene==='factory'){
+      newlyCompleted.forEach(job=>{deliveryQueue=deliveryQueue.catch(()=>{}).then(()=>completeGift(Number(job.slot)+1,job.startedAt));});syncOrderQueue();
+    }
+  }
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
   responses.add(id);locked=false;
