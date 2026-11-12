@@ -1,20 +1,7 @@
 name: Publicar menu de eventos
+# GitHub Pages ja publica automaticamente esta branch pelo fluxo nativo.
+# Mantido apenas para acionamento manual, evitando deploys concorrentes.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'menu.html'
-      - 'menu.js'
-      - 'menu.css'
-      - 'event.json'
-      - 'index.html'
-      - 'natal-layout.json'
-      - 'natal-runtime.js'
-      - 'natal-audio.js'
-      - 'natal-layout-v21.json'
-      - 'natal-runtime.css'
-      - 'assets/natal/**'
-      - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
   contents: read
