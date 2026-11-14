@@ -73,9 +73,9 @@
   if(!joined){add('Sistema','Reconectando ao servidor…');return}
   const now=Date.now();
   if(now<lockedUntil){add('Sistema','Aguarde '+Math.ceil((lockedUntil-now)/1000)+' segundos para conversar novamente.');return}
-  recentSends=recentSends.filter(at=>now-at<10000);
-  if(recentSends.length>=3){lockedUntil=now+15000;recentSends=[];send({t:'chat',text:msg.slice(0,MAX_CHAT)});add('Sistema','Mensagens rápidas demais: chat bloqueado por 15 segundos.');return}
-  recentSends.push(now);send({t:'chat',text:msg.slice(0,160)});input.value='';
+  // O servidor é a autoridade do flood. Quatro envios sem pausa de 2 s
+  // causam bloqueio, independentemente da aba ou reconexão.
+  send({t:'chat',text:msg.slice(0,MAX_CHAT)});input.value='';
  };
  $('#hide').onclick=()=>{
   const list=$('#messages'),hidden=!list.hidden;
