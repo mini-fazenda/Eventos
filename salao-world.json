@@ -1,0 +1,89 @@
+{
+  "format": "vila-scene-v1",
+  "title": "Salão de Natal — cenário em construção",
+  "cols": 20,
+  "rows": 20,
+  "spawn": {
+    "gx": 9,
+    "gy": 10
+  },
+  "camera": {
+    "offsetX": 0,
+    "offsetY": -160,
+    "zoom": 0.6
+  },
+  "objects": [
+    {
+      "itemId": "item-salao-papai-noel",
+      "gx": 13,
+      "gy": 3,
+      "w": 3,
+      "h": 3,
+      "imgSrc": "https://mini-fazenda.github.io/Eventos/assets/natal/5f733b8aad8e13269691.gif",
+      "visualScale": 0.78
+    },
+    {
+      "itemId": "item-salao-presente-1",
+      "gx": 7,
+      "gy": 3,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "https://mini-fazenda.github.io/Eventos/assets/natal/69dabb087fc74d4119b3.png",
+      "visualScale": 1.05
+    },
+    {
+      "itemId": "item-salao-presente-2",
+      "gx": 8,
+      "gy": 3,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "https://mini-fazenda.github.io/Eventos/assets/natal/69dabb087fc74d4119b3.png",
+      "visualScale": 0.9
+    },
+    {
+      "itemId": "item-salao-presente-3",
+      "gx": 9,
+      "gy": 3,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "https://mini-fazenda.github.io/Eventos/assets/natal/69dabb087fc74d4119b3.png",
+      "visualScale": 1.1
+    },
+    {
+      "itemId": "item-salao-cadeira-1",
+      "gx": 3,
+      "gy": 7,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "assets/vovo-a/cadeira.webp",
+      "visualScale": 1
+    },
+    {
+      "itemId": "item-salao-cadeira-2",
+      "gx": 12,
+      "gy": 7,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "assets/vovo-o/cadeira.webp",
+      "visualScale": 1
+    },
+    {
+      "itemId": "item-salao-cadeira-3",
+      "gx": 4,
+      "gy": 7,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "assets/vovo-a/cadeira.webp",
+      "visualScale": 1
+    },
+    {
+      "itemId": "item-salao-cadeira-4",
+      "gx": 13,
+      "gy": 7,
+      "w": 1,
+      "h": 1,
+      "imgSrc": "assets/vovo-o/cadeira.webp",
+      "visualScale": 1
+    }
+  ]
+}
