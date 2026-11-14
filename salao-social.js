@@ -1,6 +1,7 @@
 /* Só interface social e rede. O jogo, personagem, cenário e câmera são desenhados pela engine da Vila da Colheita. */
 (()=>{'use strict';
  let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0;
+ const names=new Map();
  const $=selector=>document.querySelector(selector);
  const notify=(type,extra={})=>{if(origin)window.parent.postMessage({type,...extra},origin)};
  function send(msg){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(msg))}
@@ -20,11 +21,12 @@
   ws.onmessage=event=>{
    let message;try{message=JSON.parse(event.data)}catch{return}
    if(message.t==='welcome'){
-    uid=message.uid;room=message.room;joined=true;
+    uid=message.uid;room=message.room;joined=true;names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26));
     $('#room').textContent='Salão '+room+' • '+String(message.players.length+1)+' fazendeiros';
    }
-   if(message.t==='chat')add(message.uid===uid?'Você':'Fazendeiro',message.text);
-   if(message.t==='join')$('#room').textContent='Salão '+room+' • novos visitantes';
+   if(message.t==='chat')add(message.uid===uid?'Você':names.get(message.uid)||'Fazendeiro',message.text);
+   if(message.t==='join'){names.set(message.uid,String(message.name||'Fazendeiro').slice(0,26));$('#room').textContent='Salão '+room+' • novos visitantes'}
+   if(message.t==='leave')names.delete(message.uid);
    notify('mf-salon-state',{message});
   };
   ws.onclose=()=>{
