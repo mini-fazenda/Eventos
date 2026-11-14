@@ -236,7 +236,7 @@ function buildScene(){if(!project||!stage)return;
  queueOrder=queueOrder.filter(i=>!cooled.includes(i)).concat(cooled);
  stage.replaceChildren();bagNode=null;rollerNode=null;bagBusy=false;rollerBusy=false;finishInProgress.clear();stage.style.background='transparent';
  const frag=document.createDocumentFragment();for(const item of [...project.scenes[scene]].sort((a,b)=>(a.z||0)-(b.z||0)))frag.append(element(item));
- stage.append(frag);if(scene==='factory')mountDelivery();updateBindings();if(scene==='factory')syncOrderQueue();
+ stage.append(frag);document.dispatchEvent(new Event('mf-natal-scene-built'));if(scene==='factory')mountDelivery();updateBindings();if(scene==='factory')syncOrderQueue();
 }
 
 
