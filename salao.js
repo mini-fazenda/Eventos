@@ -22,6 +22,7 @@ function connect(){if(!ticket||!endpoint||paused)return;const address=new URL(en
  if(m.t==='leave'){players.delete(m.uid);$('#count').textContent=players.size+' jogadores'}
  if(m.t==='profile'){const p=players.get(m.uid);if(p)p.appearance=m.appearance||{}}
  if(m.t==='move'){const p=players.get(m.uid);if(p){p.x=m.x;p.y=m.y;p.facing=m.facing||'front';p.seat=null}}
+ if(m.t==='move-ack'){const p=players.get(myUid);if(p&&Number.isFinite(m.x)&&Number.isFinite(m.y)&&Math.hypot(p.x-m.x,p.y-m.y)>1){p.x=m.x;p.y=m.y;target=[];notify('Posição sincronizada com o servidor.')}}
  if(m.t==='sit'){const p=players.get(m.uid);if(p){p.seat=m.seat;p.x=m.x;p.y=m.y}}
  if(m.t==='chat'){const p=players.get(m.uid);if(!p||muted.has(m.uid))return;p.lastText=String(m.text||'');p.until=Date.now()+4500;log(p.name,p.lastText,m.uid)}
  if(m.t==='look')notify(String(m.text||''));});
