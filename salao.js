@@ -60,6 +60,7 @@ requestAnimationFrame(frame);
 $('#send').addEventListener('submit',e=>{e.preventDefault();const input=$('#message'),text=input.value.trim();if(!text)return;send({t:'chat',text});input.value=''});
 $('#chat-toggle').onclick=()=>{const pane=$('#chat');pane.hidden=!pane.hidden;$('#chat-toggle').textContent=pane.hidden?'Mostrar chat':'Ocultar chat'};
 function exit(){paused=true;target=[];ws?.close();if(farmOrigin)window.parent.postMessage({type:'mf-salon-exit'},farmOrigin);else history.back()}
+setInterval(()=>{if(!paused)send({t:'ping'})},20000);
 $('#back').onclick=exit;document.addEventListener('keydown',e=>{if(e.key==='Escape')exit()});window.addEventListener('pagehide',()=>{paused=true;ws?.close()});
 if(window.parent!==window)window.parent.postMessage({type:'mf-salon-ready'},'*');else notify('Abra o salão pelo menu de Natal da Vila da Colheita.');
 })();
