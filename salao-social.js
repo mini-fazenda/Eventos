@@ -68,8 +68,8 @@
   recentSends.push(now);send({t:'chat',text:msg.slice(0,160)});input.value='';
  };
  $('#hide').onclick=()=>{
-  const list=$('#messages'),form=$('#chat'),hidden=!list.hidden;
-  list.hidden=hidden;form.hidden=hidden;
+  const list=$('#messages'),hidden=!list.hidden;
+  list.hidden=hidden;
   $('#hide').textContent=hidden?'Mostrar chat':'Ocultar chat';
   notify('mf-salon-chat-size',{minimized:hidden});
  };
