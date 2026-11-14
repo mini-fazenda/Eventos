@@ -1,7 +1,7 @@
 /* Só interface social e rede. O jogo, personagem, cenário e câmera são desenhados pela engine da Vila da Colheita. */
 (()=>{'use strict';
  let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0,lockedUntil=0;
- let recentSends=[];
+ let recentSends=[],farmName='';
  const names=new Map(),MAX_CHAT=75;
  const $=selector=>document.querySelector(selector);
  const notify=(type,extra={})=>{if(origin)window.parent.postMessage({type,...extra},origin)};
@@ -18,15 +18,22 @@
   const url=new URL(endpoint);
   url.searchParams.set('ticket',ticket);
   const ws=new WebSocket(url.href);socket=ws;
-  ws.onopen=()=>{$('#connection').textContent='Conectado';attempt=0;send({t:'profile',appearance:profile})};
+  ws.onopen=()=>{$('#connection').textContent='Conectado';attempt=0;send({t:'profile',appearance:profile});if(farmName)send({t:'name',name:farmName})};
   ws.onmessage=event=>{
    let message;try{message=JSON.parse(event.data)}catch{return}
    if(message.t==='welcome'){
     uid=message.uid;room=message.room;joined=true;recentSends=[];lockedUntil=0;names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26));
     $('#room').textContent='Salão '+room+' • '+String(message.players.length+1)+' fazendeiros';
    }
-   if(message.t==='sync'){names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26))}
-   if(message.t==='chat')add(message.uid===uid?'Você':names.get(message.uid)||'Fazendeiro',message.text);
+   if(message.t==='sync'||message.t==='snapshot'){for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26))}
+   if(message.t==='name'){
+    names.set(message.uid,String(message.name||'Fazendeiro').slice(0,12));
+    if(message.uid===uid)farmName=String(message.name||farmName).slice(0,12);
+   }
+   if(message.t==='chat'){
+    if(message.name)names.set(message.uid,String(message.name).slice(0,12));
+    add(message.name||names.get(message.uid)||(message.uid===uid?farmName:'Fazendeiro'),message.text);
+   }
    if(message.t==='chat-limit'){
     lockedUntil=Date.now()+Math.max(1,Number(message.seconds)||15)*1000;
     recentSends=[];add('Sistema','Chat temporariamente bloqueado por '+Math.ceil((lockedUntil-Date.now())/1000)+' segundos.');
@@ -48,13 +55,16 @@
   if(!/^https:\/\/(mini-fazenda\.github\.io|viladacolheita\.ddns\.net)$/.test(event.origin)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(event.origin))return;
   const d=event.data||{};
   if(d.type==='mf-salon-init'){
-   origin=event.origin;endpoint=String(d.endpoint||'');profile=d.profile||null;
+   origin=event.origin;endpoint=String(d.endpoint||'');profile=d.profile||null;farmName=String(d.name||farmName||'').trim().slice(0,12);
    if(socket&&socket.readyState!==WebSocket.CLOSED)socket.close();
    clearTimeout(reconnectTimer);connect(d.ticket);
   }else if(event.origin===origin&&d.type==='mf-salon-move'){
    send({t:'move',...d.position});
   }else if(event.origin===origin&&d.type==='mf-salon-action'){
    send({t:d.action,id:d.id});
+  }else if(event.origin===origin&&d.type==='mf-salon-name'){
+   const name=String(d.name||'').trim().slice(0,12);
+   if(name&&name!==farmName){farmName=name;send({t:'name',name})}
   }else if(event.origin===origin&&d.type==='mf-salon-request-sync'){
    send({t:'sync'});
   }else if(event.origin===origin&&d.type==='mf-salon-type'){
