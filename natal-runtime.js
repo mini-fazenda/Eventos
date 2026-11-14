@@ -117,6 +117,7 @@ function element(item){
 function onButton(name){
  if(name.includes('Aba Fábrica')){switchScene('factory');return}
  if(name.includes('Aba Passe')){switchScene('pass');return}
+ if(name.includes('Aba Salão de Natal')){document.dispatchEvent(new Event('mf-natal-open-salon'));return}
  if(name.includes('Seta voltar')){page(-1);return}
  if(name.includes('Seta avançar')){page(1);return}
  if(name.includes('Botão fabricar')){

@@ -18,6 +18,7 @@
  function attachInsideNatalMenu(){
   const stage=document.getElementById('natal-stage');
   if(!stage)return false;
+  if(stage.querySelector('[data-name="Aba Salão de Natal"]')){tab.remove();return true;}
   const tabs=[...stage.querySelectorAll('.natal-item')].filter(el=>/Aba (?:Fábrica|Passe)/.test(el.dataset.name||''));
   if(tabs.length<2)return false;
   // As três abas seguem o sistema de coordenadas e escala do Ateliê.
@@ -31,6 +32,7 @@
  }
  // O runtime reconstrói o palco ao alternar Fábrica/Passe.
  document.addEventListener('mf-natal-scene-built',attachInsideNatalMenu);
+ document.addEventListener('mf-natal-open-salon',()=>tab.click());
  attachInsideNatalMenu();
  window.addEventListener('message',e=>{if(e.source!==window.parent||!e.data)return;
   if(e.data.type==='mf-event-state'&&(!hostOrigin||e.origin===hostOrigin))hostOrigin=e.origin;
