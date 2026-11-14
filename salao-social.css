@@ -1,1 +1,10 @@
-*{box-sizing:border-box}html,body{height:100%;width:100%;margin:0;background:transparent;font:14px Baloo2,system-ui,sans-serif}aside{background:#30241fdd;border:3px solid #a7825d;border-radius:14px;color:#fff8e0;display:flex;flex-direction:column;height:100%;overflow:hidden;box-shadow:0 4px 18px #0005}#info{background:#643b2e;display:flex;align-items:center;gap:8px;min-height:29px;padding:3px 10px;font-size:12px}#connection{font-weight:bold}#room{opacity:.8}#hide{margin-left:auto}button{cursor:pointer;border:1px solid #b87f42;border-radius:8px;background:#f0c26b;color:#563222;padding:4px 10px;font-weight:700}#messages{flex:1;min-height:0;overflow:auto;list-style:none;margin:0;padding:5px 10px;font-size:13px}#messages li{margin:2px 0;overflow-wrap:anywhere}#chat{display:flex;gap:5px;padding:5px;background:#523627}#message{flex:1;min-width:0;border-radius:8px;border:1px solid #cca276;background:#fff9ea;padding:7px;font-size:14px}@media(max-width:700px){#messages{font-size:12px}#message{font-size:13px}}
+*{box-sizing:border-box}html,body{height:100%;width:100%;margin:0;background:transparent;font:14px Baloo2,system-ui,sans-serif}aside{background:#30241fdd;border:3px solid #a7825d;border-radius:14px;color:#fff8e0;display:flex;flex-direction:column;height:100%;overflow:hidden;box-shadow:0 4px 18px #0005}#info{background:#643b2e;display:flex;align-items:center;gap:8px;min-height:29px;padding:3px 10px;font-size:12px}#connection{font-weight:bold}#room{opacity:.8}#hide{margin-left:auto}button{cursor:pointer;border:1px solid #b87f42;border-radius:8px;background:#f0c26b;color:#563222;padding:4px 10px;font-weight:700}#messages{flex:1;min-height:0;overflow:auto;list-style:none;margin:0;padding:5px 10px;font-size:13px}#messages li{margin:2px 0;overflow-wrap:anywhere}#chat{display:flex;gap:5px;padding:5px;background:#523627}#message{flex:1;min-width:0;border-radius:8px;border:1px solid #cca276;background:#fff9ea;padding:7px;font-size:14px}@media (pointer:coarse) and (max-width:700px){
+ html,body{font-size:11px}
+ aside{border-width:2px;border-radius:10px}
+ #info{font-size:10px;min-height:23px;padding:2px 6px;gap:4px}
+ button{font-size:11px;padding:3px 6px;border-radius:6px}
+ #messages{font-size:10.5px;padding:3px 7px}
+ #messages li{margin:1px 0}
+ #chat{padding:3px;gap:3px}
+ #message{font-size:12px;padding:5px;border-radius:6px}
+}
