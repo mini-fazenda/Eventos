@@ -29,3 +29,19 @@ Sempre no repositório do jogo: `eventRewardsOwned`, `eventProgress` e os objeto
 Não insira caminhos de imagens de recompensas permanentes em um pacote temporário que será removido no fim da temporada. Por enquanto, todas as decorações usam um sprite SVG genérico mantido no repositório do jogo.
 
 **Estado:** protótipo funcional de mecânicas e interface; publicação do Pages, teste de duas contas e teste integrado na VPS de homologação ainda pendentes. Não há cobrança real do Premium nem prêmio animal mecânico neste estágio.
+
+
+## 🎅 Salão de Natal (branch de desenvolvimento)
+
+A interface social foi separada da Fábrica e do Passe, nos arquivos:
+- `salao-entry.js`: adiciona o terceiro botão ao menu existente;
+- `salao.html`, `salao.css`, `salao.js`: cenário 2D navegável, chat, movimento, assentos e animações;
+- `assets/natal/`: GIFs e presentes existentes, reutilizados no salão.
+
+O repositório **não contém credenciais Firebase, acesso ao SQLite ou código do servidor**. O jogo principal valida a sessão Google, emite um ingresso descartável por meio do servidor Node da VPS e o entrega ao iframe com `postMessage` e origem restrita. O cliente do salão conecta-se à API WebSocket da Vila da Colheita, sem gravar mensagens ou posições no banco.
+
+**Primeira versão:** sala social, sem recompensas, missões ou minigames. Papai Noel, lareira, árvore e presentes são decorativos/interativos.
+
+**Teste:** clone este repositório na branch `feature/salao-de-natal-multiplayer` ao lado do repositório `mini-fazenda` na branch `feature/integracao-salao-natal`; no repositório do jogo execute `Testar-Salao-Natal.bat` (Windows) ou `bash Testar-Salao-Natal.sh` (Linux). O teste local usa um servidor falso isolado e não acessa dados de produção.
+
+**Atenção:** GitHub Pages publica a branch configurada para Pages (hoje `main`); criar esta branch não torna seu `salao.html` disponível publicamente na URL de produção. Fazer integração e publicar somente após homologação.
