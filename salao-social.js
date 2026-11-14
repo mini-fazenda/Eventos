@@ -62,6 +62,10 @@
    send({t:'move',...d.position});
   }else if(event.origin===origin&&d.type==='mf-salon-action'){
    send({t:d.action,id:d.id});
+  }else if(event.origin===origin&&d.type==='mf-salon-profile'){
+   // Guarda o último visual também durante reconexões do WebSocket.
+   profile=d.appearance||null;
+   send({t:'profile',appearance:profile});
   }else if(event.origin===origin&&d.type==='mf-salon-name'){
    const name=String(d.name||'').trim().slice(0,12);
    if(name&&name!==farmName){farmName=name;send({t:'name',name})}
