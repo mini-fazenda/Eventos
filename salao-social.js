@@ -53,8 +53,6 @@
    clearTimeout(reconnectTimer);connect(d.ticket);
   }else if(event.origin===origin&&d.type==='mf-salon-move'){
    send({t:'move',...d.position});
-  }else if(event.origin===origin&&d.type==='mf-salon-destination'){
-   send({t:'destination',x:d.position?.x,y:d.position?.y});
   }else if(event.origin===origin&&d.type==='mf-salon-action'){
    send({t:d.action,id:d.id});
   }else if(event.origin===origin&&d.type==='mf-salon-type'){
