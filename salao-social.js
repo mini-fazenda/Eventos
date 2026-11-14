@@ -25,6 +25,7 @@
     uid=message.uid;room=message.room;joined=true;recentSends=[];lockedUntil=0;names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26));
     $('#room').textContent='Salão '+room+' • '+String(message.players.length+1)+' fazendeiros';
    }
+   if(message.t==='sync'){names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26))}
    if(message.t==='chat')add(message.uid===uid?'Você':names.get(message.uid)||'Fazendeiro',message.text);
    if(message.t==='chat-limit'){
     lockedUntil=Date.now()+Math.max(1,Number(message.seconds)||15)*1000;
@@ -54,6 +55,13 @@
    send({t:'move',...d.position});
   }else if(event.origin===origin&&d.type==='mf-salon-action'){
    send({t:d.action,id:d.id});
+  }else if(event.origin===origin&&d.type==='mf-salon-type'){
+   const input=$('#message');if(!input)return;
+   input.focus({preventScroll:true});
+   const key=String(d.key||'');
+   if(key==='Enter'){if(input.value.trim())$('#chat').requestSubmit();return}
+   if(key==='Backspace')input.value=input.value.slice(0,-1);
+   else if(key.length===1&&input.value.length<160)input.value+=key;
   }else if(event.origin===origin&&d.type==='mf-salon-exit'){
    paused=true;clearTimeout(reconnectTimer);socket?.close();
   }
@@ -73,6 +81,8 @@
   $('#hide').textContent=hidden?'Mostrar chat':'Ocultar chat';
   notify('mf-salon-chat-size',{minimized:hidden});
  };
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&joined)send({t:'sync'})});
+ window.addEventListener('focus',()=>{if(joined)send({t:'sync'})});
  setInterval(()=>{if(!paused)send({t:'ping'})},20000);
  window.addEventListener('pagehide',()=>{paused=true;socket?.close()});
  if(window.parent!==window)window.parent.postMessage({type:'mf-salon-ready'},'*');
