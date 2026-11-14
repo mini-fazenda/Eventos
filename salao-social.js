@@ -1,6 +1,7 @@
 /* Só interface social e rede. O jogo, personagem, cenário e câmera são desenhados pela engine da Vila da Colheita. */
 (()=>{'use strict';
- let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0;
+ let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0,lockedUntil=0;
+ let recentSends=[];
  const names=new Map();
  const $=selector=>document.querySelector(selector);
  const notify=(type,extra={})=>{if(origin)window.parent.postMessage({type,...extra},origin)};
@@ -21,10 +22,14 @@
   ws.onmessage=event=>{
    let message;try{message=JSON.parse(event.data)}catch{return}
    if(message.t==='welcome'){
-    uid=message.uid;room=message.room;joined=true;names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26));
+    uid=message.uid;room=message.room;joined=true;recentSends=[];lockedUntil=0;names.clear();for(const p of message.players||[])names.set(p.uid,String(p.name||'Fazendeiro').slice(0,26));
     $('#room').textContent='Salão '+room+' • '+String(message.players.length+1)+' fazendeiros';
    }
    if(message.t==='chat')add(message.uid===uid?'Você':names.get(message.uid)||'Fazendeiro',message.text);
+   if(message.t==='chat-limit'){
+    lockedUntil=Date.now()+Math.max(1,Number(message.seconds)||15)*1000;
+    recentSends=[];add('Sistema','Chat temporariamente bloqueado por '+Math.ceil((lockedUntil-Date.now())/1000)+' segundos.');
+   }
    if(message.t==='join'){names.set(message.uid,String(message.name||'Fazendeiro').slice(0,26));$('#room').textContent='Salão '+room+' • novos visitantes'}
    if(message.t==='leave')names.delete(message.uid);
    notify('mf-salon-state',{message});
@@ -56,7 +61,11 @@
  $('#chat').onsubmit=e=>{
   e.preventDefault();const input=$('#message'),msg=input.value.trim();if(!msg)return;
   if(!joined){add('Sistema','Reconectando ao servidor…');return}
-  send({t:'chat',text:msg.slice(0,160)});input.value='';
+  const now=Date.now();
+  if(now<lockedUntil){add('Sistema','Aguarde '+Math.ceil((lockedUntil-now)/1000)+' segundos para conversar novamente.');return}
+  recentSends=recentSends.filter(at=>now-at<10000);
+  if(recentSends.length>=3){lockedUntil=now+15000;recentSends=[];send({t:'chat',text:msg.slice(0,160)});add('Sistema','Mensagens rápidas demais: chat bloqueado por 15 segundos.');return}
+  recentSends.push(now);send({t:'chat',text:msg.slice(0,160)});input.value='';
  };
  $('#hide').onclick=()=>{
   const list=$('#messages'),form=$('#chat'),hidden=!list.hidden;
