@@ -55,6 +55,8 @@
    send({t:'move',...d.position});
   }else if(event.origin===origin&&d.type==='mf-salon-action'){
    send({t:d.action,id:d.id});
+  }else if(event.origin===origin&&d.type==='mf-salon-request-sync'){
+   send({t:'sync'});
   }else if(event.origin===origin&&d.type==='mf-salon-type'){
    const input=$('#message');if(!input)return;
    input.focus({preventScroll:true});
