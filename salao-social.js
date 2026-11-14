@@ -2,14 +2,14 @@
 (()=>{'use strict';
  let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0,lockedUntil=0;
  let recentSends=[];
- const names=new Map();
+ const names=new Map(),MAX_CHAT=75;
  const $=selector=>document.querySelector(selector);
  const notify=(type,extra={})=>{if(origin)window.parent.postMessage({type,...extra},origin)};
  function send(msg){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(msg))}
  function add(name,message){
   const li=document.createElement('li'),bold=document.createElement('strong');
   bold.textContent=String(name||'Fazendeiro').slice(0,26)+': ';
-  li.append(bold,document.createTextNode(String(message||'').slice(0,160)));
+  li.append(bold,document.createTextNode(String(message||'').slice(0,MAX_CHAT)));
   $('#messages').append(li);while($('#messages').children.length>35)$('#messages').firstElementChild.remove();
   $('#messages').scrollTop=$('#messages').scrollHeight;
  }
@@ -63,7 +63,7 @@
    const key=String(d.key||'');
    if(key==='Enter'){if(input.value.trim())$('#chat').requestSubmit();return}
    if(key==='Backspace')input.value=input.value.slice(0,-1);
-   else if(key.length===1&&input.value.length<160)input.value+=key;
+   else if(key.length===1&&input.value.length<MAX_CHAT)input.value+=key;
   }else if(event.origin===origin&&d.type==='mf-salon-exit'){
    paused=true;clearTimeout(reconnectTimer);socket?.close();
   }
@@ -74,7 +74,7 @@
   const now=Date.now();
   if(now<lockedUntil){add('Sistema','Aguarde '+Math.ceil((lockedUntil-now)/1000)+' segundos para conversar novamente.');return}
   recentSends=recentSends.filter(at=>now-at<10000);
-  if(recentSends.length>=3){lockedUntil=now+15000;recentSends=[];send({t:'chat',text:msg.slice(0,160)});add('Sistema','Mensagens rápidas demais: chat bloqueado por 15 segundos.');return}
+  if(recentSends.length>=3){lockedUntil=now+15000;recentSends=[];send({t:'chat',text:msg.slice(0,MAX_CHAT)});add('Sistema','Mensagens rápidas demais: chat bloqueado por 15 segundos.');return}
   recentSends.push(now);send({t:'chat',text:msg.slice(0,160)});input.value='';
  };
  $('#hide').onclick=()=>{
