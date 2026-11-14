@@ -9,7 +9,9 @@ const muted=new Set();
 const point=(x,y)=>({x:OX+x*TILE,y:OY+y*TILE});
 const valid=(x,y)=>x>1&&x<17&&y>1&&y<11&&!blocked.some(o=>x>=o.x-.15&&x<o.x+o.w+.15&&y>=o.y-.15&&y<o.y+o.h+.15);
 const notify=t=>{$('#bubble').textContent=t;clearTimeout(notify.timer);notify.timer=setTimeout(()=>$('#bubble').textContent='',4500)};
-const log=(name,text)=>{const li=document.createElement('li'),b=document.createElement('strong');b.textContent=name+': ';li.append(b,document.createTextNode(text));$('#messages').append(li);while($('#messages').children.length>35)$('#messages').firstElementChild.remove();li.scrollIntoView({block:'nearest'})};
+const log=(name,text,uid)=>{const li=document.createElement('li'),b=document.createElement('strong');b.textContent=name+': ';li.append(b,document.createTextNode(text));
+ if(uid&&uid!==myUid){const mute=document.createElement('button'),report=document.createElement('button');mute.type=report.type='button';mute.textContent='Silenciar';report.textContent='Denunciar';for(const control of [mute,report]){control.style.cssText='font:11px system-ui;min-height:22px;margin-left:5px'}mute.onclick=()=>{muted.add(uid);mute.textContent='Silenciado'};report.onclick=()=>{send({t:'report',uid});report.textContent='Denúncia enviada';report.disabled=true};li.append(mute,report)}
+ $('#messages').append(li);while($('#messages').children.length>35)$('#messages').firstElementChild.remove();li.scrollIntoView({block:'nearest'})};
 const send=x=>{if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(x))};
 const cleanUrl=src=>{if(typeof src!=='string')return '';try{const url=new URL(src,location.href);if(!['https:','http:'].includes(url.protocol))return '';if(url.origin!=='https://viladacolheita.ddns.net'&&url.origin!=='https://mini-fazenda.github.io'&&url.origin!=='https://i.postimg.cc'&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(url.origin))return '';return url.href}catch{return ''}};
 function photo(src){src=cleanUrl(src);if(!src)return null;if(!assets.has(src)){const img=new Image();img.decoding='async';img.src=src;assets.set(src,img)}const img=assets.get(src);return img.complete&&img.naturalWidth?img:null}
@@ -21,7 +23,7 @@ function connect(){if(!ticket||!endpoint||paused)return;const address=new URL(en
  if(m.t==='profile'){const p=players.get(m.uid);if(p)p.appearance=m.appearance||{}}
  if(m.t==='move'){const p=players.get(m.uid);if(p){p.x=m.x;p.y=m.y;p.facing=m.facing||'front';p.seat=null}}
  if(m.t==='sit'){const p=players.get(m.uid);if(p){p.seat=m.seat;p.x=m.x;p.y=m.y}}
- if(m.t==='chat'){const p=players.get(m.uid);if(!p||muted.has(m.uid))return;p.lastText=String(m.text||'');p.until=Date.now()+4500;log(p.name,p.lastText)}
+ if(m.t==='chat'){const p=players.get(m.uid);if(!p||muted.has(m.uid))return;p.lastText=String(m.text||'');p.until=Date.now()+4500;log(p.name,p.lastText,m.uid)}
  if(m.t==='look')notify(String(m.text||''));});
  ws.addEventListener('close',()=>{if(paused)return;$('#status').textContent='Reconectando…';setTimeout(()=>{if(!paused)window.parent.postMessage({type:'mf-salon-renew'},farmOrigin)},Math.min(10000,600*2**Math.min(5,reconnectCount++)))});
  ws.addEventListener('error',()=>{$('#status').textContent='Conexão instável'})}
@@ -34,7 +36,14 @@ canvas.addEventListener('pointerdown',e=>{if(!me||document.activeElement===$('#m
  if(feature){const positions=[[feature.x,feature.y+1.5],[feature.x-1.5,feature.y],[feature.x+1.5,feature.y],[feature.x,feature.y-1.5]].filter(a=>valid(...a));positions.sort((a,b)=>Math.hypot(a[0]-players.get(myUid).x,a[1]-players.get(myUid).y)-Math.hypot(b[0]-players.get(myUid).x,b[1]-players.get(myUid).y));target=positions.length?route(...positions[0]):[];target.look=feature.id;if(!target.length)send({t:'look',id:feature.id});return}
  target=route(x,y)});
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(OX+x*TILE,OY+y*TILE,w*TILE,h*TILE)}
-function decorations(t){const gradient=ctx.createLinearGradient(0,0,0,650);gradient.addColorStop(0,'#a87d5e');gradient.addColorStop(1,'#7f4d33');ctx.fillStyle=gradient;ctx.fillRect(0,0,900,650);rect(0,0,18,12,'#a66d48');for(let y=1;y<11;y++)for(let x=1;x<17;x++)rect(x,y,1,.025,'#945a39');rect(0,0,18,1,'#71434d');rect(0,11,18,1,'#71434d');rect(0,0,1,12,'#71434d');rect(17,0,1,12,'#71434d');rect(7,1,4,2,'#386940');rect(2,3,3,2,'#a24735');rect(13,3,3,2,'#b56839');rect(3,7,3,2,'#b55740');rect(12,7,3,2,'#b55740');rect(7,5,4,3,'#855c55');ctx.fillStyle='#ab6f69';ctx.beginPath();ctx.ellipse(...Object.values(point(9,6.5)),110,75,0,0,Math.PI*2);ctx.fill();ctx.font='64px serif';for(const f of features){const p=point(f.x,f.y);ctx.fillText(f.s,p.x-31,p.y+12)}ctx.font='32px serif';for(const c of chairs){const p=point(c.x,c.y);ctx.fillText('🪑',p.x-18,p.y+10)}ctx.font='25px serif';for(let i=0;i<8;i++)ctx.fillText('✨',OX+(i*103)%840+20,OY+(i*51)%500+20)}
+function decorations(t){const gradient=ctx.createLinearGradient(0,0,0,650);gradient.addColorStop(0,'#a87d5e');gradient.addColorStop(1,'#7f4d33');ctx.fillStyle=gradient;ctx.fillRect(0,0,900,650);rect(0,0,18,12,'#a66d48');for(let y=1;y<11;y++)for(let x=1;x<17;x++)rect(x,y,1,.025,'#945a39');rect(0,0,18,1,'#71434d');rect(0,11,18,1,'#71434d');rect(0,0,1,12,'#71434d');rect(17,0,1,12,'#71434d');rect(7,1,4,2,'#386940');rect(2,3,3,2,'#a24735');rect(13,3,3,2,'#b56839');rect(3,7,3,2,'#b55740');rect(12,7,3,2,'#b55740');rect(7,5,4,3,'#855c55');ctx.fillStyle='#ab6f69';ctx.beginPath();ctx.ellipse(...Object.values(point(9,6.5)),110,75,0,0,Math.PI*2);ctx.fill();ctx.font='64px serif';for(const f of features){const p=point(f.x,f.y);ctx.fillText(f.s,p.x-31,p.y+12)}ctx.font='32px serif';for(const c of chairs){const p=point(c.x,c.y);ctx.fillText('🪑',p.x-18,p.y+10)}
+ // Reaproveita arte original do evento natalino, sem copiá-la para o servidor.
+ const santa=photo(new URL('assets/natal/5f733b8aad8e13269691.gif',location.href).href);
+ if(santa){const p=point(14.5,4);ctx.drawImage(santa,p.x-40,p.y-85,80,103)}
+ const present=photo(new URL('assets/natal/69dabb087fc74d4119b3.png',location.href).href);
+ if(present){const p=point(9,8.5);ctx.drawImage(present,p.x-32,p.y-45,64,64)}
+ // Janelas e luzes decorativas desenhadas sem imagens extras.
+ for(const x of [5.5,12]){const p=point(x,.5);ctx.fillStyle='#513d51';ctx.fillRect(p.x-39,p.y-18,78,55);ctx.fillStyle='#a9d7e7';ctx.fillRect(p.x-34,p.y-14,68,47);ctx.strokeStyle='#eee9c7';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(p.x,p.y-14);ctx.lineTo(p.x,p.y+33);ctx.moveTo(p.x-34,p.y+9);ctx.lineTo(p.x+34,p.y+9);ctx.stroke()}ctx.font='25px serif';for(let i=0;i<8;i++)ctx.fillText('✨',OX+(i*103)%840+20,OY+(i*51)%500+20)}
 function character(p,uid){const v=point(p.renderX,p.renderY),mine=uid===myUid;ctx.save();if(p.seat){ctx.translate(v.x,v.y);ctx.scale(1,.75);ctx.translate(-v.x,-v.y)}ctx.globalAlpha=mine?1:.93;ctx.fillStyle='#22181866';ctx.beginPath();ctx.ellipse(v.x,v.y+14,15,7,0,0,Math.PI*2);ctx.fill();
  const moving=uid===myUid?target.length>0:Math.hypot(p.x-p.renderX,p.y-p.renderY)>.06;
  const back=p.facing==='back',pose=(moving?'walk':'idle')+(back?'Back':'Front');
