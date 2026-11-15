@@ -1,12 +1,14 @@
 /* Só interface social e rede. O jogo, personagem, cenário e câmera são desenhados pela engine da Vila da Colheita. */
 (()=>{'use strict';
  let socket=null,origin='',endpoint='',uid='',room='',joined=false,paused=false,profile=null,attempt=0,reconnectTimer=0,lockedUntil=0;
- let recentSends=[],farmName='';
+ let recentSends=[],farmName='',typingTimer=0,typingActive=false;
  const names=new Map(),MAX_CHAT=75;
  const $=selector=>document.querySelector(selector);
  const notify=(type,extra={})=>{if(origin)window.parent.postMessage({type,...extra},origin)};
  function send(msg){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(msg))}
- function add(name,message){
+ function stopTyping(){clearTimeout(typingTimer);typingTimer=0;if(typingActive){typingActive=false;send({t:'typing',active:false})}}
+  function markTyping(){if(!joined||paused)return;typingActive=true;send({t:'typing',active:true});clearTimeout(typingTimer);typingTimer=setTimeout(stopTyping,1500)}
+  function add(name,message){
   const li=document.createElement('li'),bold=document.createElement('strong');
   bold.textContent=String(name||'Fazendeiro').slice(0,26)+': ';
   li.append(bold,document.createTextNode(String(message||'').slice(0,MAX_CHAT)));
@@ -42,7 +44,7 @@
    if(message.t==='leave')names.delete(message.uid);
    notify('mf-salon-state',{message});
   };
-  ws.onclose=()=>{
+  ws.onclose=()=>{stopTyping();
    if(paused||socket!==ws)return;
    joined=false;$('#connection').textContent='Reconectando…';
    clearTimeout(reconnectTimer);
@@ -78,18 +80,20 @@
    if(key==='Enter'){if(input.value.trim())$('#chat').requestSubmit();return}
    if(key==='Backspace')input.value=input.value.slice(0,-1);
    else if(key.length===1&&input.value.length<MAX_CHAT)input.value+=key;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
   }else if(event.origin===origin&&d.type==='mf-salon-exit'){
-   paused=true;clearTimeout(reconnectTimer);socket?.close();
+   stopTyping();paused=true;clearTimeout(reconnectTimer);socket?.close();
   }
  });
- $('#chat').onsubmit=e=>{
+ const messageInput=$('#message');messageInput.addEventListener('input',markTyping);messageInput.addEventListener('blur',stopTyping);
+  $('#chat').onsubmit=e=>{
   e.preventDefault();const input=$('#message'),msg=input.value.trim();if(!msg)return;
   if(!joined){add('Sistema','Reconectando ao servidor…');return}
   const now=Date.now();
   if(now<lockedUntil){add('Sistema','Aguarde '+Math.ceil((lockedUntil-now)/1000)+' segundos para conversar novamente.');return}
   // O servidor é a autoridade do flood. Quatro envios sem pausa de 2 s
   // causam bloqueio, independentemente da aba ou reconexão.
-  send({t:'chat',text:msg.slice(0,MAX_CHAT)});input.value='';
+  stopTyping();send({t:'chat',text:msg.slice(0,MAX_CHAT)});input.value='';
  };
  $('#hide').onclick=()=>{
   const list=$('#messages'),hidden=!list.hidden;
@@ -100,6 +104,6 @@
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&joined)send({t:'sync'})});
  window.addEventListener('focus',()=>{if(joined)send({t:'sync'})});
  setInterval(()=>{if(!paused)send({t:'ping'})},20000);
- window.addEventListener('pagehide',()=>{paused=true;socket?.close()});
+ window.addEventListener('pagehide',()=>{stopTyping();paused=true;socket?.close()});
  if(window.parent!==window)window.parent.postMessage({type:'mf-salon-ready'},'*');
 })();
