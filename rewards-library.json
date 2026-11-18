@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "version": "2026-11-18-biblioteca-natal-oito-premios",
+  "event": "natal-2026",
+  "gameBranch": "atualizacao-de-natal",
+  "description": "Biblioteca de itens permanentes. Apenas event.json escolhe as trilhas e os níveis. Itens draft não são concedidos.",
+  "rewards": [
+    {
+      "id": "natal-2026-roupas-nivel-1",
+      "name": "Conjunto de roupas natalinas — nível 1",
+      "type": "cosmetic",
+      "asset": null,
+      "assigned": true,
+      "track": "free",
+      "level": 1,
+      "requiredStars": 4
+    },
+    {
+      "id": "natal-2026-cavalo-rena",
+      "name": "Cavalo Cosplay de Rena",
+      "type": "animal",
+      "asset": "assets/rewards/natal/cavalo-cosplay-rena.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-gatinho-bege",
+      "name": "Gatinho Bege de Natal",
+      "type": "animal",
+      "asset": "assets/rewards/natal/gatinho-bege.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-porquinho-saxofone",
+      "name": "Porquinho de Natal Saxofonista",
+      "type": "animal",
+      "asset": "assets/rewards/natal/porquinho-saxofone.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-urso-polar",
+      "name": "Urso Polar de Natal",
+      "type": "animal",
+      "asset": "assets/rewards/natal/urso-polar.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-elfo",
+      "name": "Elfo de Natal",
+      "type": "animal",
+      "asset": "assets/rewards/natal/elfo.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-elfa",
+      "name": "Elfa de Natal",
+      "type": "animal",
+      "asset": "assets/rewards/natal/elfa.gif",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-poco",
+      "name": "Poço de Natal",
+      "type": "object",
+      "asset": "assets/rewards/natal/poco-de-natal.png",
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-treno",
+      "name": "Trenó de Natal",
+      "type": "object",
+      "asset": "assets/rewards/natal/treno-de-natal.png",
+      "assigned": false
+    }
+  ]
+}
