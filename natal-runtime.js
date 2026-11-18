@@ -227,7 +227,11 @@ function updateBindings(){
    if(node.textContent!==text)node.textContent=text;node.disabled=!!disabled;
   }else if(item.name==='Preenchimento de progresso'){
    const target=levels().find(l=>!l.unlocked)?.need||levels().at(-1)?.need||1;
-   node.style.width= Math.max(0,Math.min(910,910*(state?.stars||0)/target))+'px';
+   // A largura deve obedecer ao fundo da barra editável no Ateliê, nunca um valor fixo.
+   const track=project.scenes.pass.find(x=>x.name==='Fundo barra de progresso');
+   const available=track?Math.max(0,(Number(track.x)+Number(track.w))-Number(item.x)-Math.max(2,Number(track.strokeWidth)||0)):Math.max(0,Number(item.w)||0);
+   const ratio=Math.max(0,Math.min(1,Number(state?.stars||0)/Math.max(1,target)));
+   node.style.width=(available*ratio)+'px';
   }
  }
  updateSanta();if(scene==='factory'){updateFactoryEffects();syncOrderQueue();}
