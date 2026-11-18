@@ -1,5 +1,19 @@
 # Eventos — Mini Fazenda / Vila da Colheita
 
+## Passe e recompensas permanentes
+
+`event.json` agora contém `pass.rewards.free` e `pass.rewards.premium`, com dez IDs ou `null` em cada trilha. Os espaços vazios mostram **Em preparação**, sem resgate. O jogo confere cada ID no catálogo permanente e devolve nome, imagem, disponibilidade e situação do resgate para o menu.
+
+O catálogo permanente e as artes de animais/decorações ficam no jogo, na branch `atualizacao-de-natal`, em `public/rewards/catalog.json` e `public/assets/rewards/`. Roupas são publicadas no Ateliê como **Somente recompensa (desbloqueável)**. O recibo privado de resgate desbloqueia as peças, sem compra.
+
+Para adicionar prêmios, seguir [o guia no jogo](https://github.com/mini-fazenda/mini-fazenda/blob/atualizacao-de-natal/docs/recompensas-permanentes.md). Não renomear IDs após resgates. Não guardar artes permanentes neste pacote temporário. A main do jogo não foi alterada.
+
+## Histórico e demais sistemas
+
+As notas abaixo sobre prêmios SVG provisórios e roupas futuras descrevem o protótipo anterior; o guia acima substitui esse cadastro.
+
+# Eventos — Mini Fazenda / Vila da Colheita
+
 Repositório público de **interface e missões configuráveis** para eventos sazonais da Mini Fazenda. A lógica de persistência e o catálogo permanente de prêmios ficam no [jogo principal](https://github.com/mini-fazenda/mini-fazenda/tree/evento-de-natal), **não** neste repositório.
 
 ## Evento atual: Oficina do Fazendeiro Noel 🎄

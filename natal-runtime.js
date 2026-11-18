@@ -129,7 +129,7 @@ function onButton(name){
   if(!state.premium&&confirm(`Ativar o Passe Premium por ${state.premiumPrice} Mini Granas?`))action('buy-premium');return;
  }
  const claim=name.match(/^Resgatar (grátis|premium) (\d+)/);
- if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed)action('claim',{level:l.level,track})}
+ if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l[track]?.available&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed)action('claim',{level:l.level,track})}
 }
 function bindText(item){
  const o=item.name||'',b=item.binding||'',s=state||{};
@@ -164,6 +164,7 @@ function bindImages(item,node){
  let src='';
  if(name.startsWith('Sprite do presente')){const r=state?.orders?.[Number(m[1])-1];src=recipeById(r?.id)?.sprite}
  else{const l=getLevel(Number(m[2])-1);src=l?.[m[1]==='grátis'?'free':'premium']?.sprite}
+ if(!src){node.querySelector('img.natal-injected')?.remove();return;}
  if(src){let im=node.querySelector('img.natal-injected');if(!im){im=document.createElement('img');im.className='natal-injected';node.replaceChildren(im)}const abs=url(src);if(im.src!==abs)im.src=abs;
  const scaling=Number(project.settings?.engine?.spriteScale?.recipes)||1;im.style.transform='scale('+Math.min(3,Math.max(.2,scaling))+')';node.style.overflow='visible';}
 }
@@ -221,7 +222,7 @@ function updateBindings(){
     const crafting=job?.phase==='crafting'&&Date.now()<job.finishesAt,wait=job?.phase==='cooldown'||(job?.phase==='crafting'&&!crafting);
     text=crafting?`🔨 Fabricando… ${time(job?.finishesAt)}s`:wait?`🎁 Próximo pedido: ${time(job?.replaceAt)}s`:!state?.canCraft?'Aguarde nova janela':enough?'Fabricar presente':'Faltam materiais';disabled||=crafting||wait||!enough||!state?.canCraft;
    }
-   if(c){const l=getLevel(Number(c[2])-1),track=c[1]==='grátis'?'free':'premium';text=!l?.unlocked?'Bloqueado 🔒':track==='premium'&&!state?.premium?'Premium fechado':l[track]?.claimed?'Resgatado ✓':'Resgatar';disabled||=!l?.unlocked||(track==='premium'&&!state?.premium)||l?.[track]?.claimed;}
+   if(c){const l=getLevel(Number(c[2])-1),track=c[1]==='grátis'?'free':'premium';text=l?.[track]?.claimed?'Resgatado ✓':!l?.[track]?.available?'Em preparação':!l?.unlocked?'Bloqueado 🔒':track==='premium'&&!state?.premium?'Premium fechado':l[track]?.claimed?'Resgatado ✓':'Resgatar';disabled||=!l?.[track]?.available||!l?.unlocked||(track==='premium'&&!state?.premium)||l?.[track]?.claimed;}
    if(item.name==='Botão ativar Premium'){text=state?.premium?'✅ Premium ativo':`Ativar Premium • ${state?.premiumPrice||30} 💚`;disabled||=!!state?.premium}
    if(node.textContent!==text)node.textContent=text;node.disabled=!!disabled;
   }else if(item.name==='Preenchimento de progresso'){
