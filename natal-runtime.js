@@ -163,10 +163,10 @@ function bindImages(item,node){
  if(!m||!node)return;
  let src='';
  if(name.startsWith('Sprite do presente')){const r=state?.orders?.[Number(m[1])-1];src=recipeById(r?.id)?.sprite}
- else{const l=getLevel(Number(m[2])-1);src=l?.[m[1]==='grátis'?'free':'premium']?.sprite}
+ else{const levelIndex=passPage*2+Number(m[2])-1,track=m[1]==='grátis'?'free':'premium';const layoutReward=project.levels?.[levelIndex]?.[track];src=layoutReward?.sprite||getLevel(Number(m[2])-1)?.[track]?.sprite||'';}
  if(!src){node.querySelector('img.natal-injected')?.remove();return;}
  if(src){let im=node.querySelector('img.natal-injected');if(!im){im=document.createElement('img');im.className='natal-injected';node.replaceChildren(im)}const abs=url(src);if(im.src!==abs)im.src=abs;
- const scaling=Number(project.settings?.engine?.spriteScale?.recipes)||1;im.style.transform='scale('+Math.min(3,Math.max(.2,scaling))+')';node.style.overflow='visible';}
+ const isPassReward=!name.startsWith('Sprite do presente');const kind=isPassReward?(m[1]==='grátis'?'free':'premium'):null;const levelIndex=isPassReward?passPage*2+Number(m[2])-1:-1;const layoutReward=isPassReward?project.levels?.[levelIndex]?.[kind]:null;const globalScale=isPassReward?Number(project.settings?.engine?.passRewardSpriteScale)||1:Number(project.settings?.engine?.spriteScale?.recipes)||1;const localScale=isPassReward?Number(layoutReward?.spriteScale)||1:1;im.style.transform='scale('+Math.min(8,Math.max(.2,globalScale*localScale))+')';im.style.maxWidth='100%';im.style.maxHeight='100%';im.style.objectFit='contain';node.style.overflow='visible';}
 }
 function updateBindings(){
  if(!active||!project||!stage)return;
