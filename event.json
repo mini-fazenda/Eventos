@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "2026-11-18-permanent-rewards-v1",
+  "version": "2026-11-18-passe-nivel1-4-estrelas-roupas-teste",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -21,7 +21,7 @@
   },
   "pass": {
     "thresholds": [
-      180,
+      4,
       360,
       540,
       720,
@@ -34,7 +34,7 @@
     ],
     "rewards": {
       "free": [
-        null,
+        "natal-2026-roupas-nivel-1",
         null,
         null,
         null,
