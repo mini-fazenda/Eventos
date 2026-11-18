@@ -492,67 +492,67 @@
   "levels": [
     {
       "level": 1,
-      "need": 4,
+      "need": 1,
       "free": {
         "name": "Conjunto de roupas natalinas — nível 1",
         "sprite": "",
         "emoji": "👕"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Trenó de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🎁"
       }
     },
     {
       "level": 2,
-      "need": 360,
+      "need": 2,
       "free": {
-        "name": "Em preparação",
+        "name": "Cavalo Cosplay de Rena",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Poço de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🎁"
       }
     },
     {
       "level": 3,
-      "need": 540,
+      "need": 3,
       "free": {
-        "name": "Em preparação",
+        "name": "Gatinho Bege de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Porquinho de Natal Saxofonista",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       }
     },
     {
       "level": 4,
-      "need": 720,
+      "need": 4,
       "free": {
-        "name": "Em preparação",
+        "name": "Urso Polar de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Elfo de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       }
     },
     {
       "level": 5,
-      "need": 900,
+      "need": 5,
       "free": {
-        "name": "Em preparação",
+        "name": "Elfa de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🐾"
       },
       "premium": {
         "name": "Em preparação",
@@ -562,7 +562,7 @@
     },
     {
       "level": 6,
-      "need": 1080,
+      "need": 6,
       "free": {
         "name": "Em preparação",
         "sprite": "",
@@ -576,7 +576,7 @@
     },
     {
       "level": 7,
-      "need": 1260,
+      "need": 7,
       "free": {
         "name": "Em preparação",
         "sprite": "",
@@ -590,7 +590,7 @@
     },
     {
       "level": 8,
-      "need": 1440,
+      "need": 8,
       "free": {
         "name": "Em preparação",
         "sprite": "",
@@ -604,7 +604,7 @@
     },
     {
       "level": 9,
-      "need": 1620,
+      "need": 9,
       "free": {
         "name": "Em preparação",
         "sprite": "",
@@ -618,7 +618,7 @@
     },
     {
       "level": 10,
-      "need": 1800,
+      "need": 10,
       "free": {
         "name": "Em preparação",
         "sprite": "",

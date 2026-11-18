@@ -13,63 +13,87 @@
       "assigned": true,
       "track": "free",
       "level": 1,
-      "requiredStars": 4
+      "requiredStars": 1
     },
     {
       "id": "natal-2026-cavalo-rena",
       "name": "Cavalo Cosplay de Rena",
       "type": "animal",
       "asset": "assets/rewards/natal/cavalo-cosplay-rena.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "free",
+      "level": 2,
+      "requiredStars": 2
     },
     {
       "id": "natal-2026-gatinho-bege",
       "name": "Gatinho Bege de Natal",
       "type": "animal",
       "asset": "assets/rewards/natal/gatinho-bege.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "free",
+      "level": 3,
+      "requiredStars": 3
     },
     {
       "id": "natal-2026-porquinho-saxofone",
       "name": "Porquinho de Natal Saxofonista",
       "type": "animal",
       "asset": "assets/rewards/natal/porquinho-saxofone.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 3,
+      "requiredStars": 3
     },
     {
       "id": "natal-2026-urso-polar",
       "name": "Urso Polar de Natal",
       "type": "animal",
       "asset": "assets/rewards/natal/urso-polar.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "free",
+      "level": 4,
+      "requiredStars": 4
     },
     {
       "id": "natal-2026-elfo",
       "name": "Elfo de Natal",
       "type": "animal",
       "asset": "assets/rewards/natal/elfo.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 4,
+      "requiredStars": 4
     },
     {
       "id": "natal-2026-elfa",
       "name": "Elfa de Natal",
       "type": "animal",
       "asset": "assets/rewards/natal/elfa.gif",
-      "assigned": false
+      "assigned": true,
+      "track": "free",
+      "level": 5,
+      "requiredStars": 5
     },
     {
       "id": "natal-2026-poco",
       "name": "Poço de Natal",
       "type": "object",
       "asset": "assets/rewards/natal/poco-de-natal.png",
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 2,
+      "requiredStars": 2
     },
     {
       "id": "natal-2026-treno",
       "name": "Trenó de Natal",
       "type": "object",
       "asset": "assets/rewards/natal/treno-de-natal.png",
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 1,
+      "requiredStars": 1
     }
   ]
 }
