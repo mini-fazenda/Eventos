@@ -1,5 +1,9 @@
 ## 🎄 Editor online — publicar direto do GitHub Pages
 
+> **Estado em 18/11/2026:** o editor está publicado; a configuração atual de `event.json` tem metas de 1 a 10 estrelas e nove IDs posicionados no passe. Valores do evento são editáveis: não presuma que exemplos antigos deste documento continuam atuais. Os oito itens novos ainda dependem de seus arquivos em `mini-fazenda/mini-fazenda`, branch `atualizacao-de-natal`, pasta `public/assets/rewards/natal/`. O menu pode mostrar os nomes antes de esses arquivos estarem disponíveis, mas o recebimento visual completo depende da implantação do jogo com as artes.
+
+
+
 **Editor completo:** https://mini-fazenda.github.io/Eventos/  
 **Menu usado pelo jogo:** https://mini-fazenda.github.io/Eventos/menu.html
 
