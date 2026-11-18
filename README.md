@@ -8,6 +8,14 @@ O catálogo permanente e as artes de animais/decorações ficam no jogo, na bran
 
 Para adicionar prêmios, seguir [o guia no jogo](https://github.com/mini-fazenda/mini-fazenda/blob/atualizacao-de-natal/docs/recompensas-permanentes.md). Não renomear IDs após resgates. Não guardar artes permanentes neste pacote temporário. A main do jogo não foi alterada.
 
+## Biblioteca de recompensas do Natal (18/11/2026)
+
+A biblioteca `rewards-library.json` agora identifica **oito novos prêmios permanentes por ID estável**, além do conjunto de roupas do nível 1. São seis animais (cavalo cosplay de rena, gatinho bege, porquinho saxofonista, urso polar, elfo e elfa) e duas decorações (poço e trenó). Todos os novos prêmios começam **sem atribuição**; portanto, `event.json` continua concedendo somente a roupa gratuita do nível 1 por quatro estrelas.
+
+O editor de eventos atualizado permite escolher os IDs na biblioteca visual e exporta **dois arquivos sincronizados**: `event.json` para este repositório (main) e `catalog-recompensas-jogo.json` para o arquivo `public/rewards/catalog.json` do jogo (exclusivamente na branch `atualizacao-de-natal`). É necessário publicar os dois juntos, com suas mídias em `public/assets/rewards/natal/`, para habilitar o resgate. Nunca atribua o mesmo prêmio a dois slots.
+
+A `main` do jogo não deve receber essas alterações. O Ateliê só requer atualização quando novas roupas forem cadastradas; os oito prêmios listados aqui não são peças do Ateliê.
+
 ## Histórico e demais sistemas
 
 As notas abaixo sobre prêmios SVG provisórios e roupas futuras descrevem o protótipo anterior; o guia acima substitui esse cadastro.
