@@ -158,6 +158,28 @@ function ensureEngine(){
 const PASS_CARD_PARTS=/^(Card nível|Badge nível|Número do nível|Fundo prêmio grátis|Fundo prêmio premium|Faixa grátis|Faixa premium|Sprite grátis|Sprite premium|Nome grátis|Nome premium|Resgatar grátis|Resgatar premium|Estrelas para liberar) ([12])$/;
 function passCardInfo(o){if(!o||scene!=='pass')return null;const m=(o.name||'').match(PASS_CARD_PARTS);return m?{part:m[1],number:Number(m[2])}:null}
 function passCardConfig(){const e=ensureEngine(),c=e.passCardGlobal||(e.passCardGlobal={});if(c.enabled===undefined)c.enabled=true;if(c.background!==undefined){if(c.freeBackground===undefined)c.freeBackground=c.background;if(c.premiumBackground===undefined)c.premiumBackground=c.background;delete c.background}return c}
+function passRewardScale(binding,levels,engine){
+ const match=String(binding||'').match(/^pass:(\d+):(freeArt|premiumArt)$/);
+ if(!match)return 1;
+ const kind=match[2]==='freeArt'?'free':'premium';
+ const global=Math.max(.25,Math.min(4,Number(engine.passRewardSpriteScale)||1));
+ const local=Math.max(.25,Math.min(4,Number(levels?.[Number(match[1])]?.[kind]?.spriteScale)||1));
+ return global*local;
+}
+let passRewardIndividualEditor='';
+let passRewardClicks={key:'',count:0,time:0};
+function passRewardTripleClick(kind,index){
+ const key=index+':'+kind,now=performance.now();
+ if(passRewardClicks.key===key&&now-passRewardClicks.time<650)passRewardClicks.count++;
+ else passRewardClicks={key:key,count:1,time:now};
+ passRewardClicks.time=now;
+ if(passRewardClicks.count===3){
+  passRewardClicks.count=0;
+  passRewardIndividualEditor=passRewardIndividualEditor===key?'':key;
+  renderContentInspector();
+  toast(passRewardIndividualEditor?'Escala individual habilitada':'Escala individual fechada');
+ }
+}
 function passCardAnchor(i){return (project.scenes.pass||[]).find(o=>o.name==='Card nível '+i)}
 function passCardSnapshots(){return [1,2].map(i=>{const card=passCardAnchor(i);if(!card)return null;return {number:i,card:{x:card.x,y:card.y,w:card.w,h:card.h},parts:project.scenes.pass.filter(o=>{const m=(o.name||'').match(PASS_CARD_PARTS);return m&&Number(m[2])===i}).map(o=>({id:o.id,x:o.x,y:o.y,w:o.w,h:o.h,font:o.font,strokeWidth:o.strokeWidth}))}}).filter(Boolean)}
 function transformPassSnapshots(snaps,dx,dy,scale){const lookup=new Map(project.scenes.pass.map(o=>[o.id,o]));for(const snap of snaps){const cx=snap.card.x+snap.card.w/2,cy=snap.card.y+snap.card.h/2;for(const part of snap.parts){const o=lookup.get(part.id);if(!o)continue;o.x=+(part.x+dx+(part.x-cx)*(scale-1)).toFixed(2);o.y=+(part.y+dy+(part.y-cy)*(scale-1)).toFixed(2);o.w=+(Math.max(8,part.w*scale)).toFixed(2);o.h=+(Math.max(8,part.h*scale)).toFixed(2);if(o.type==='text'||o.type==='button')o.font=+(Math.max(6,part.font*scale)).toFixed(2);if(part.strokeWidth)o.strokeWidth=+(part.strokeWidth*scale).toFixed(2)}}}
@@ -188,10 +210,15 @@ function passGlobalPanel(){
   {kind:'premium',title:'🏅 Fundo global PREMIUM',key:'premiumBackground',description:'Aplicado somente aos fundos dos prêmios premium, em todos os níveis.'},
   {kind:'card',title:'🖼️ Fundo global do CARD BEGE',key:'cardBackground',description:'Substitui o retângulo bege arredondado atrás dos dois prêmios, em todos os níveis.'}
  ];
+ const rewardGlobal=Math.round((Number(ensureEngine().passRewardSpriteScale)||1)*100);
  const sections=items.map(item=>`<div class="sectionhead">${item.title}</div><div class="info">${item.description} Aceita PNG, WEBP, JPG e GIF; aparece na edição, prévia e menu publicado.</div>${cfg[item.key]?`<div class="asset-thumb"><img src="${esc(cfg[item.key])}" alt="${item.title}"></div>`:''}<div class="actionbar"><button class="btn tiny" type="button" data-pass-bg-upload="${item.kind}">📷 Enviar imagem</button><button class="btn tiny" type="button" data-pass-bg-reset="${item.kind}">Restaurar padrão</button></div>`).join('');
- return `<div class="sectionhead">🎛️ Composição global dos prêmios</div><div class="info">Ative o vínculo para mover ou ampliar um card inteiro (fundo, textos, sprites e botões) e aplicar a mesma transformação aos dois cards. A roda do mouse sobre qualquer parte do card ajusta a escala de todos. Os prêmios e vínculos de conteúdo permanecem individuais.</div><label style="display:flex;gap:8px;align-items:center;margin:10px 0"><input id="passGlobalEnabled" type="checkbox" ${cfg.enabled?'checked':''}> Sincronizar composição dos cards</label><div class="cols2">${field('Mover X (px)',`<input id="passGlobalX" type="number" step="1" value="0">`)}${field('Mover Y (px)',`<input id="passGlobalY" type="number" step="1" value="0">`)}</div><div class="cols2">${field('Escala relativa (%)',`<input id="passGlobalScale" type="number" min="25" max="300" step="5" value="100">`)}<button id="passGlobalApply" class="btn tiny" type="button" style="align-self:end">Aplicar posição e escala</button></div>${sections}`;
+ return `<div class="sectionhead">🎛️ Composição global dos prêmios</div><div class="info">Ative o vínculo para mover ou ampliar um card inteiro (fundo, textos, sprites e botões) e aplicar a mesma transformação aos dois cards. A roda do mouse sobre qualquer parte do card ajusta a escala de todos. Os prêmios e vínculos de conteúdo permanecem individuais.</div><label style="display:flex;gap:8px;align-items:center;margin:10px 0"><input id="passGlobalEnabled" type="checkbox" ${cfg.enabled?'checked':''}> Sincronizar composição dos cards</label><div class="cols2">${field('Mover X (px)',`<input id="passGlobalX" type="number" step="1" value="0">`)}${field('Mover Y (px)',`<input id="passGlobalY" type="number" step="1" value="0">`)}</div><div class="cols2">${field('Escala relativa (%)',`<input id="passGlobalScale" type="number" min="25" max="300" step="5" value="100">`)}<button id="passGlobalApply" class="btn tiny" type="button" style="align-self:end">Aplicar posição e escala</button></div><div class="sectionhead">🎁 Escala global dos sprites</div><div class="info">Afeta todos os níveis. Clique 3 vezes no ícone da recompensa na aba Conteúdo para editar individualmente.</div><div class="cols2">${field("Escala global (%)",`<input id="passRewardGlobalScale" type="number" min="25" max="400" step="5" value="${rewardGlobal}">`)}<button id="passRewardGlobalReset" class="btn tiny" type="button">Restaurar 100%</button></div>${sections}`;
 }
 function bindPassGlobalPanel(scope){
+ const rewardInput=scope.querySelector('#passRewardGlobalScale');
+ if(rewardInput)rewardInput.onchange=()=>{remember();ensureEngine().passRewardSpriteScale=Math.max(.25,Math.min(4,(Number(rewardInput.value)||100)/100));changed()};
+ const rewardReset=scope.querySelector('#passRewardGlobalReset');
+ if(rewardReset)rewardReset.onclick=()=>{remember();ensureEngine().passRewardSpriteScale=1;changed()};
  const toggle=scope.querySelector('#passGlobalEnabled');
  if(toggle)toggle.onchange=e=>{remember();passCardConfig().enabled=e.target.checked;changed()};
  const apply=scope.querySelector('#passGlobalApply');
@@ -613,9 +640,11 @@ function paintFriendsButton(node,o,config){
 }
 function constructElement(o){const n=document.createElement(o.type==='image'||o.type==='santa'?'img':'div');n.className='item '+o.type+(o.id===selected?' selected':'');n.dataset.id=o.id;n.style.left=o.x+'px';n.style.top=o.y+'px';n.style.width=o.w+'px';n.style.height=o.h+'px';n.style.zIndex=o.z+1;n.style.opacity=(o.opacity??100)/100;n.style.borderRadius=(o.radius??0)+'px';n.style.background=o.bg||'transparent';n.style.border=o.strokeWidth?`${o.strokeWidth}px solid ${o.stroke}`:'none';n.style.color=o.color||'#2c4d39';n.style.fontSize=(o.font||20)+'px';n.style.fontWeight=o.bold?'800':'400';n.style.textAlign=o.align||'center';n.style.justifyContent=o.align==='left'?'flex-start':o.align==='right'?'flex-end':'center';n.style.padding=o.type==='text'||o.type==='button'?'0 5px':'0';if(!o.visible)n.style.display='none';const val=resolveBinding(o);
  const art=val&&typeof val==='object'?val:null;
+ const rewardArt=scene==='pass'&&/^pass:\d+:(freeArt|premiumArt)$/.test(o.binding||'');
+ const rewardZoom=rewardArt?passRewardScale(o.binding,project.levels,ensureEngine()):1;
  if(art?.kind==='materials-line'){paintMaterialLine(n,art.items,o.binding.startsWith('material:'));n.style.overflow='visible';}
- else if(o.type==='image'||o.type==='santa'||art?.image){if(o.type==='image'||o.type==='santa'){n.src=o.type==='santa'?(ensureSanta().gifs[santaMode]||tinyPlaceholder()):(o.src||art?.image||tinyPlaceholder());n.alt=o.name;n.draggable=false;}else{const img=document.createElement('img');img.src=art.image;img.alt='';img.draggable=false;img.style.cssText='max-width:100%;max-height:100%;object-fit:contain;pointer-events:none';n.append(img);if(o.binding?.startsWith('recipe:')||o.binding?.startsWith('material:')){n.dataset.artBound='1';n.style.overflow='visible';n.style.zIndex=String(150+(o.z||0));if(o.binding.startsWith('recipe:'))applyArtScale(n,'recipes');else applyArtScale(n,'materials')}}if(o.type!=='image'&&o.type!=='santa'&&!art?.image)n.textContent=art?.emoji||o.text||'🖼️';}
- else n.textContent=art?art.emoji:String(val===null?o.text:val);
+ else if(o.type==='image'||o.type==='santa'||art?.image){if(o.type==='image'||o.type==='santa'){n.src=o.type==='santa'?(ensureSanta().gifs[santaMode]||tinyPlaceholder()):(o.src||art?.image||tinyPlaceholder());n.alt=o.name;n.draggable=false;}else{const img=document.createElement('img');img.src=art.image;img.alt='';img.draggable=false;img.style.cssText='max-width:100%;max-height:100%;object-fit:contain;pointer-events:none';n.append(img);if(rewardArt){img.style.transform='scale('+rewardZoom+')';n.style.overflow='visible'}if(o.binding?.startsWith('recipe:')||o.binding?.startsWith('material:')){n.dataset.artBound='1';n.style.overflow='visible';n.style.zIndex=String(150+(o.z||0));if(o.binding.startsWith('recipe:'))applyArtScale(n,'recipes');else applyArtScale(n,'materials')}}if(o.type!=='image'&&o.type!=='santa'&&!art?.image)n.textContent=art?.emoji||o.text||'🖼️';}
+ else {n.textContent=art?art.emoji:String(val===null?o.text:val);if(rewardArt){const span=document.createElement('span');span.textContent=n.textContent;n.textContent='';span.style.display='inline-block';span.style.transform='scale('+rewardZoom+')';n.style.overflow='visible';n.append(span)}}
  paintFriendsButton(n,o,ensureEngine().friendsButton);applyMotionNode(n,o);n.addEventListener('pointerdown',onPointerDown);n.addEventListener('click',ev=>ev.stopPropagation());n.addEventListener('contextmenu',ev=>showContext(ev,o.id));return n;}
 function tinyPlaceholder(){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="100%" height="100%" fill="#e2eae1"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#829b84">Imagem</text></svg>');}
 function draw(){
