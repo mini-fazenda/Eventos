@@ -183,10 +183,10 @@ function updateBindings(){
        const frag=document.createDocumentFragment();
        for(const [key,qty] of needs){
          const material=project.materials.find(v=>v.key===key);
-         const chip=document.createElement('span');chip.className='natal-ingredient-chip';
+         const chip=document.createElement('span');chip.className='natal-ingredient-chip';const materialScale=clamp(project.settings?.engine?.factoryMaterialChipScale??1,.3,2.5);chip.style.fontSize=(18*materialScale)+'px';chip.style.gap=(3*materialScale)+'px';
          if(material?.sprite){
            const icon=document.createElement('img');icon.src=url(material.sprite);
-           icon.alt=material.name||key;icon.className='natal-ingredient-sprite';chip.append(icon);
+           icon.alt=material.name||key;icon.className='natal-ingredient-sprite';icon.style.width=(23*materialScale)+'px';icon.style.height=(23*materialScale)+'px';chip.append(icon);
          }else{
            const fallback=document.createElement('span');fallback.textContent=material?.emoji||'•';chip.append(fallback);
          }
