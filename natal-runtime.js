@@ -509,22 +509,15 @@ setInterval(()=>{
  if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta();window.MFNatalAudio?.play('santaSleep')}
 },1000);
 document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta();window.MFNatalAudio?.play('santaIdle')}});
-// A exportação v28 fica isolada na branch. Na ausência do pacote de artes,
- // não quebrar a versão v21 já publicada.
+// Esta branch exige o layout novo: não mostrar silenciosamente o menu antigo.
 async function loadNatalLayout(){
- for(const path of [cfgUrl,'natal-layout-v21.json']){
-  try{
-   const response=await fetch(path+'?v=atualizacao-de-natal-20261118',{cache:'no-store'});
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const p=await response.json();
-   if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass)throw Error('layout inválido');
-   // O exportador v28 usa assets/data; v21 usa assetLibrary/src.
-   if(!Array.isArray(p.assetLibrary)&&Array.isArray(p.assets))
-    p.assetLibrary=p.assets.map(a=>({name:a.name,src:a.data||a.src||''}));
-   return p;
-  }catch(error){console.warn('[Natal] Layout não carregado:',path,error);}
- }
- throw Error('Nenhum layout de Natal disponível');
+ const response=await fetch(cfgUrl+'?v=atualizacao-de-natal-20261118',{cache:'no-store'});
+ if(!response.ok)throw Error('Layout novo não publicado ('+response.status+'): '+cfgUrl);
+ const p=await response.json();
+ if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass)throw Error('Exportação v28 inválida');
+ if(!Array.isArray(p.assetLibrary)&&Array.isArray(p.assets))
+  p.assetLibrary=p.assets.map(a=>({name:a.name,src:a.data||a.src||''}));
+ return p;
 }
 loadNatalLayout().then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
