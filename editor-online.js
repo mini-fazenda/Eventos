@@ -4,7 +4,7 @@
 var REPO='mini-fazenda/Eventos',API='https://api.github.com/repos/'+REPO,KEYS=['free','premium'];
 var editor=window.MFNatalEditor;
 if(!editor)return;
-var eventData=null,library=null,baseline=null,head=null,busy=false;
+var eventData=null,library=null,baseline=null,visualBaseline=null,head=null,busy=false;
 var $=s=>document.querySelector(s);
 var clone=x=>JSON.parse(JSON.stringify(x));
 var api=async (path,token,method,body)=>{
@@ -58,7 +58,7 @@ function syncRewardsVisual(){
    else{current.levels[i][track].name='Em preparação';current.levels[i][track].emoji='';current.levels[i][track].sprite='';}
   }
  }
- editor.setProject(current);
+ editor.setProject(current);visualBaseline=[...eventData.pass.thresholds];
 }
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
@@ -152,6 +152,9 @@ async function publish(){
   var ref=await api('/git/ref/heads/main',token);
   if(ref.object.sha!==head)throw Error('A branch main mudou desde que o editor foi aberto. Atualize do GitHub antes de publicar, preservando uma cópia ZIP das suas alterações.');
   var current=editor.getProject(),ev=clone(eventData);
+  // Alterações das metas feitas no inspetor visual também entram no evento publicado.
+  if(visualBaseline)for(var i=0;i<10;i++)if(current.levels[i].need!==visualBaseline[i])eventData.pass.thresholds[i]=Number(current.levels[i].need);
+  validateRewards();
   ev.pass.thresholds=[...eventData.pass.thresholds];
   ev.pass.rewards=clone(eventData.pass.rewards);
   mergeRecipes(ev,baseline,current);
@@ -180,7 +183,7 @@ async function publish(){
   var nextTree=await api('/git/trees',token,'POST',{base_tree:currentCommit.tree.sha,tree});
   var commit=await api('/git/commits',token,'POST',{message:'Editor de Natal: publicar layout, prêmios e configuração online',tree:nextTree.sha,parents:[head]});
   await api('/git/refs/heads/main',token,'PATCH',{sha:commit.sha,force:false});
-  head=commit.sha;eventData=ev;library=book;baseline=layout;
+  head=commit.sha;eventData=ev;library=book;baseline=layout;visualBaseline=[...ev.pass.thresholds];
   editor.setProject(layout);
   note('Publicado! Commit '+commit.sha.slice(0,10)+'. Aguarde a atualização do GitHub Pages antes de abrir o jogo.');
   alert('Publicado no GitHub com sucesso!\nCommit: '+commit.sha.slice(0,12)+'\nRepositório: Eventos/main\nA main de Mini Fazenda não foi alterada.');
@@ -189,6 +192,7 @@ async function publish(){
 }
 function mount(){
  editPanel();
+ var extra=document.createElement('style');extra.textContent='.app>.top{gap:7px;padding:0 12px;overflow-x:auto;scrollbar-width:thin}.app>.top>*{flex-shrink:0}.app>.top>.grow{flex-shrink:1;min-width:4px}';document.head.appendChild(extra);
  var actions=$('.top');if(!actions)return;
  var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
  choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
