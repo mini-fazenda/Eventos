@@ -1,3 +1,26 @@
+## 🎄 Editor online — publicar direto do GitHub Pages
+
+**Editor completo:** https://mini-fazenda.github.io/Eventos/  
+**Menu usado pelo jogo:** https://mini-fazenda.github.io/Eventos/menu.html
+
+O index.html publica o **Ateliê de Natal v28** com composição global dos prêmios, camadas, GIFs, fundos, materiais, receitas, música, prévia e as ferramentas da versão local. O editor carrega sempre a configuração publicada em Eventos/main pela API do GitHub: natal-layout-v28.json, event.json e rewards-library.json.
+
+### Edição e publicação
+
+1. Entre no editor online e altere layout, imagens, estrelas, receitas ou escolha os IDs cadastrados em **🎁 Níveis e prêmios**.
+2. Confira o resultado na prévia. O nível 1 gratuito já está configurado com **4 estrelas** e o ID natal-2026-roupas-nivel-1.
+3. Clique em **☁ Publicar online (GitHub)**. Informe um fine-grained PAT de validade curta com Contents: Read and write, limitado **somente a mini-fazenda/Eventos**.
+4. O navegador separa os PNGs/GIFs/áudios novos em assets/editor/<hash>.<ext> e grava tudo em **um único commit** em Eventos/main: mídia, layout, event.json e biblioteca.
+5. Após o deploy do GitHub Pages, o jogo consulta o event.json publicado quando o jogador abre o evento. **Não é preciso alterar a branch do jogo para editar menu, metas ou mover IDs já cadastrados.**
+
+O token não é salvo em armazenamento persistente nem enviado para o repositório. A publicação é restrita ao endereço oficial https://mini-fazenda.github.io/Eventos/. O editor detecta modificações concorrentes na main e interrompe a publicação para evitar perda de dados. Se houver erro, o ZIP continua sendo a opção de backup e migração.
+
+O cadastro de **novos** prêmios, suas artes permanentes, regras de produção e entrega continuam em mini-fazenda/mini-fazenda, branch atualizacao-de-natal. **Não alterar a main do jogo.** A validação do jogo/servidor usa o catálogo permanente para descrever o prêmio, e event.json para localizar nível, trilha e quantidade de estrelas. Resgates são armazenados por ID permanente.
+
+**Atenção à implantação:** o GitHub Pages não publica a branch da VPS. Atualizações exclusivas no jogo exigem implantar atualizacao-de-natal no ambiente que executa o jogo/servidor. Os oito prêmios novos estão cadastrados no catálogo, mas as artes correspondentes ainda precisam ser incluídas em public/assets/rewards/natal/ nessa branch antes de serem oferecidos aos jogadores. Não atribua um desses IDs sem as artes.
+
+---
+
 # Eventos — Mini Fazenda / Vila da Colheita
 
 ## Passe e recompensas permanentes
