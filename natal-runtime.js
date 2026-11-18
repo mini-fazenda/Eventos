@@ -1,12 +1,12 @@
 /* Vila da Colheita — camada fiel ao Ateliê de Natal, sem alterar a engine. */
 (()=>{'use strict';
-const $=s=>document.querySelector(s),cfgUrl='natal-layout-v21.json';
+const $=s=>document.querySelector(s),cfgUrl='natal-layout-v28.json';
 const standalone=window.parent===window;
 let project=null,state=null,scene='factory',passPage=0,root=null,stage=null,content=null,scale=1,active=false,locked=false,transitioning=false,hostOrigin=null,seq=0,santaMode='idle',santaTimer=0,lastActivity=Date.now();
 const completed=new Set(),responses=new Set(),url=s=>new URL(s,document.baseURI).href;
 let bagNode=null,rollerNode=null,bagBusy=false,rollerBusy=false;const finishInProgress=new Set(),finishedOrders=new Set();
 const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||0));
-const find=(name)=>project.assetLibrary.find(a=>a.name.toLowerCase().includes(name.toLowerCase()))?.src;
+const find=(name)=>(project.assetLibrary||[]).find(a=>a.name.toLowerCase().includes(name.toLowerCase()))?.src;
 const materials=()=>Object.fromEntries(project.materials.map(x=>[x.key,x]));
 const recipeById=id=>project.recipes.find(x=>x.id===id);
 const levels=()=>state?.levels||[];
@@ -183,10 +183,10 @@ function updateBindings(){
        const frag=document.createDocumentFragment();
        for(const [key,qty] of needs){
          const material=project.materials.find(v=>v.key===key);
-         const chip=document.createElement('span');chip.className='natal-ingredient-chip';
+         const chip=document.createElement('span');chip.className='natal-ingredient-chip';const materialScale=clamp(project.settings?.engine?.factoryMaterialChipScale??1,.3,2.5);chip.style.fontSize=(18*materialScale)+'px';chip.style.gap=(3*materialScale)+'px';
          if(material?.sprite){
            const icon=document.createElement('img');icon.src=url(material.sprite);
-           icon.alt=material.name||key;icon.className='natal-ingredient-sprite';chip.append(icon);
+           icon.alt=material.name||key;icon.className='natal-ingredient-sprite';icon.style.width=(23*materialScale)+'px';icon.style.height=(23*materialScale)+'px';chip.append(icon);
          }else{
            const fallback=document.createElement('span');fallback.textContent=material?.emoji||'•';chip.append(fallback);
          }
@@ -307,7 +307,7 @@ function updateFactoryEffects(){
  });
 }
 function nodeCenter(n){
- const r=n.getBoundingClientRect(),p=stage.getBoundingClientRect(),factor=p.width/960||1;
+ const r=n.getBoundingClientRect(),p=stage.getBoundingClientRect(),factor=p.width/(Number(project.settings?.engine?.canvasWidth)||960)||1;
  return {x:(r.left+r.width/2-p.left)/factor,y:(r.top+r.height/2-p.top)/factor};
 }
 async function animateGift(slot){
@@ -418,8 +418,8 @@ function fit(){
  if(deliveryObjects?.bag){const b=deliveryObjects.bag;all.push({x:b.appearX,y:b.appearY,w:b.size,h:b.size});}
  const x0=Math.min(0,...all.map(e=>Number(e.x)||0));
  const y0=Math.min(0,...all.map(e=>Number(e.y)||0));
- const x1=Math.max(960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
- const y1=Math.max(600,...all.map(e=>(Number(e.y)||0)+(Number(e.h)||0)));
+ const x1=Math.max(Number(project.settings?.engine?.canvasWidth)||960,...all.map(e=>(Number(e.x)||0)+(Number(e.w)||0)));
+ const y1=Math.max(Number(project.settings?.engine?.canvasHeight)||600,...all.map(e=>(Number(e.y)||0)+(Number(e.h)||0)));
  const fullW=x1-x0,fullH=y1-y0;
  const w=root.clientWidth,h=root.clientHeight;
  if(!w||!h)return;
@@ -509,9 +509,19 @@ setInterval(()=>{
  if(santaMode==='idle'&&Date.now()-lastActivity>60000&&!(state?.orders||[]).some(x=>x.phase==='crafting')){santaMode='sleep';updateSanta();window.MFNatalAudio?.play('santaSleep')}
 },1000);
 document.addEventListener('pointerdown',()=>{lastActivity=Date.now();if(santaMode==='sleep'){santaMode='idle';updateSanta();window.MFNatalAudio?.play('santaIdle')}});
-fetch(cfgUrl+'?v=20261111-balance-v27',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('layout indisponível');return r.json()}).then(p=>{
+// Esta branch exige o layout novo: não mostrar silenciosamente o menu antigo.
+async function loadNatalLayout(){
+ const response=await fetch(cfgUrl+'?v=atualizacao-de-natal-20261118',{cache:'no-store'});
+ if(!response.ok)throw Error('Layout novo não publicado ('+response.status+'): '+cfgUrl);
+ const p=await response.json();
+ if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass)throw Error('Exportação v28 inválida');
+ if(!Array.isArray(p.assetLibrary)&&Array.isArray(p.assets))
+  p.assetLibrary=p.assets.map(a=>({name:a.name,src:a.data||a.src||''}));
+ return p;
+}
+loadNatalLayout().then(p=>{
  if(p?.format!=='ateliê-natal-v1'||!p?.scenes?.factory||!p?.scenes?.pass||!p?.santa?.gifs?.idle)throw Error('export inválido');
- project=p;window.MFNatalAudio?.setConfig(project.settings?.engine?.audio||{});mount();window.MFNatalAudio?.open({hosted:!standalone});
+ project=p;const engine=project.settings?.engine||{};const cw=Number(engine.canvasWidth)||960,ch=Number(engine.canvasHeight)||600;document.documentElement.style.setProperty('--natal-canvas-width',cw+'px');document.documentElement.style.setProperty('--natal-canvas-height',ch+'px');window.MFNatalAudio?.setConfig(engine.audio||{});mount();stage.style.width=cw+'px';stage.style.height=ch+'px';fit();window.MFNatalAudio?.open({hosted:!standalone});
  if(standalone)loadStandalonePreview();
 }).catch(e=>{
  document.documentElement.classList.add('natal-error');
