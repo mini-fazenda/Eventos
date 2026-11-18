@@ -485,6 +485,13 @@ function mount(){
 }
 window.addEventListener('message',e=>{
  if(e.source!==window.parent||!e.data||typeof e.data.type!=='string')return;
+ if(e.data.type==='mf-event-ping'){
+  // Reconhece sondagens do jogo mesmo que o primeiro sinal ready tenha se perdido.
+  if(active&&project&&stage&&document.documentElement.classList.contains('natal-loaded')){
+   window.parent.postMessage({type:'mf-event-ready'},e.origin);
+  }
+  return;
+ }
  if(e.data.type==='mf-event-state'){
   if(hostOrigin&&hostOrigin!==e.origin)return;
   hostOrigin=e.origin;const old=state;state=e.data.state||null;
