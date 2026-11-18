@@ -163,6 +163,8 @@ async function publish(){
   var layout=prepared.layout;
   layout.levels.forEach((level,i)=>level.need=ev.pass.thresholds[i]);
   if(layout.settings&&layout.settings.engine&&layout.settings.engine.audio)ev.ui.audio=clone(layout.settings.engine.audio);
+  // O pop-up de materiais do jogo usa event.ui.materialSprites, separado do visual do editor.
+  if(Array.isArray(layout.materials))for(var mat of layout.materials){if(['plastico','tinta','papel','laco'].includes(mat.key)&&typeof mat.sprite==='string'&&mat.sprite)ev.ui.materialSprites[mat.key]=mat.sprite;}
   validateEvent(ev);
   var book=clone(library);
   for(var reward of book.rewards||[]){
