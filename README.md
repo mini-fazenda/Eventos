@@ -2,7 +2,7 @@
 
 ## Passe e recompensas permanentes
 
-`event.json` agora contém `pass.rewards.free` e `pass.rewards.premium`, com dez IDs ou `null` em cada trilha. Os espaços vazios mostram **Em preparação**, sem resgate. O jogo confere cada ID no catálogo permanente e devolve nome, imagem, disponibilidade e situação do resgate para o menu.
+`event.json` contém `pass.rewards.free` e `pass.rewards.premium`, com dez IDs ou `null` em cada trilha. **Teste do nível 1 (18/11/2026): 4 estrelas**, recompensa gratuita `natal-2026-roupas-nivel-1`, que desbloqueia dois IDs de peças no Ateliê. Os outros 19 espaços mostram **Em preparação**, sem resgate; níveis 2–10 permanecem com as metas anteriores. O jogo confere o ID no catálogo permanente e devolve nome, disponibilidade e situação do resgate para o menu.
 
 O catálogo permanente e as artes de animais/decorações ficam no jogo, na branch `atualizacao-de-natal`, em `public/rewards/catalog.json` e `public/assets/rewards/`. Roupas são publicadas no Ateliê como **Somente recompensa (desbloqueável)**. O recibo privado de resgate desbloqueia as peças, sem compra.
 
