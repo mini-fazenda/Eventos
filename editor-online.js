@@ -1,0 +1,204 @@
+/* Ateliê de Natal • publicação online segura, em um commit de Eventos/main. */
+(function(){
+'use strict';
+var REPO='mini-fazenda/Eventos',API='https://api.github.com/repos/'+REPO,KEYS=['free','premium'];
+var editor=window.MFNatalEditor;
+if(!editor)return;
+var eventData=null,library=null,baseline=null,head=null,busy=false;
+var $=s=>document.querySelector(s);
+var clone=x=>JSON.parse(JSON.stringify(x));
+var api=async (path,token,method,body)=>{
+ var headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+ if(token)headers.Authorization='Bearer '+token;
+ if(body!==undefined)headers['Content-Type']='application/json';
+ var resp=await fetch(API+path,{method:method||'GET',headers,body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
+ var value=await resp.json().catch(()=>({}));
+ if(!resp.ok)throw Error('GitHub '+resp.status+': '+(value.message||resp.statusText));
+ return value;
+};
+function note(message,error){
+ var el=$('#natalOnlineStatus');if(el){el.textContent=message;el.style.color=error?'#ae3232':'#386d51';}
+}
+function requireReady(){if(!eventData||!library||!head||!baseline)throw Error('Carregue a configuração publicada no GitHub antes de editar.');}
+function renderSelector(id,chosen){
+ var choices=['<option value="">— Sem prêmio —</option>'];
+ for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(item.type)+'</option>');
+ return '<select class="rewardChoice" data-slot="'+id+'">'+choices.join('')+'</select>';
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderRewards(){
+ requireReady();
+ var rows='';
+ for(var i=0;i<10;i++)rows+='<tr><th>'+(i+1)+'</th><td><input class="starChoice" type="number" min="1" max="5000" data-index="'+i+'" value="'+eventData.pass.thresholds[i]+'"></td><td>'+renderSelector('free:'+i,eventData.pass.rewards.free[i])+'</td><td>'+renderSelector('premium:'+i,eventData.pass.rewards.premium[i])+'</td></tr>';
+ $('#natalRewardTable').innerHTML=rows;
+ $('#natalRewardDialog').hidden=false;
+}
+function validateRewards(){
+ requireReady();
+ var seen=new Set(),thresholds=eventData.pass.thresholds,validIds=new Set((library.rewards||[]).map(r=>r.id));
+ if(!Array.isArray(thresholds)||thresholds.length!==10)throw Error('O passe deve ter 10 níveis.');
+ for(var i=0;i<10;i++){
+  var t=thresholds[i];
+  if(!Number.isInteger(t)||t<1||t>5000||(i&&t<=thresholds[i-1]))throw Error('Estrelas devem ser crescentes, entre 1 e 5.000 (nível '+(i+1)+').');
+  for(var track of KEYS){var id=eventData.pass.rewards[track][i];if(!id)continue;
+   if(!validIds.has(id))throw Error('ID não cadastrado: '+id);
+   if(seen.has(id))throw Error('Prêmio repetido: '+id);
+   seen.add(id);
+  }
+ }
+}
+function syncRewardsVisual(){
+ var current=editor.getProject(),byId=Object.fromEntries((library.rewards||[]).map(x=>[x.id,x]));
+ for(var i=0;i<10;i++){
+  current.levels[i].need=eventData.pass.thresholds[i];
+  for(var track of KEYS){
+   var id=eventData.pass.rewards[track][i],r=id&&byId[id];
+   // A apresentação de prêmios é atualizada somente para IDs realmente selecionados.
+   if(r){current.levels[i][track].name=r.name;current.levels[i][track].emoji=r.type==='animal'?'🐾':r.type==='cosmetic'?'👕':r.type==='object'?'🎁':'🪙';}
+   else{current.levels[i][track].name='Em preparação';current.levels[i][track].emoji='';current.levels[i][track].sprite='';}
+  }
+ }
+ editor.setProject(current);
+}
+function editPanel(){
+ var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
+ wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas já cadastradas no catálogo permanente. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
+ document.body.appendChild(wrap);
+ var style=document.createElement('style');style.textContent='#natalRewardDialog[hidden]{display:none}#natalRewardDialog{position:fixed;inset:0;background:#12251cd9;z-index:18000;display:grid;place-items:center;padding:14px}.natalRewardCard{background:white;border-radius:13px;max-width:950px;width:100%;max-height:95vh;display:flex;flex-direction:column;padding:18px;gap:12px;color:#263d30;box-shadow:0 16px 70px #0005}.natalRewardCard header,.natalRewardCard footer{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.natalRewardCard h2{font-size:18px;margin:0}.natalRewardCard p{margin:0}.natalRewardScroll{overflow:auto}.natalRewardCard table{width:100%;border-collapse:collapse}.natalRewardCard td,.natalRewardCard th{text-align:left;border-bottom:1px solid #e3e9e4;padding:8px}.natalRewardCard select{width:100%;min-width:180px;max-width:340px}.natalRewardCard input{width:95px}.natalRewardCard button{padding:9px 12px;border:1px solid #cedbce;border-radius:8px;background:#edf6ee;color:#274b36}';
+ document.head.appendChild(style);
+ function close(){$('#natalRewardDialog').hidden=true;}
+ $('#natalCloseRewards').onclick=close;$('#natalCloseRewards2').onclick=close;
+ $('#natalRewardTable').addEventListener('change',function(e){
+  var t=e.target;
+  if(t.matches('.starChoice')){eventData.pass.thresholds[Number(t.dataset.index)]=Number(t.value);}
+  if(t.matches('.rewardChoice')){var [track,index]=t.dataset.slot.split(':');eventData.pass.rewards[track][Number(index)]=t.value||null;}
+ });
+ $('#natalApplyRewards').onclick=function(){
+  try{validateRewards();syncRewardsVisual();close();note('Metas e prêmios aplicados ao layout. Clique em Publicar para enviar ao GitHub.');}
+  catch(err){alert(err.message);}
+ };
+}
+async function readFile(path){
+ var result=await api('/contents/'+encodeURIComponent(path)+'?ref=main');
+ if(result.encoding!=='base64')throw Error('Não foi possível interpretar '+path);
+ var bytes=Uint8Array.from(atob(result.content.replace(/\s/g,'')),c=>c.charCodeAt(0));
+ return JSON.parse(new TextDecoder().decode(bytes));
+}
+async function refresh(){
+ if(busy)return;
+ note('Carregando versão atual do GitHub…');
+ try{
+  var values=await Promise.all([api('/git/ref/heads/main'),readFile('natal-layout-v28.json'),readFile('event.json'),readFile('rewards-library.json')]);
+  head=values[0].object.sha;
+  var layout=values[1];baseline=clone(layout);eventData=values[2];library=values[3];
+  if(layout.format!=='ateliê-natal-v1'||!Array.isArray(layout.levels)||layout.levels.length!==10)throw Error('Layout publicado não é um projeto v28 válido.');
+  validateRewards();
+  editor.setProject(layout);
+  syncRewardsVisual();
+  note('Projeto sincronizado com Eventos/main. Edições não publicadas permanecem apenas neste navegador.');
+ }catch(err){head=null;note('Falha ao carregar o projeto: '+err.message,true);}
+}
+function mergeRecipes(dst,original,current){
+ var byID=Object.fromEntries((dst.recipes||[]).map(x=>[x.id,x]));
+ var before=Object.fromEntries((original.recipes||[]).map(x=>[x.id,x]));
+ for(var r of current.recipes||[]){var target=byID[r.id],old=before[r.id];if(!target||!old)continue;
+  if(r.name!==old.name)target.name=r.name;
+  if(r.stars!==old.stars)target.stars=r.stars;
+  if(r.rare!==old.rare)target.rare=!!r.rare;
+  if(JSON.stringify(r.needs)!==JSON.stringify(old.needs)){
+   var needs=Object.fromEntries(Object.entries(r.needs||{}).filter(([,n])=>Number.isInteger(n)&&n>0&&n<=10));
+   if(!Object.keys(needs).length)throw Error('Receita '+r.id+' sem materiais.');
+   target.needs=needs;
+  }
+ }
+}
+async function prepareMedia(raw){
+ var files=new Map(),copy=clone(raw),mimeExt={'image/png':'png','image/jpeg':'jpg','image/webp':'webp','image/gif':'gif','image/svg+xml':'svg','audio/mpeg':'mp3','audio/mp3':'mp3','audio/wav':'wav','audio/ogg':'ogg','audio/mp4':'m4a'};
+ var pattern=/^data:([^;,]+);base64,([a-zA-Z0-9+/=]+)$/;
+ async function visit(node){
+  if(typeof node==='string'){
+   var match=pattern.exec(node);
+   if(!match)return node;
+   var ext=mimeExt[match[1].toLowerCase()];
+   if(!ext)throw Error('Formato de mídia não aceito: '+match[1]);
+   var binary=Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0));
+   if(binary.length>20*1024*1024)throw Error('Mídia acima de 20 MB; reduza a imagem ou áudio.');
+   var hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',binary))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   var path='assets/editor/'+hash.slice(0,28)+'.'+ext;
+   if(!files.has(path))files.set(path,{base64:match[2]});
+   return path;
+  }
+  if(Array.isArray(node)){for(var i=0;i<node.length;i++)node[i]=await visit(node[i]);return node;}
+  if(node&&typeof node==='object'){for(var key of Object.keys(node))node[key]=await visit(node[key]);}
+  return node;
+ }
+ await visit(copy);
+ return {layout:copy,files};
+}
+function validateEvent(data){
+ if(data.id!=='natal-2026'||!Array.isArray(data.recipes)||data.recipes.length<4)throw Error('Evento inválido.');
+ validateRewards();
+ for(var r of data.recipes){if(!r.id||!Number.isInteger(r.stars)||r.stars<1||r.stars>50||!Object.keys(r.needs||{}).length)throw Error('Receita inválida: '+r.id);}
+}
+async function publish(){
+ if(busy)return;busy=true;
+ var token='';
+ try{
+  requireReady();validateRewards();
+  if(location.origin!=='https://mini-fazenda.github.io'||!location.pathname.startsWith('/Eventos/'))throw Error('Abra o editor pelo GitHub Pages oficial de Eventos para publicar.');
+  token=prompt('Token do GitHub (Contents: Read and write, somente mini-fazenda/Eventos):')||'';
+  if(!token.trim())throw Error('Publicação cancelada: token não informado.');
+  note('Validando versão e preparando arquivos…');
+  var ref=await api('/git/ref/heads/main',token);
+  if(ref.object.sha!==head)throw Error('A branch main mudou desde que o editor foi aberto. Atualize do GitHub antes de publicar, preservando uma cópia ZIP das suas alterações.');
+  var current=editor.getProject(),ev=clone(eventData);
+  ev.pass.thresholds=[...eventData.pass.thresholds];
+  ev.pass.rewards=clone(eventData.pass.rewards);
+  mergeRecipes(ev,baseline,current);
+  ev.version='editor-online-'+new Date().toISOString();
+  var prepared=await prepareMedia(current);
+  var layout=prepared.layout;
+  layout.levels.forEach((level,i)=>level.need=ev.pass.thresholds[i]);
+  if(layout.settings&&layout.settings.engine&&layout.settings.engine.audio)ev.ui.audio=clone(layout.settings.engine.audio);
+  validateEvent(ev);
+  var book=clone(library);
+  for(var reward of book.rewards||[]){
+   var place=null;
+   for(var track of KEYS){var idx=ev.pass.rewards[track].indexOf(reward.id);if(idx>=0)place={track,level:idx+1,requiredStars:ev.pass.thresholds[idx]};}
+   reward.assigned=!!place;delete reward.track;delete reward.level;delete reward.requiredStars;
+   if(place)Object.assign(reward,place);
+  }
+  var currentCommit=await api('/git/commits/'+head,token);
+  var tree=[{path:'natal-layout-v28.json',mode:'100644',type:'blob',content:JSON.stringify(layout,null,2)+'\n'},{path:'event.json',mode:'100644',type:'blob',content:JSON.stringify(ev,null,2)+'\n'},{path:'rewards-library.json',mode:'100644',type:'blob',content:JSON.stringify(book,null,2)+'\n'}];
+  var position=0;
+  for(var [path,asset] of prepared.files){
+   position++;note('Enviando mídia '+position+'/'+prepared.files.size+'…');
+   var blob=await api('/git/blobs',token,'POST',{content:asset.base64,encoding:'base64'});
+   tree.push({path,mode:'100644',type:'blob',sha:blob.sha});
+  }
+  note('Criando commit único (layout, regras e mídias)…');
+  var nextTree=await api('/git/trees',token,'POST',{base_tree:currentCommit.tree.sha,tree});
+  var commit=await api('/git/commits',token,'POST',{message:'Editor de Natal: publicar layout, prêmios e configuração online',tree:nextTree.sha,parents:[head]});
+  await api('/git/refs/heads/main',token,'PATCH',{sha:commit.sha,force:false});
+  head=commit.sha;eventData=ev;library=book;baseline=layout;
+  editor.setProject(layout);
+  note('Publicado! Commit '+commit.sha.slice(0,10)+'. Aguarde a atualização do GitHub Pages antes de abrir o jogo.');
+  alert('Publicado no GitHub com sucesso!\nCommit: '+commit.sha.slice(0,12)+'\nRepositório: Eventos/main\nA main de Mini Fazenda não foi alterada.');
+ }catch(err){note('Não publicado: '+err.message,true);alert('A publicação não foi concluída.\n'+err.message);}
+ finally{token='';busy=false;}
+}
+function mount(){
+ editPanel();
+ var actions=$('.top');if(!actions)return;
+ var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
+ choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
+ actions.insertBefore(choices,$('#saveBtn'));
+ var status=document.createElement('small');status.id='natalOnlineStatus';status.style.cssText='font-size:11px;margin:0 9px;color:#386d51';status.textContent='Carregando…';
+ var footer=$('.footer');if(footer)footer.appendChild(status);
+ $('#natalRewardsBtn').onclick=()=>{try{renderRewards();}catch(err){alert(err.message);}};
+ $('#natalReloadBtn').onclick=()=>{if(confirm('Descartar alterações locais ainda não publicadas e recarregar do GitHub?'))void refresh();};
+ $('#natalPublishBtn').onclick=()=>void publish();
+ void refresh();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
