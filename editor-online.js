@@ -6,6 +6,9 @@ var editor=window.MFNatalEditor;
 // Culturas verificadas no catálogo agrícola do jogo.
 var CROP_IDS=['cenoura','espinafre','trigo','milho','abacaxi','morango','beterraba','cafe','melancia','cana','feijao','soja','cebola','arroz','girassol'];
 var RESOURCE_TYPES={coins:'Moedas',green:'Grana Verde',xp:'XP',seed:'Sementes'};
+var PLAN_KEY='mf-natal-reward-resource-plans-v1';
+function savePlans(){try{localStorage.setItem(PLAN_KEY,JSON.stringify((library?.rewards||[]).filter(x=>x.planned===true)));}catch(_){}}
+function restorePlans(){try{var plans=JSON.parse(localStorage.getItem(PLAN_KEY)||'[]');if(Array.isArray(plans))for(var item of plans){if(!item?.planned||!['coins','green','xp','seed'].includes(item.type)||!/^natal-2026-recurso-[a-z0-9]+$/.test(item.id)||!Number.isSafeInteger(item.amount)||item.amount<1||item.amount>1000000000||item.type==='seed'&&!CROP_IDS.includes(item.crop)||library.rewards.some(x=>x.id===item.id))continue;library.rewards.push(item);}}catch(_){}}
 if(!editor)return;
 var eventData=null,library=null,baseline=null,visualBaseline=null,head=null,busy=false;
 var $=s=>document.querySelector(s);
@@ -86,7 +89,7 @@ function registerResource(){
   var id='natal-2026-recurso-'+Array.from(crypto.getRandomValues(new Uint32Array(2))).map(n=>n.toString(36)).join('');
   var name=amount.toLocaleString('pt-BR')+' '+(type==='seed'?'sementes de '+crop:RESOURCE_TYPES[type]);
   library.rewards.push({id,name,type,amount,...(crop?{crop}:{}),asset:null,assigned:false,planned:true});
-  note('Prêmio planejado. Não será publicado para resgate sem suporte do jogo/VPS.');
+  savePlans();note('Prêmio planejado e salvo neste navegador. Não será publicado para resgate sem suporte do jogo/VPS.');
   renderRewards();
  }catch(err){alert(err.message);}
 }
@@ -140,7 +143,7 @@ async function refresh(){
  try{
   var values=await Promise.all([api('/git/ref/heads/main'),readFile('natal-layout-v28.json'),readFile('event.json'),readFile('rewards-library.json')]);
   head=values[0].object.sha;
-  var layout=values[1];baseline=clone(layout);eventData=values[2];library=values[3];
+  var layout=values[1];baseline=clone(layout);eventData=values[2];library=values[3];restorePlans();
   if(layout.format!=='ateliê-natal-v1'||!Array.isArray(layout.levels)||layout.levels.length!==10)throw Error('Layout publicado não é um projeto v28 válido.');
   validateRewards();
   editor.setProject(layout);
