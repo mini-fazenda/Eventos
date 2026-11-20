@@ -653,7 +653,7 @@
   "levels": [
     {
       "level": 1,
-      "need": 1,
+      "need": 65,
       "free": {
         "name": "15 Moedas",
         "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
