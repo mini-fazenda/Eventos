@@ -60,6 +60,26 @@ function syncRewardsVisual(){
  }
  editor.setProject(current);visualBaseline=[...eventData.pass.thresholds];
 }
+function registerCosmetic(){
+ try{
+  requireReady();
+  var name=prompt('Nome do novo conjunto de roupas (ex.: Conjunto Neve):');
+  if(name===null)return;
+  name=name.trim();
+  if(!name||name.length>100)throw Error('Informe um nome com até 100 caracteres.');
+  var typed=prompt('IDs das peças já publicadas no Ateliê, separados por vírgula:');
+  if(typed===null)return;
+  var unlocks=typed.split(/[,;\\n]+/).map(s=>s.trim()).filter(Boolean);
+  if(!unlocks.length||unlocks.length>20||unlocks.some(id=>!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$/.test(id))||new Set(unlocks).size!==unlocks.length)
+   throw Error('IDs inválidos, repetidos ou acima do limite de 20 peças.');
+  var taken=new Set((library.rewards||[]).flatMap(r=>r.unlocks||[]));
+  if(unlocks.some(id=>taken.has(id)))throw Error('Uma dessas peças já pertence a outro conjunto do evento.');
+  var id='natal-2026-kit-'+Array.from(crypto.getRandomValues(new Uint32Array(2))).map(n=>n.toString(36)).join('');
+  library.rewards.push({id,name,type:'cosmetic',asset:null,assigned:false,dynamic:true,unlocks});
+  note('Conjunto adicionado à biblioteca local. Selecione o novo prêmio e clique em Publicar para salvar no GitHub.');
+  renderRewards();
+ }catch(err){alert(err.message);}
+}
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
  wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas já cadastradas no catálogo permanente. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
@@ -157,6 +177,14 @@ async function publish(){
   validateRewards();
   ev.pass.thresholds=[...eventData.pass.thresholds];
   ev.pass.rewards=clone(eventData.pass.rewards);
+  // Novos conjuntos são enviados junto com o evento. O jogo valida e
+  // concede essas peças sem commits adicionais na branch do jogo.
+  ev.rewardDefinitions={};
+  for(var item of library.rewards||[]){
+   if(item.dynamic!==true)continue;
+   if(item.type!=='cosmetic'||!Array.isArray(item.unlocks)||!item.unlocks.length)throw Error('Conjunto inválido: '+item.id);
+   ev.rewardDefinitions[item.id]={name:item.name,type:'cosmetic',unlocks:[...item.unlocks]};
+  }
   mergeRecipes(ev,baseline,current);
   ev.version='editor-online-'+new Date().toISOString();
   var prepared=await prepareMedia(current);
@@ -197,11 +225,12 @@ function mount(){
  var extra=document.createElement('style');extra.textContent='.app>.top{gap:7px;padding:0 12px;overflow-x:auto;scrollbar-width:thin}.app>.top>*{flex-shrink:0}.app>.top>.grow{flex-shrink:1;min-width:4px}';document.head.appendChild(extra);
  var actions=$('.top');if(!actions)return;
  var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
- choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
+ choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
  actions.insertBefore(choices,$('#saveBtn'));
  var status=document.createElement('small');status.id='natalOnlineStatus';status.style.cssText='font-size:11px;margin:0 9px;color:#386d51';status.textContent='Carregando…';
  var footer=$('.footer');if(footer)footer.appendChild(status);
  $('#natalRewardsBtn').onclick=()=>{try{renderRewards();}catch(err){alert(err.message);}};
+ $('#natalAddCosmeticBtn').onclick=registerCosmetic;
  $('#natalReloadBtn').onclick=()=>{if(confirm('Descartar alterações locais ainda não publicadas e recarregar do GitHub?'))void refresh();};
  $('#natalPublishBtn').onclick=()=>void publish();
  void refresh();
