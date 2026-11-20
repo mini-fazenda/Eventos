@@ -30,7 +30,7 @@ function supportedReward(item){return ['coins','green','xp','seed','object','ani
 function validateSupportedForPublish(){for(var track of KEYS)for(var i=0;i<10;i++){var id=eventData.pass.rewards[track][i];if(!id)continue;var item=(library.rewards||[]).find(x=>x.id===id);if(!supportedReward(item))throw Error('Tipo de prêmio não suportado: '+(item?.name||id));}}
 function renderSelector(id,chosen){
  var choices=['<option value="">— Sem prêmio —</option>'];
- for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(RESOURCE_TYPES[item.type]||item.type)+(item.planned?' (planejado, sem entrega)':'')+'</option>');
+ for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(RESOURCE_TYPES[item.type]||item.type)+(item.planned?' (rascunho local)':'')+'</option>');
  return '<select class="rewardChoice" data-slot="'+id+'">'+choices.join('')+'</select>';
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -265,7 +265,7 @@ function mount(){
  var extra=document.createElement('style');extra.textContent='.app>.top{gap:7px;padding:0 12px;overflow-x:auto;scrollbar-width:thin}.app>.top>*{flex-shrink:0}.app>.top>.grow{flex-shrink:1;min-width:4px}';document.head.appendChild(extra);
  var actions=$('.top');if(!actions)return;
  var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
- choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalAddResourceBtn">＋ Planejar moedas / GV / XP / sementes</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
+ choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalAddResourceBtn">＋ Cadastrar moedas / GV / XP / sementes</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
  actions.insertBefore(choices,$('#saveBtn'));
  var status=document.createElement('small');status.id='natalOnlineStatus';status.style.cssText='font-size:11px;margin:0 9px;color:#386d51';status.textContent='Carregando…';
  var footer=$('.footer');if(footer)footer.appendChild(status);
