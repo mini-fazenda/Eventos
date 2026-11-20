@@ -175,7 +175,7 @@ function bindText(item){
  if(o==='Contador de presentes')return `🎁 ${s.crafted||0} presentes feitos`;
  if(o==='Prêmios conquistados')return `🏅 ${Object.keys(s.owned||{}).length} prêmios conquistados`;
  if(o==='Estrelas da janela')return `⭐ Nesta janela de 4h: ${s.windowStars||0} / ${s.windowLimit||25}`;
- if(o==='Contagem janela')return `⏳ Reinicia em ${clock(s.windowEndsAt)}`;
+ if(o==='Contagem janela')return Number(s.windowEndsAt)>Date.now()?`⏳ Libera em ${clock(s.windowEndsAt)}`:'⏳ Aguardando 25 estrelas';
  if(o==='Mensagem do Passe')return s.premium?'✅ Passe Premium ativo • progresso mantido':'🎖️ Grátis: seus níveis e estrelas continuam contando.';
  if(o==='Barra de estrelas do Passe'){
   const target=levels().find(l=>!l.unlocked)?.need||levels().at(-1)?.need||1;
@@ -490,7 +490,7 @@ async function loadStandalonePreview(){
   state={
    id:config.id,stars:0,crafted:0,owned:{},
    materials:Object.fromEntries(project.materials.map(m=>[m.key,0])),
-   windowStars:0,windowLimit:25,windowEndsAt:Date.now()+4*3600000,
+   windowStars:0,windowLimit:25,windowEndsAt:0,
    canCraft:false,premium:false,premiumPrice:30,levelPrice:5,
    orders:recipes.slice(0,3).map((r,i)=>({...r,slot:i,phase:'ready',startedAt:0,finishesAt:0,replaceAt:0})),
    levels:(project.levels||[]).map((r,i)=>({...r,unlocked:i===0,paid:false,free:{...r.free,claimed:false},premium:{...r.premium,claimed:false}})),
