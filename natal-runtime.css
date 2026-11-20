@@ -67,3 +67,17 @@ html,body,#natal-layout-root,#natal-stage,.natal-item,.natal-item.natal-button{f
 
 /* Estilo da composicao de materiais exportada pelo Atelie v28 */
 .natal-ingredient-chip{display:inline-flex;align-items:center;justify-content:center;background:#f7eac1b8;border-radius:9px;padding:2px 6px;white-space:nowrap;line-height:1}
+
+/* Feedback visual de resgate confirmado exclusivamente no Passe. */
+#natal-claim-celebration{position:absolute;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;background:rgba(8,13,17,.76);pointer-events:auto;overflow:hidden;animation:natal-claim-backdrop 1500ms ease-out both}
+.natal-claim-focus{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:92%;text-align:center;isolation:isolate;animation:natal-claim-popup 1500ms cubic-bezier(.2,.8,.2,1) both}
+.natal-claim-shine{position:absolute;left:50%;top:42%;width:min(360px,80vw);height:min(360px,80vw);transform:translate(-50%,-50%);z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,249,192,.72) 0%,rgba(255,214,94,.29) 31%,transparent 70%);filter:blur(5px);animation:natal-claim-glow 1500ms ease-in-out both}
+.natal-claim-art{width:clamp(115px,30vmin,235px);height:clamp(115px,30vmin,235px);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 13px #ffe884) drop-shadow(0 0 32px #ffc447a6);animation:natal-claim-float 1500ms ease-in-out both}
+.natal-claim-art img{display:block;width:100%;height:100%;object-fit:contain}
+.natal-claim-art span{font-size:clamp(72px,20vmin,150px);line-height:1}
+.natal-claim-title{margin-top:5px;font-size:clamp(17px,3.5vmin,25px);font-weight:800;color:#fff1ad;text-shadow:0 2px 9px #271300}
+.natal-claim-name{font-size:clamp(14px,2.7vmin,20px);font-weight:700;color:white;text-shadow:0 2px 8px #271300}
+@keyframes natal-claim-backdrop{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+@keyframes natal-claim-popup{0%{opacity:0;transform:scale(.5) translateY(35px)}22%{opacity:1;transform:scale(1.12) translateY(0)}48%,77%{opacity:1;transform:scale(1) translateY(-8px)}100%{opacity:0;transform:scale(1.09) translateY(-36px)}}
+@keyframes natal-claim-glow{0%,100%{opacity:0}25%,73%{opacity:1}}
+@keyframes natal-claim-float{0%{transform:translateY(15px)}55%{transform:translateY(-12px)}100%{transform:translateY(-25px)}}

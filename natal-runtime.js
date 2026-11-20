@@ -3,7 +3,8 @@
 const $=s=>document.querySelector(s),cfgUrl='natal-layout-v28.json';
 const standalone=window.parent===window;
 let project=null,state=null,scene='factory',passPage=0,root=null,stage=null,content=null,scale=1,active=false,locked=false,transitioning=false,hostOrigin=null,seq=0,santaMode='idle',santaTimer=0,lastActivity=Date.now();
-const completed=new Set(),responses=new Set(),url=s=>new URL(s,document.baseURI).href;
+const completed=new Set(),responses=new Set(),pendingClaims=new Map(),url=s=>new URL(s,document.baseURI).href;
+let rewardAnimationTimer=0;
 let bagNode=null,rollerNode=null,bagBusy=false,rollerBusy=false;const finishInProgress=new Set(),finishedOrders=new Set();
 const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||0));
 const find=(name)=>(project.assetLibrary||[]).find(a=>a.name.toLowerCase().includes(name.toLowerCase()))?.src;
@@ -33,7 +34,8 @@ function action(name){
  for(let i=1;i<arguments.length;i++)Object.assign(m,arguments[i]);
  locked=true;lastActivity=Date.now();updateBindings();
  window.parent.postMessage(m,hostOrigin);
- setTimeout(()=>{if(locked&&m.requestId==='layout-natal-'+seq){locked=false;updateBindings()}},13000);
+ setTimeout(()=>{if(locked&&m.requestId==='layout-natal-'+seq){locked=false;pendingClaims.delete(m.requestId);updateBindings()}},13000);
+ return m.requestId;
 }
 // Os niveis do Passe deslizam horizontalmente entre as paginas, enquanto
 // o fundo, o cabecalho, o Papai Noel e as setas permanecem parados.
@@ -129,7 +131,22 @@ function onButton(name){
   if(!state.premium&&confirm(`Ativar o Passe Premium por ${state.premiumPrice} Mini Granas?`))action('buy-premium');return;
  }
  const claim=name.match(/^Resgatar (grátis|premium) (\d+)/);
- if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l[track]?.available&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed)action('claim',{level:l.level,track})}
+ if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l[track]?.available&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed){const reward=project.levels?.[l.level-1]?.[track]||l[track];const requestId=action('claim',{level:l.level,track});if(requestId)pendingClaims.set(requestId,{sprite:reward.sprite||l[track].sprite||'',emoji:reward.emoji||l[track].emoji||'🎁',name:reward.name||l[track].name||'Recompensa'});}}
+}
+function showClaimReward(reward){
+ if(!active||scene!=='pass'||!root||!reward)return;
+ root.querySelector('#natal-claim-celebration')?.remove();clearTimeout(rewardAnimationTimer);
+ const overlay=document.createElement('div');overlay.id='natal-claim-celebration';
+ overlay.setAttribute('role','status');overlay.setAttribute('aria-label','Recompensa resgatada: '+reward.name);
+ const art=document.createElement('div');art.className='natal-claim-art';
+ const fallback=()=>{art.replaceChildren();const span=document.createElement('span');span.textContent=reward.emoji;art.append(span)};
+ if(reward.sprite){const img=document.createElement('img');img.src=url(reward.sprite);img.alt=reward.name;img.draggable=false;img.onerror=fallback;art.append(img)}else fallback();
+ const title=document.createElement('div');title.className='natal-claim-title';title.textContent='Recompensa resgatada!';
+ const name=document.createElement('div');name.className='natal-claim-name';name.textContent=reward.name;
+ const shine=document.createElement('div');shine.className='natal-claim-shine';
+ const focus=document.createElement('div');focus.className='natal-claim-focus';focus.append(shine,art,title,name);
+ overlay.append(focus);root.append(overlay);
+ rewardAnimationTimer=setTimeout(()=>{overlay.remove();rewardAnimationTimer=0},1500);
 }
 function bindText(item){
  const o=item.name||'',b=item.binding||'',s=state||{};
@@ -511,7 +528,8 @@ window.addEventListener('message',e=>{
  }else if(e.data.type==='mf-event-result'&&e.origin===hostOrigin){
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
   responses.add(id);locked=false;
-  if(e.data.ok)react('correct','result:'+id);
+  const claimed=pendingClaims.get(id);pendingClaims.delete(id);
+   if(e.data.ok){react('correct','result:'+id);if(claimed)showClaimReward(claimed)}
   updateBindings();
  }
 });
