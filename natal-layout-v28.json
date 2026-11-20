@@ -1,7 +1,7 @@
 {
   "format": "ateliê-natal-v1",
   "projectName": "Meu Natal - Layout original da Vila da Colheita",
-  "updatedAt": "2026-11-18T22:07:44.349Z",
+  "updatedAt": "2026-11-20T14:40:19.141Z",
   "settings": {
     "factoryBg": "#fff2cc",
     "passBg": "#fff2cc",
@@ -439,6 +439,46 @@
       "id": "2jw83adr",
       "name": "Elfa Natalina Chibi com Chapéu Festivo.png",
       "data": "assets/editor/bcca0a9fbfdf54074fa2594c674c.png"
+    },
+    {
+      "id": "oo0cui85",
+      "name": "poco-de-natal.png",
+      "data": "assets/editor/22360532b9958d53f0a7ae0d098d.png"
+    },
+    {
+      "id": "7haww1tq",
+      "name": "Ajudante Élfico Natalino em Estilo Isométrico.png",
+      "data": "assets/editor/699747649d9991eb07fa55e8b522.png"
+    },
+    {
+      "id": "o9apb8ic",
+      "name": "Pônei Cinzento em Fantasia de Rena.png",
+      "data": "assets/editor/2502fdad7c8ebfae91f17938c2bb.png"
+    },
+    {
+      "id": "6xbxdqnc",
+      "name": "gato.png",
+      "data": "assets/editor/4c7a89244d0e14b94b66121ba5b3.png"
+    },
+    {
+      "id": "pms0b10r",
+      "name": "Elfa Natalina Chibi com Chapéu Festivo.png",
+      "data": "assets/editor/bcca0a9fbfdf54074fa2594c674c.png"
+    },
+    {
+      "id": "ej2q2gux",
+      "name": "treno-de-natal.png",
+      "data": "assets/editor/190af4a04fb05562871bf3e3f6c1.png"
+    },
+    {
+      "id": "ywojwg3m",
+      "name": "Porquinho Saxofonista com Neve.png",
+      "data": "assets/editor/477741d39417b351c8ceca44ee66.png"
+    },
+    {
+      "id": "6zj37dmw",
+      "name": "Urso Polar Fofinho em Estilo de Jogo.png",
+      "data": "assets/editor/ed743a037e52ef5d6077354046c3.png"
     }
   ],
   "recipes": [
@@ -560,15 +600,15 @@
       "level": 1,
       "need": 1,
       "free": {
-        "name": "Conjunto de roupas natalinas — nível 1",
+        "name": "15 Moedas",
         "sprite": "assets/editor/ea33d1a1ac841e0ba8a3f766aca1.png",
-        "emoji": "👕",
+        "emoji": "🪙",
         "spriteScale": 1.2
       },
       "premium": {
-        "name": "Trenó de Natal",
+        "name": "3 Grana Verde",
         "sprite": "assets/editor/190af4a04fb05562871bf3e3f6c1.png",
-        "emoji": "🎁",
+        "emoji": "💚",
         "spriteScale": 1.7
       }
     },
@@ -576,40 +616,10 @@
       "level": 2,
       "need": 2,
       "free": {
-        "name": "Cavalo Cosplay de Rena",
-        "sprite": "assets/editor/2502fdad7c8ebfae91f17938c2bb.png",
-        "emoji": "🐾",
-        "spriteScale": 1.35
-      },
-      "premium": {
         "name": "Poço de Natal",
         "sprite": "assets/editor/22360532b9958d53f0a7ae0d098d.png",
         "emoji": "🎁",
-        "spriteScale": 1.5
-      }
-    },
-    {
-      "level": 3,
-      "need": 3,
-      "free": {
-        "name": "Gatinho Bege de Natal",
-        "sprite": "assets/editor/4c7a89244d0e14b94b66121ba5b3.png",
-        "emoji": "🐾"
-      },
-      "premium": {
-        "name": "Porquinho de Natal Saxofonista",
-        "sprite": "assets/editor/477741d39417b351c8ceca44ee66.png",
-        "emoji": "🐾"
-      }
-    },
-    {
-      "level": 4,
-      "need": 4,
-      "free": {
-        "name": "Urso Polar de Natal",
-        "sprite": "assets/editor/ed743a037e52ef5d6077354046c3.png",
-        "emoji": "🐾",
-        "spriteScale": 1.6
+        "spriteScale": 1.35
       },
       "premium": {
         "name": "Elfo de Natal",
@@ -619,87 +629,117 @@
       }
     },
     {
+      "level": 3,
+      "need": 3,
+      "free": {
+        "name": "20 XP",
+        "sprite": "",
+        "emoji": "⭐"
+      },
+      "premium": {
+        "name": "Cavalo Cosplay de Rena",
+        "sprite": "assets/editor/2502fdad7c8ebfae91f17938c2bb.png",
+        "emoji": "🐾"
+      }
+    },
+    {
+      "level": 4,
+      "need": 4,
+      "free": {
+        "name": "Gatinho Bege de Natal",
+        "sprite": "assets/editor/4c7a89244d0e14b94b66121ba5b3.png",
+        "emoji": "🐾",
+        "spriteScale": 1.6
+      },
+      "premium": {
+        "name": "Elfa de Natal",
+        "sprite": "assets/editor/bcca0a9fbfdf54074fa2594c674c.png",
+        "emoji": "🐾",
+        "spriteScale": 1.7
+      }
+    },
+    {
       "level": 5,
       "need": 5,
       "free": {
-        "name": "Elfa de Natal",
-        "sprite": "assets/editor/bcca0a9fbfdf54074fa2594c674c.png",
-        "emoji": "🐾"
+        "name": "1 Grana Verde",
+        "sprite": "",
+        "emoji": "💚"
       },
       "premium": {
-        "name": "Em preparação",
-        "sprite": "",
-        "emoji": ""
+        "name": "Trenó de Natal",
+        "sprite": "assets/editor/190af4a04fb05562871bf3e3f6c1.png",
+        "emoji": "🎁"
       }
     },
     {
       "level": 6,
       "need": 6,
       "free": {
-        "name": "Em preparação",
+        "name": "20 Moedas",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🪙"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Conjunto Elfa de Natal (roupa e chapéu)",
         "sprite": "",
-        "emoji": ""
+        "emoji": "👕"
       }
     },
     {
       "level": 7,
       "need": 7,
       "free": {
-        "name": "Em preparação",
+        "name": "25 Moedas",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🪙"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Conjunto de roupas natalinas — nível 1",
         "sprite": "",
-        "emoji": ""
+        "emoji": "👕"
       }
     },
     {
       "level": 8,
       "need": 8,
       "free": {
-        "name": "Em preparação",
+        "name": "Conjunto Bobo de Natal",
         "sprite": "",
-        "emoji": ""
+        "emoji": "👕"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "40 Moedas",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🪙"
       }
     },
     {
       "level": 9,
       "need": 9,
       "free": {
-        "name": "Em preparação",
-        "sprite": "",
-        "emoji": ""
+        "name": "Porquinho de Natal Saxofonista",
+        "sprite": "assets/editor/477741d39417b351c8ceca44ee66.png",
+        "emoji": "🐾"
       },
       "premium": {
-        "name": "Em preparação",
-        "sprite": "",
-        "emoji": ""
+        "name": "Urso Polar de Natal",
+        "sprite": "assets/editor/ed743a037e52ef5d6077354046c3.png",
+        "emoji": "🐾"
       }
     },
     {
       "level": 10,
       "need": 10,
       "free": {
-        "name": "Em preparação",
+        "name": "1 sementes de arroz",
         "sprite": "",
-        "emoji": ""
+        "emoji": "🌱"
       },
       "premium": {
-        "name": "Em preparação",
+        "name": "Conjunto Rena de Natal (roupa e chapéu)",
         "sprite": "",
-        "emoji": ""
+        "emoji": "👕"
       }
     }
   ],

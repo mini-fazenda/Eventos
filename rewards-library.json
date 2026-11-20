@@ -11,9 +11,9 @@
       "type": "cosmetic",
       "asset": null,
       "assigned": true,
-      "track": "free",
-      "level": 1,
-      "requiredStars": 1
+      "track": "premium",
+      "level": 7,
+      "requiredStars": 7
     },
     {
       "id": "natal-2026-cavalo-rena",
@@ -21,9 +21,9 @@
       "type": "animal",
       "asset": "assets/rewards/natal/cavalo-cosplay-rena.gif",
       "assigned": true,
-      "track": "free",
-      "level": 2,
-      "requiredStars": 2
+      "track": "premium",
+      "level": 3,
+      "requiredStars": 3
     },
     {
       "id": "natal-2026-gatinho-bege",
@@ -32,8 +32,8 @@
       "asset": "assets/rewards/natal/gatinho-bege.gif",
       "assigned": true,
       "track": "free",
-      "level": 3,
-      "requiredStars": 3
+      "level": 4,
+      "requiredStars": 4
     },
     {
       "id": "natal-2026-porquinho-saxofone",
@@ -41,9 +41,9 @@
       "type": "animal",
       "asset": "assets/rewards/natal/porquinho-saxofone.gif",
       "assigned": true,
-      "track": "premium",
-      "level": 3,
-      "requiredStars": 3
+      "track": "free",
+      "level": 9,
+      "requiredStars": 9
     },
     {
       "id": "natal-2026-urso-polar",
@@ -51,9 +51,9 @@
       "type": "animal",
       "asset": "assets/rewards/natal/urso-polar.gif",
       "assigned": true,
-      "track": "free",
-      "level": 4,
-      "requiredStars": 4
+      "track": "premium",
+      "level": 9,
+      "requiredStars": 9
     },
     {
       "id": "natal-2026-elfo",
@@ -62,8 +62,8 @@
       "asset": "assets/rewards/natal/elfo.gif",
       "assigned": true,
       "track": "premium",
-      "level": 4,
-      "requiredStars": 4
+      "level": 2,
+      "requiredStars": 2
     },
     {
       "id": "natal-2026-elfa",
@@ -71,9 +71,9 @@
       "type": "animal",
       "asset": "assets/rewards/natal/elfa.gif",
       "assigned": true,
-      "track": "free",
-      "level": 5,
-      "requiredStars": 5
+      "track": "premium",
+      "level": 4,
+      "requiredStars": 4
     },
     {
       "id": "natal-2026-poco",
@@ -81,7 +81,7 @@
       "type": "object",
       "asset": "assets/rewards/natal/poco-de-natal.png",
       "assigned": true,
-      "track": "premium",
+      "track": "free",
       "level": 2,
       "requiredStars": 2
     },
@@ -92,29 +92,135 @@
       "asset": "assets/rewards/natal/treno-de-natal.png",
       "assigned": true,
       "track": "premium",
-      "level": 1,
-      "requiredStars": 1
+      "level": 5,
+      "requiredStars": 5
     },
     {
       "id": "natal-2026-conjunto-rena",
       "name": "Conjunto Rena de Natal (roupa e chapéu)",
       "type": "cosmetic",
       "asset": null,
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 10,
+      "requiredStars": 10
     },
     {
       "id": "natal-2026-conjunto-elfa",
       "name": "Conjunto Elfa de Natal (roupa e chapéu)",
       "type": "cosmetic",
       "asset": null,
-      "assigned": false
+      "assigned": true,
+      "track": "premium",
+      "level": 6,
+      "requiredStars": 6
     },
     {
       "id": "natal-2026-conjunto-bobo",
       "name": "Conjunto Bobo de Natal",
       "type": "cosmetic",
       "asset": null,
-      "assigned": false
+      "assigned": true,
+      "track": "free",
+      "level": 8,
+      "requiredStars": 8
+    },
+    {
+      "id": "natal-2026-recurso-1nkh56cr0ey6h",
+      "name": "20 Moedas",
+      "type": "coins",
+      "amount": 20,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 6,
+      "requiredStars": 6
+    },
+    {
+      "id": "natal-2026-recurso-8kqc3r113q7h6",
+      "name": "1 Grana Verde",
+      "type": "green",
+      "amount": 1,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 5,
+      "requiredStars": 5
+    },
+    {
+      "id": "natal-2026-recurso-ak1evd9e4j4v",
+      "name": "20 XP",
+      "type": "xp",
+      "amount": 20,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 3,
+      "requiredStars": 3
+    },
+    {
+      "id": "natal-2026-recurso-sdt0x889bbuf",
+      "name": "3 Grana Verde",
+      "type": "green",
+      "amount": 3,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "premium",
+      "level": 1,
+      "requiredStars": 1
+    },
+    {
+      "id": "natal-2026-recurso-q703f213qi4gk",
+      "name": "15 Moedas",
+      "type": "coins",
+      "amount": 15,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 1,
+      "requiredStars": 1
+    },
+    {
+      "id": "natal-2026-recurso-1sysn8b1iku5d8",
+      "name": "25 Moedas",
+      "type": "coins",
+      "amount": 25,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 7,
+      "requiredStars": 7
+    },
+    {
+      "id": "natal-2026-recurso-aimdbkicucs8",
+      "name": "40 Moedas",
+      "type": "coins",
+      "amount": 40,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "premium",
+      "level": 8,
+      "requiredStars": 8
+    },
+    {
+      "id": "natal-2026-recurso-ty4dem1b02bf7",
+      "name": "1 sementes de arroz",
+      "type": "seed",
+      "amount": 1,
+      "crop": "arroz",
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 10,
+      "requiredStars": 10
     }
   ]
 }

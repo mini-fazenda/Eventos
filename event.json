@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "editor-online-2026-11-18T22:07:49.582Z",
+  "version": "editor-online-2026-11-20T14:40:50.725Z",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -34,28 +34,28 @@
     ],
     "rewards": {
       "free": [
-        "natal-2026-roupas-nivel-1",
-        "natal-2026-cavalo-rena",
+        "natal-2026-recurso-q703f213qi4gk",
+        "natal-2026-poco",
+        "natal-2026-recurso-ak1evd9e4j4v",
         "natal-2026-gatinho-bege",
-        "natal-2026-urso-polar",
-        "natal-2026-elfa",
-        null,
-        null,
-        null,
-        null,
-        null
+        "natal-2026-recurso-8kqc3r113q7h6",
+        "natal-2026-recurso-1nkh56cr0ey6h",
+        "natal-2026-recurso-1sysn8b1iku5d8",
+        "natal-2026-conjunto-bobo",
+        "natal-2026-porquinho-saxofone",
+        "natal-2026-recurso-ty4dem1b02bf7"
       ],
       "premium": [
-        "natal-2026-treno",
-        "natal-2026-poco",
-        "natal-2026-porquinho-saxofone",
+        "natal-2026-recurso-sdt0x889bbuf",
         "natal-2026-elfo",
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        "natal-2026-cavalo-rena",
+        "natal-2026-elfa",
+        "natal-2026-treno",
+        "natal-2026-conjunto-elfa",
+        "natal-2026-roupas-nivel-1",
+        "natal-2026-recurso-aimdbkicucs8",
+        "natal-2026-urso-polar",
+        "natal-2026-conjunto-rena"
       ]
     }
   },
@@ -223,5 +223,48 @@
     "buttonText": "ACEITAR — 15 MOEDAS",
     "background": "#814729",
     "accent": "#f5d596"
+  },
+  "rewardDefinitions": {
+    "natal-2026-recurso-1nkh56cr0ey6h": {
+      "name": "20 Moedas",
+      "type": "coins",
+      "amount": 20
+    },
+    "natal-2026-recurso-8kqc3r113q7h6": {
+      "name": "1 Grana Verde",
+      "type": "green",
+      "amount": 1
+    },
+    "natal-2026-recurso-ak1evd9e4j4v": {
+      "name": "20 XP",
+      "type": "xp",
+      "amount": 20
+    },
+    "natal-2026-recurso-sdt0x889bbuf": {
+      "name": "3 Grana Verde",
+      "type": "green",
+      "amount": 3
+    },
+    "natal-2026-recurso-q703f213qi4gk": {
+      "name": "15 Moedas",
+      "type": "coins",
+      "amount": 15
+    },
+    "natal-2026-recurso-1sysn8b1iku5d8": {
+      "name": "25 Moedas",
+      "type": "coins",
+      "amount": 25
+    },
+    "natal-2026-recurso-aimdbkicucs8": {
+      "name": "40 Moedas",
+      "type": "coins",
+      "amount": 40
+    },
+    "natal-2026-recurso-ty4dem1b02bf7": {
+      "name": "1 sementes de arroz",
+      "type": "seed",
+      "amount": 1,
+      "crop": "arroz"
+    }
   }
 }
