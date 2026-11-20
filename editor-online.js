@@ -26,8 +26,8 @@ function note(message,error){
  var el=$('#natalOnlineStatus');if(el){el.textContent=message;el.style.color=error?'#ae3232':'#386d51';}
 }
 function requireReady(){if(!eventData||!library||!head||!baseline)throw Error('Carregue a configuração publicada no GitHub antes de editar.');}
-function supportedReward(item){return ['coins','object','animal','cosmetic'].includes(item?.type)&&item?.planned!==true;}
-function validateSupportedForPublish(){for(var track of KEYS)for(var i=0;i<10;i++){var id=eventData.pass.rewards[track][i];if(!id)continue;var item=(library.rewards||[]).find(x=>x.id===id);if(!supportedReward(item))throw Error('O prêmio '+(item?.name||id)+' ainda não pode ser entregue pelo jogo/VPS. Retire esse prêmio do slot antes de publicar.');}}
+function supportedReward(item){return ['coins','green','xp','seed','object','animal','cosmetic'].includes(item?.type);}
+function validateSupportedForPublish(){for(var track of KEYS)for(var i=0;i<10;i++){var id=eventData.pass.rewards[track][i];if(!id)continue;var item=(library.rewards||[]).find(x=>x.id===id);if(!supportedReward(item))throw Error('Tipo de prêmio não suportado: '+(item?.name||id));}}
 function renderSelector(id,chosen){
  var choices=['<option value="">— Sem prêmio —</option>'];
  for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(RESOURCE_TYPES[item.type]||item.type)+(item.planned?' (planejado, sem entrega)':'')+'</option>');
@@ -85,11 +85,12 @@ function registerResource(){
   var raw=prompt('Quantidade inteira positiva:','100');
   if(raw===null)return;
   var amount=Number(raw);
-  if(!Number.isSafeInteger(amount)||amount<1||amount>1000000000)throw Error('Quantidade inválida.');
+  var limit=type==='green'?10000:type==='xp'?1000000:type==='seed'?10000:1000000000;
+  if(!Number.isSafeInteger(amount)||amount<1||amount>limit)throw Error('Quantidade inválida. Limite para este tipo: '+limit+'.');
   var id='natal-2026-recurso-'+Array.from(crypto.getRandomValues(new Uint32Array(2))).map(n=>n.toString(36)).join('');
   var name=amount.toLocaleString('pt-BR')+' '+(type==='seed'?'sementes de '+crop:RESOURCE_TYPES[type]);
-  library.rewards.push({id,name,type,amount,...(crop?{crop}:{}),asset:null,assigned:false,planned:true});
-  savePlans();note('Prêmio planejado e salvo neste navegador. Não será publicado para resgate sem suporte do jogo/VPS.');
+  library.rewards.push({id,name,type,amount,...(crop?{crop}:{}),asset:null,assigned:false,planned:true,dynamic:true});
+  savePlans();note('Recurso cadastrado e salvo como rascunho. Selecione o prêmio no nível e publique para ativar.');
   renderRewards();
  }catch(err){alert(err.message);}
 }
@@ -115,7 +116,7 @@ function registerCosmetic(){
 }
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
- wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo. Recursos planejados não podem ser publicados no Passe até a entrega ser suportada no jogo/VPS.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
+ wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo. Recursos cadastrados são publicados no event.json e validados pelo jogo/VPS quando atribuídos a um nível.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
  document.body.appendChild(wrap);
  var style=document.createElement('style');style.textContent='#natalRewardDialog[hidden]{display:none}#natalRewardDialog{position:fixed;inset:0;background:#12251cd9;z-index:18000;display:grid;place-items:center;padding:14px}.natalRewardCard{background:white;border-radius:13px;max-width:950px;width:100%;max-height:95vh;display:flex;flex-direction:column;padding:18px;gap:12px;color:#263d30;box-shadow:0 16px 70px #0005}.natalRewardCard header,.natalRewardCard footer{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.natalRewardCard h2{font-size:18px;margin:0}.natalRewardCard p{margin:0}.natalRewardScroll{overflow:auto}.natalRewardCard table{width:100%;border-collapse:collapse}.natalRewardCard td,.natalRewardCard th{text-align:left;border-bottom:1px solid #e3e9e4;padding:8px}.natalRewardCard select{width:100%;min-width:180px;max-width:340px}.natalRewardCard input{width:95px}.natalRewardCard button{padding:9px 12px;border:1px solid #cedbce;border-radius:8px;background:#edf6ee;color:#274b36}';
  document.head.appendChild(style);
@@ -215,8 +216,13 @@ async function publish(){
   ev.rewardDefinitions={};
   for(var item of library.rewards||[]){
    if(item.dynamic!==true)continue;
-   if(item.type!=='cosmetic'||!Array.isArray(item.unlocks)||!item.unlocks.length)throw Error('Conjunto inválido: '+item.id);
-   ev.rewardDefinitions[item.id]={name:item.name,type:'cosmetic',unlocks:[...item.unlocks]};
+   if(item.type==='cosmetic'){
+    if(!Array.isArray(item.unlocks)||!item.unlocks.length)throw Error('Conjunto inválido: '+item.id);
+    ev.rewardDefinitions[item.id]={name:item.name,type:'cosmetic',unlocks:[...item.unlocks]};
+   }else if(['coins','green','xp','seed'].includes(item.type)){
+    if(!Number.isSafeInteger(item.amount)||item.amount<1)throw Error('Quantidade inválida: '+item.id);
+    ev.rewardDefinitions[item.id]={name:item.name,type:item.type,amount:item.amount,...(item.type==='seed'?{crop:item.crop}:{})};
+   }else throw Error('Tipo não suportado: '+item.id);
   }
   mergeRecipes(ev,baseline,current);
   ev.version='editor-online-'+new Date().toISOString();
@@ -228,6 +234,7 @@ async function publish(){
   if(Array.isArray(layout.materials))for(var mat of layout.materials){if(['plastico','tinta','papel','laco'].includes(mat.key)&&typeof mat.sprite==='string'&&mat.sprite)ev.ui.materialSprites[mat.key]=mat.sprite;}
   validateEvent(ev);
   var book=clone(library);
+  for(var item of book.rewards||[])if(item.planned){delete item.planned;item.dynamic=true;}
   for(var reward of book.rewards||[]){
    var place=null;
    for(var track of KEYS){var idx=ev.pass.rewards[track].indexOf(reward.id);if(idx>=0)place={track,level:idx+1,requiredStars:ev.pass.thresholds[idx]};}
@@ -246,10 +253,10 @@ async function publish(){
   var nextTree=await api('/git/trees',token,'POST',{base_tree:currentCommit.tree.sha,tree});
   var commit=await api('/git/commits',token,'POST',{message:'Editor de Natal: publicar layout, prêmios e configuração online',tree:nextTree.sha,parents:[head]});
   await api('/git/refs/heads/main',token,'PATCH',{sha:commit.sha,force:false});
-  head=commit.sha;eventData=ev;library=book;baseline=layout;visualBaseline=[...ev.pass.thresholds];
+  head=commit.sha;eventData=ev;library=book;savePlans();baseline=layout;visualBaseline=[...ev.pass.thresholds];
   editor.setProject(layout);
   note('Publicado! Commit '+commit.sha.slice(0,10)+'. Aguarde a atualização do GitHub Pages antes de abrir o jogo.');
-  alert('Publicado no GitHub com sucesso!\nCommit: '+commit.sha.slice(0,12)+'\nRepositório: Eventos/main\nA main de Mini Fazenda não foi alterada.');
+  alert('Publicado no GitHub com sucesso!\nCommit: '+commit.sha.slice(0,12)+'\nRepositório: Eventos/main\nAs definições de recompensa são validadas pela engine principal.');
  }catch(err){note('Não publicado: '+err.message,true);alert('A publicação não foi concluída.\n'+err.message);}
  finally{token='';busy=false;}
 }
