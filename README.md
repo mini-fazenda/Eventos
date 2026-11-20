@@ -1,3 +1,13 @@
+## Novos conjuntos de roupas — cadastro sem atualizar a main do jogo
+
+O Ateliê de Personagens publica os sprites e IDs das peças no repositório `Atelie-minifazenda`. Para usá-los no Passe de Natal, abra o editor online em https://mini-fazenda.github.io/Eventos/ e clique em **＋ Novo conjunto de roupas**. Informe o nome e os IDs de peças já publicados pelo Ateliê, separados por vírgula. O novo conjunto aparece na seleção de **Níveis e prêmios**.
+
+Ao clicar em **Publicar online**, o editor grava o conjunto em `rewards-library.json` e em `event.json.rewardDefinitions`, junto com a distribuição dos níveis. O jogo consulta o manifesto publicado e reconhece **novos conjuntos cosméticos** sem commits adicionais em `mini-fazenda/main`. Cada recompensa continua tendo um ID permanente, único, e o servidor confere progresso, posse e peças desbloqueadas.
+
+**Limites e segurança:** esse fluxo novo é somente para roupas/acessórios já presentes no Ateliê. Animais, decorações e regras de produção ainda exigem cadastro no jogo. O editor não publica sprites do Ateliê nem verifica automaticamente a existência de cada ID nos pacotes do Ateliê: confira se as peças foram realmente publicadas. A integração exige que a VPS esteja usando a versão do jogo com suporte a `rewardDefinitions`; depois dessa atualização única, as próximas adições cosméticas são feitas apenas em Eventos.
+
+---
+
 ## 🎄 Editor online — publicar direto do GitHub Pages
 
 > **Estado em 18/11/2026:** o editor está publicado; a configuração atual de `event.json` tem metas de 1 a 10 estrelas e nove IDs posicionados no passe. Valores do evento são editáveis: não presuma que exemplos antigos deste documento continuam atuais. Os oito itens novos ainda dependem de seus arquivos em `mini-fazenda/mini-fazenda`, branch `atualizacao-de-natal`, pasta `public/assets/rewards/natal/`. O menu pode mostrar os nomes antes de esses arquivos estarem disponíveis, mas o recebimento visual completo depende da implantação do jogo com as artes.
