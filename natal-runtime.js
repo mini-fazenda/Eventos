@@ -5,6 +5,7 @@ const standalone=window.parent===window;
 let project=null,state=null,scene='factory',passPage=0,root=null,stage=null,content=null,scale=1,active=false,locked=false,transitioning=false,hostOrigin=null,seq=0,santaMode='idle',santaTimer=0,lastActivity=Date.now();
 const completed=new Set(),responses=new Set(),pendingClaims=new Map(),url=s=>new URL(s,document.baseURI).href;
 let rewardAnimationTimer=0;
+let lastClaimAttempt=null;
 let bagNode=null,rollerNode=null,bagBusy=false,rollerBusy=false;const finishInProgress=new Set(),finishedOrders=new Set();
 const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||0));
 const find=(name)=>(project.assetLibrary||[]).find(a=>a.name.toLowerCase().includes(name.toLowerCase()))?.src;
@@ -34,7 +35,7 @@ function action(name){
  for(let i=1;i<arguments.length;i++)Object.assign(m,arguments[i]);
  locked=true;lastActivity=Date.now();updateBindings();
  window.parent.postMessage(m,hostOrigin);
- setTimeout(()=>{if(locked&&m.requestId==='layout-natal-'+seq){locked=false;pendingClaims.delete(m.requestId);updateBindings()}},13000);
+ setTimeout(()=>{if(locked&&m.requestId==='layout-natal-'+seq){locked=false;updateBindings()}},13000);
  return m.requestId;
 }
 // Os niveis do Passe deslizam horizontalmente entre as paginas, enquanto
@@ -131,7 +132,27 @@ function onButton(name){
   if(!state.premium&&confirm(`Ativar o Passe Premium por ${state.premiumPrice} Mini Granas?`))action('buy-premium');return;
  }
  const claim=name.match(/^Resgatar (grátis|premium) (\d+)/);
- if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l[track]?.available&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed){const reward=project.levels?.[l.level-1]?.[track]||l[track];const requestId=action('claim',{level:l.level,track});if(requestId)pendingClaims.set(requestId,{sprite:reward.sprite||l[track].sprite||'',emoji:reward.emoji||l[track].emoji||'🎁',name:reward.name||l[track].name||'Recompensa'});}}
+ if(claim){const l=getLevel(Number(claim[2])-1),track=claim[1]==='grátis'?'free':'premium';if(l&&l[track]?.available&&l.unlocked&&(! (track==='premium')||state.premium)&&!l[track].claimed){const reward=project.levels?.[l.level-1]?.[track]||l[track];const requestId=action('claim',{level:l.level,track});if(requestId){const info={level:l.level,track,sprite:l[track].sprite||reward.sprite||'',emoji:l[track].emoji||reward.emoji||'🎁',name:l[track].name||reward.name||'Recompensa',shown:false,createdAt:Date.now()};pendingClaims.set(requestId,info);lastClaimAttempt=info;}}}
+}
+function acknowledgeClaim(reward){
+ if(!reward||reward.shown)return;
+ reward.shown=true;
+ for(const [key,value] of pendingClaims)if(value===reward)pendingClaims.delete(key);
+ if(lastClaimAttempt===reward)lastClaimAttempt=null;
+ showClaimReward(reward);
+}
+function confirmClaimFromState(previous,current){
+ const attempt=lastClaimAttempt;
+ if(!previous||!current||!attempt||attempt.shown)return;
+ if(Date.now()-attempt.createdAt>60000){lastClaimAttempt=null;return}
+ const before=(previous.levels||[]).find(l=>Number(l.level)===Number(attempt.level));
+ const after=(current.levels||[]).find(l=>Number(l.level)===Number(attempt.level));
+ if(before?.[attempt.track]?.claimed!==true&&after?.[attempt.track]?.claimed===true){
+  attempt.sprite=after[attempt.track]?.sprite||attempt.sprite;
+  attempt.emoji=after[attempt.track]?.emoji||attempt.emoji;
+  attempt.name=after[attempt.track]?.name||attempt.name;
+  acknowledgeClaim(attempt);
+ }
 }
 function showClaimReward(reward){
  if(!active||scene!=='pass'||!root||!reward)return;
@@ -512,7 +533,8 @@ window.addEventListener('message',e=>{
  if(e.data.type==='mf-event-state'){
   if(hostOrigin&&hostOrigin!==e.origin)return;
   hostOrigin=e.origin;const old=state;state=e.data.state||null;
-  const newlyCompleted=[];
+  confirmClaimFromState(old,state);
+   const newlyCompleted=[];
   if(old&&state){for(const job of state.orders||[]){const was=(old.orders||[]).find(o=>o.slot===job.slot);
    if(was?.phase==='crafting'&&job.phase==='cooldown'){
     react('clap',`crafted:${job.slot}:${job.startedAt}`);
@@ -529,7 +551,8 @@ window.addEventListener('message',e=>{
   const id=String(e.data.requestId||'');if(!id.startsWith('layout-natal-')||responses.has(id))return;
   responses.add(id);locked=false;
   const claimed=pendingClaims.get(id);pendingClaims.delete(id);
-   if(e.data.ok){react('correct','result:'+id);if(claimed)showClaimReward(claimed)}
+   if(e.data.ok){react('correct','result:'+id);if(claimed)acknowledgeClaim(claimed)}
+   else if(claimed&&lastClaimAttempt===claimed)lastClaimAttempt=null;
   updateBindings();
  }
 });
