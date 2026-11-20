@@ -216,5 +216,12 @@
     "tinta": 28,
     "papel": 24,
     "laco": 16
+  },
+  "entry": {
+    "title": "Oficina do Papai Noel",
+    "description": "Entre na oficina de Natal, fabrique presentes e conquiste prêmios especiais. A entrada custa 15 moedas e é permanente.",
+    "buttonText": "ACEITAR — 15 MOEDAS",
+    "background": "#814729",
+    "accent": "#f5d596"
   }
 }
