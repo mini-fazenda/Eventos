@@ -1,7 +1,7 @@
 {
   "format": "ateliê-natal-v1",
   "projectName": "Meu Natal - Layout original da Vila da Colheita",
-  "updatedAt": "2026-11-20T14:40:19.141Z",
+  "updatedAt": "2026-11-20T17:01:13.194Z",
   "settings": {
     "factoryBg": "#fff2cc",
     "passBg": "#fff2cc",
@@ -156,7 +156,7 @@
         "premiumBackground": "assets/editor/4e3609e4e011b2d94ffbc6f985ca.png",
         "cardBackground": "assets/editor/8e849d4b9e79a9c5afa5e18188f1.png"
       },
-      "passRewardSpriteScale": 1.5
+      "passRewardSpriteScale": 1.4
     }
   },
   "assets": [
@@ -479,6 +479,61 @@
       "id": "6zj37dmw",
       "name": "Urso Polar Fofinho em Estilo de Jogo.png",
       "data": "assets/editor/ed743a037e52ef5d6077354046c3.png"
+    },
+    {
+      "id": "4g7u7wl4",
+      "name": "ffd360086159ad51164a-icone-moedas.png",
+      "data": "assets/editor/ffd360086159ad51164a16bfaee1.png"
+    },
+    {
+      "id": "s6w6n46g",
+      "name": "ffd360086159ad51164a-icone-moedas.png",
+      "data": "assets/editor/ffd360086159ad51164a16bfaee1.png"
+    },
+    {
+      "id": "sc18mdo3",
+      "name": "Imagem do ChatGPT 20 de nov. de 2026, 13_33_44-2.png",
+      "data": "assets/editor/b49f5956b8c8b5d513f6974e0dee.png"
+    },
+    {
+      "id": "pz01ll0q",
+      "name": "ffd360086159ad51164a-icone-moedas.png",
+      "data": "assets/editor/ffd360086159ad51164a16bfaee1.png"
+    },
+    {
+      "id": "tvth7mlr",
+      "name": "Menina Chibi Natalina com Pose Sutil.png",
+      "data": "assets/editor/e35e99d3d94d682a3735b3cb0623.png"
+    },
+    {
+      "id": "x2wd4oyx",
+      "name": "Imagem do ChatGPT 20 de nov. de 2026, 13_33_50-4.png",
+      "data": "assets/editor/1b17f2ad956e4b24eb7e62a305a3.png"
+    },
+    {
+      "id": "ucuuwh30",
+      "name": "ffd360086159ad51164a-icone-moedas.png",
+      "data": "assets/editor/ffd360086159ad51164a16bfaee1.png"
+    },
+    {
+      "id": "kcy2rflv",
+      "name": "renas.png",
+      "data": "assets/editor/3a681e92f752af313ff753a84000.png"
+    },
+    {
+      "id": "t1lbyfq5",
+      "name": "Pilha de Dinheiro Verde Glossy.png",
+      "data": "assets/editor/361aef5fc379aff7916c4d1357dc.png"
+    },
+    {
+      "id": "5a67no06",
+      "name": "Pilha de Dinheiro Verde Glossy.png",
+      "data": "assets/editor/361aef5fc379aff7916c4d1357dc.png"
+    },
+    {
+      "id": "myt27p1y",
+      "name": "ffd360086159ad51164a-icone-moedas.png",
+      "data": "assets/editor/ffd360086159ad51164a16bfaee1.png"
     }
   ],
   "recipes": [
@@ -598,23 +653,23 @@
   "levels": [
     {
       "level": 1,
-      "need": 1,
+      "need": 65,
       "free": {
         "name": "15 Moedas",
-        "sprite": "assets/editor/ea33d1a1ac841e0ba8a3f766aca1.png",
+        "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙",
-        "spriteScale": 1.2
+        "spriteScale": 0.8
       },
       "premium": {
         "name": "3 Grana Verde",
-        "sprite": "assets/editor/190af4a04fb05562871bf3e3f6c1.png",
+        "sprite": "assets/editor/361aef5fc379aff7916c4d1357dc.png",
         "emoji": "💚",
         "spriteScale": 1.7
       }
     },
     {
       "level": 2,
-      "need": 2,
+      "need": 145,
       "free": {
         "name": "Poço de Natal",
         "sprite": "assets/editor/22360532b9958d53f0a7ae0d098d.png",
@@ -630,7 +685,7 @@
     },
     {
       "level": 3,
-      "need": 3,
+      "need": 205,
       "free": {
         "name": "20 XP",
         "sprite": "",
@@ -644,12 +699,12 @@
     },
     {
       "level": 4,
-      "need": 4,
+      "need": 385,
       "free": {
         "name": "Gatinho Bege de Natal",
         "sprite": "assets/editor/4c7a89244d0e14b94b66121ba5b3.png",
         "emoji": "🐾",
-        "spriteScale": 1.6
+        "spriteScale": 1
       },
       "premium": {
         "name": "Elfa de Natal",
@@ -660,11 +715,12 @@
     },
     {
       "level": 5,
-      "need": 5,
+      "need": 415,
       "free": {
         "name": "1 Grana Verde",
-        "sprite": "",
-        "emoji": "💚"
+        "sprite": "assets/editor/361aef5fc379aff7916c4d1357dc.png",
+        "emoji": "💚",
+        "spriteScale": 1.5
       },
       "premium": {
         "name": "Trenó de Natal",
@@ -674,53 +730,57 @@
     },
     {
       "level": 6,
-      "need": 6,
+      "need": 600,
       "free": {
         "name": "20 Moedas",
-        "sprite": "",
-        "emoji": "🪙"
+        "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
+        "emoji": "🪙",
+        "spriteScale": 0.7
       },
       "premium": {
         "name": "Conjunto Elfa de Natal (roupa e chapéu)",
-        "sprite": "",
+        "sprite": "assets/editor/b49f5956b8c8b5d513f6974e0dee.png",
         "emoji": "👕"
       }
     },
     {
       "level": 7,
-      "need": 7,
+      "need": 645,
       "free": {
         "name": "25 Moedas",
-        "sprite": "",
+        "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙"
       },
       "premium": {
         "name": "Conjunto de roupas natalinas — nível 1",
-        "sprite": "",
+        "sprite": "assets/editor/e35e99d3d94d682a3735b3cb0623.png",
         "emoji": "👕"
       }
     },
     {
       "level": 8,
-      "need": 8,
+      "need": 700,
       "free": {
         "name": "Conjunto Bobo de Natal",
-        "sprite": "",
-        "emoji": "👕"
+        "sprite": "assets/editor/1b17f2ad956e4b24eb7e62a305a3.png",
+        "emoji": "👕",
+        "spriteScale": 1
       },
       "premium": {
         "name": "40 Moedas",
-        "sprite": "",
-        "emoji": "🪙"
+        "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
+        "emoji": "🪙",
+        "spriteScale": 0.4
       }
     },
     {
       "level": 9,
-      "need": 9,
+      "need": 760,
       "free": {
         "name": "Porquinho de Natal Saxofonista",
         "sprite": "assets/editor/477741d39417b351c8ceca44ee66.png",
-        "emoji": "🐾"
+        "emoji": "🐾",
+        "spriteScale": 1.4
       },
       "premium": {
         "name": "Urso Polar de Natal",
@@ -730,7 +790,7 @@
     },
     {
       "level": 10,
-      "need": 10,
+      "need": 850,
       "free": {
         "name": "1 sementes de arroz",
         "sprite": "",
@@ -738,7 +798,7 @@
       },
       "premium": {
         "name": "Conjunto Rena de Natal (roupa e chapéu)",
-        "sprite": "",
+        "sprite": "assets/editor/3a681e92f752af313ff753a84000.png",
         "emoji": "👕"
       }
     }
@@ -1326,7 +1386,7 @@
         "type": "text",
         "name": "Sprite do presente 1",
         "x": 117.29,
-        "y": 250,
+        "y": 249.99,
         "w": 51,
         "h": 59,
         "z": 24,
@@ -1352,7 +1412,7 @@
         "x": 70.29,
         "y": 308,
         "w": 145,
-        "h": 18,
+        "h": 17.99,
         "z": 25,
         "text": "",
         "src": "",
@@ -1520,7 +1580,7 @@
         "x": 228,
         "y": 308,
         "w": 145,
-        "h": 18,
+        "h": 17.99,
         "z": 32,
         "text": "",
         "src": "",
@@ -1685,7 +1745,7 @@
         "type": "text",
         "name": "Sprite do presente 3",
         "x": 432.71,
-        "y": 250,
+        "y": 249.99,
         "w": 51,
         "h": 59,
         "z": 39,
@@ -1711,7 +1771,7 @@
         "x": 385.71,
         "y": 308,
         "w": 145,
-        "h": 18,
+        "h": 17.99,
         "z": 40,
         "text": "",
         "src": "",

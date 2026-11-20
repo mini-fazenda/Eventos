@@ -13,7 +13,7 @@
       "assigned": true,
       "track": "premium",
       "level": 7,
-      "requiredStars": 7
+      "requiredStars": 645
     },
     {
       "id": "natal-2026-cavalo-rena",
@@ -23,7 +23,7 @@
       "assigned": true,
       "track": "premium",
       "level": 3,
-      "requiredStars": 3
+      "requiredStars": 205
     },
     {
       "id": "natal-2026-gatinho-bege",
@@ -33,7 +33,7 @@
       "assigned": true,
       "track": "free",
       "level": 4,
-      "requiredStars": 4
+      "requiredStars": 385
     },
     {
       "id": "natal-2026-porquinho-saxofone",
@@ -43,7 +43,7 @@
       "assigned": true,
       "track": "free",
       "level": 9,
-      "requiredStars": 9
+      "requiredStars": 760
     },
     {
       "id": "natal-2026-urso-polar",
@@ -53,7 +53,7 @@
       "assigned": true,
       "track": "premium",
       "level": 9,
-      "requiredStars": 9
+      "requiredStars": 760
     },
     {
       "id": "natal-2026-elfo",
@@ -63,7 +63,7 @@
       "assigned": true,
       "track": "premium",
       "level": 2,
-      "requiredStars": 2
+      "requiredStars": 145
     },
     {
       "id": "natal-2026-elfa",
@@ -73,7 +73,7 @@
       "assigned": true,
       "track": "premium",
       "level": 4,
-      "requiredStars": 4
+      "requiredStars": 385
     },
     {
       "id": "natal-2026-poco",
@@ -83,7 +83,7 @@
       "assigned": true,
       "track": "free",
       "level": 2,
-      "requiredStars": 2
+      "requiredStars": 145
     },
     {
       "id": "natal-2026-treno",
@@ -93,7 +93,7 @@
       "assigned": true,
       "track": "premium",
       "level": 5,
-      "requiredStars": 5
+      "requiredStars": 415
     },
     {
       "id": "natal-2026-conjunto-rena",
@@ -103,7 +103,7 @@
       "assigned": true,
       "track": "premium",
       "level": 10,
-      "requiredStars": 10
+      "requiredStars": 850
     },
     {
       "id": "natal-2026-conjunto-elfa",
@@ -113,7 +113,7 @@
       "assigned": true,
       "track": "premium",
       "level": 6,
-      "requiredStars": 6
+      "requiredStars": 600
     },
     {
       "id": "natal-2026-conjunto-bobo",
@@ -123,7 +123,7 @@
       "assigned": true,
       "track": "free",
       "level": 8,
-      "requiredStars": 8
+      "requiredStars": 700
     },
     {
       "id": "natal-2026-recurso-1nkh56cr0ey6h",
@@ -135,7 +135,7 @@
       "dynamic": true,
       "track": "free",
       "level": 6,
-      "requiredStars": 6
+      "requiredStars": 600
     },
     {
       "id": "natal-2026-recurso-8kqc3r113q7h6",
@@ -147,7 +147,7 @@
       "dynamic": true,
       "track": "free",
       "level": 5,
-      "requiredStars": 5
+      "requiredStars": 415
     },
     {
       "id": "natal-2026-recurso-ak1evd9e4j4v",
@@ -159,7 +159,7 @@
       "dynamic": true,
       "track": "free",
       "level": 3,
-      "requiredStars": 3
+      "requiredStars": 205
     },
     {
       "id": "natal-2026-recurso-sdt0x889bbuf",
@@ -171,7 +171,7 @@
       "dynamic": true,
       "track": "premium",
       "level": 1,
-      "requiredStars": 1
+      "requiredStars": 65
     },
     {
       "id": "natal-2026-recurso-q703f213qi4gk",
@@ -183,7 +183,7 @@
       "dynamic": true,
       "track": "free",
       "level": 1,
-      "requiredStars": 1
+      "requiredStars": 65
     },
     {
       "id": "natal-2026-recurso-1sysn8b1iku5d8",
@@ -195,7 +195,7 @@
       "dynamic": true,
       "track": "free",
       "level": 7,
-      "requiredStars": 7
+      "requiredStars": 645
     },
     {
       "id": "natal-2026-recurso-aimdbkicucs8",
@@ -207,7 +207,7 @@
       "dynamic": true,
       "track": "premium",
       "level": 8,
-      "requiredStars": 8
+      "requiredStars": 700
     },
     {
       "id": "natal-2026-recurso-ty4dem1b02bf7",
@@ -220,7 +220,7 @@
       "dynamic": true,
       "track": "free",
       "level": 10,
-      "requiredStars": 10
+      "requiredStars": 850
     }
   ]
 }
