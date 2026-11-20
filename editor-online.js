@@ -69,7 +69,7 @@ function registerCosmetic(){
   if(!name||name.length>100)throw Error('Informe um nome com até 100 caracteres.');
   var typed=prompt('IDs das peças já publicadas no Ateliê, separados por vírgula:');
   if(typed===null)return;
-  var unlocks=typed.split(/[,;\\n]+/).map(s=>s.trim()).filter(Boolean);
+  var unlocks=typed.split(/[,;\s]+/).map(s=>s.trim()).filter(Boolean);
   if(!unlocks.length||unlocks.length>20||unlocks.some(id=>!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$/.test(id))||new Set(unlocks).size!==unlocks.length)
    throw Error('IDs inválidos, repetidos ou acima do limite de 20 peças.');
   var taken=new Set((library.rewards||[]).flatMap(r=>r.unlocks||[]));
@@ -82,7 +82,7 @@ function registerCosmetic(){
 }
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
- wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas já cadastradas no catálogo permanente. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
+ wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
  document.body.appendChild(wrap);
  var style=document.createElement('style');style.textContent='#natalRewardDialog[hidden]{display:none}#natalRewardDialog{position:fixed;inset:0;background:#12251cd9;z-index:18000;display:grid;place-items:center;padding:14px}.natalRewardCard{background:white;border-radius:13px;max-width:950px;width:100%;max-height:95vh;display:flex;flex-direction:column;padding:18px;gap:12px;color:#263d30;box-shadow:0 16px 70px #0005}.natalRewardCard header,.natalRewardCard footer{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.natalRewardCard h2{font-size:18px;margin:0}.natalRewardCard p{margin:0}.natalRewardScroll{overflow:auto}.natalRewardCard table{width:100%;border-collapse:collapse}.natalRewardCard td,.natalRewardCard th{text-align:left;border-bottom:1px solid #e3e9e4;padding:8px}.natalRewardCard select{width:100%;min-width:180px;max-width:340px}.natalRewardCard input{width:95px}.natalRewardCard button{padding:9px 12px;border:1px solid #cedbce;border-radius:8px;background:#edf6ee;color:#274b36}';
  document.head.appendChild(style);
