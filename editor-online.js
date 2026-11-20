@@ -3,6 +3,9 @@
 'use strict';
 var REPO='mini-fazenda/Eventos',API='https://api.github.com/repos/'+REPO,KEYS=['free','premium'];
 var editor=window.MFNatalEditor;
+// Culturas verificadas no catálogo agrícola do jogo.
+var CROP_IDS=['cenoura','espinafre','trigo','milho','abacaxi','morango','beterraba','cafe','melancia','cana','feijao','soja','cebola','arroz','girassol'];
+var RESOURCE_TYPES={coins:'Moedas',green:'Grana Verde',xp:'XP',seed:'Sementes'};
 if(!editor)return;
 var eventData=null,library=null,baseline=null,visualBaseline=null,head=null,busy=false;
 var $=s=>document.querySelector(s);
@@ -20,9 +23,11 @@ function note(message,error){
  var el=$('#natalOnlineStatus');if(el){el.textContent=message;el.style.color=error?'#ae3232':'#386d51';}
 }
 function requireReady(){if(!eventData||!library||!head||!baseline)throw Error('Carregue a configuração publicada no GitHub antes de editar.');}
+function supportedReward(item){return ['coins','object','animal','cosmetic'].includes(item?.type)&&item?.planned!==true;}
+function validateSupportedForPublish(){for(var track of KEYS)for(var i=0;i<10;i++){var id=eventData.pass.rewards[track][i];if(!id)continue;var item=(library.rewards||[]).find(x=>x.id===id);if(!supportedReward(item))throw Error('O prêmio '+(item?.name||id)+' ainda não pode ser entregue pelo jogo/VPS. Retire esse prêmio do slot antes de publicar.');}}
 function renderSelector(id,chosen){
  var choices=['<option value="">— Sem prêmio —</option>'];
- for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(item.type)+'</option>');
+ for(var item of library.rewards||[])choices.push('<option value="'+esc(item.id)+'"'+(item.id===chosen?' selected':'')+'>'+esc(item.name)+' · '+esc(RESOURCE_TYPES[item.type]||item.type)+(item.planned?' (planejado, sem entrega)':'')+'</option>');
  return '<select class="rewardChoice" data-slot="'+id+'">'+choices.join('')+'</select>';
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -54,11 +59,36 @@ function syncRewardsVisual(){
   for(var track of KEYS){
    var id=eventData.pass.rewards[track][i],r=id&&byId[id];
    // A apresentação de prêmios é atualizada somente para IDs realmente selecionados.
-   if(r){current.levels[i][track].name=r.name;current.levels[i][track].emoji=r.type==='animal'?'🐾':r.type==='cosmetic'?'👕':r.type==='object'?'🎁':'🪙';}
+   if(r){current.levels[i][track].name=r.name;current.levels[i][track].emoji=r.type==='animal'?'🐾':r.type==='cosmetic'?'👕':r.type==='object'?'🎁':r.type==='green'?'💚':r.type==='xp'?'⭐':r.type==='seed'?'🌱':'🪙';}
    else{current.levels[i][track].name='Em preparação';current.levels[i][track].emoji='';current.levels[i][track].sprite='';}
   }
  }
  editor.setProject(current);visualBaseline=[...eventData.pass.thresholds];
+}
+function registerResource(){
+ try{
+  requireReady();
+  var choice=prompt('Planejar recompensa:\n1 = Moedas\n2 = Grana Verde\n3 = XP\n4 = Semente/cultura');
+  if(choice===null)return;
+  var type=({1:'coins',2:'green',3:'xp',4:'seed'})[choice.trim()];
+  if(!type)throw Error('Escolha 1, 2, 3 ou 4.');
+  var crop=null;
+  if(type==='seed'){
+   crop=prompt('Cultura existente:\n'+CROP_IDS.join(', '));
+   if(crop===null)return;
+   crop=crop.trim().toLowerCase();
+   if(!CROP_IDS.includes(crop))throw Error('Cultura não cadastrada no jogo.');
+  }
+  var raw=prompt('Quantidade inteira positiva:','100');
+  if(raw===null)return;
+  var amount=Number(raw);
+  if(!Number.isSafeInteger(amount)||amount<1||amount>1000000000)throw Error('Quantidade inválida.');
+  var id='natal-2026-recurso-'+Array.from(crypto.getRandomValues(new Uint32Array(2))).map(n=>n.toString(36)).join('');
+  var name=amount.toLocaleString('pt-BR')+' '+(type==='seed'?'sementes de '+crop:RESOURCE_TYPES[type]);
+  library.rewards.push({id,name,type,amount,...(crop?{crop}:{}),asset:null,assigned:false,planned:true});
+  note('Prêmio planejado. Não será publicado para resgate sem suporte do jogo/VPS.');
+  renderRewards();
+ }catch(err){alert(err.message);}
 }
 function registerCosmetic(){
  try{
@@ -82,7 +112,7 @@ function registerCosmetic(){
 }
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
- wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
+ wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo. Recursos planejados não podem ser publicados no Passe até a entrega ser suportada no jogo/VPS.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
  document.body.appendChild(wrap);
  var style=document.createElement('style');style.textContent='#natalRewardDialog[hidden]{display:none}#natalRewardDialog{position:fixed;inset:0;background:#12251cd9;z-index:18000;display:grid;place-items:center;padding:14px}.natalRewardCard{background:white;border-radius:13px;max-width:950px;width:100%;max-height:95vh;display:flex;flex-direction:column;padding:18px;gap:12px;color:#263d30;box-shadow:0 16px 70px #0005}.natalRewardCard header,.natalRewardCard footer{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.natalRewardCard h2{font-size:18px;margin:0}.natalRewardCard p{margin:0}.natalRewardScroll{overflow:auto}.natalRewardCard table{width:100%;border-collapse:collapse}.natalRewardCard td,.natalRewardCard th{text-align:left;border-bottom:1px solid #e3e9e4;padding:8px}.natalRewardCard select{width:100%;min-width:180px;max-width:340px}.natalRewardCard input{width:95px}.natalRewardCard button{padding:9px 12px;border:1px solid #cedbce;border-radius:8px;background:#edf6ee;color:#274b36}';
  document.head.appendChild(style);
@@ -164,7 +194,7 @@ async function publish(){
  if(busy)return;busy=true;
  var token='';
  try{
-  requireReady();validateRewards();
+  requireReady();validateRewards();validateSupportedForPublish();
   if(location.origin!=='https://mini-fazenda.github.io'||!location.pathname.startsWith('/Eventos/'))throw Error('Abra o editor pelo GitHub Pages oficial de Eventos para publicar.');
   token=prompt('Token do GitHub (Contents: Read and write, somente mini-fazenda/Eventos):')||'';
   if(!token.trim())throw Error('Publicação cancelada: token não informado.');
@@ -174,7 +204,7 @@ async function publish(){
   var current=editor.getProject(),ev=clone(eventData);
   // Alterações das metas feitas no inspetor visual também entram no evento publicado.
   if(visualBaseline)for(var i=0;i<10;i++)if(current.levels[i].need!==visualBaseline[i])eventData.pass.thresholds[i]=Number(current.levels[i].need);
-  validateRewards();
+  validateRewards();validateSupportedForPublish();
   ev.pass.thresholds=[...eventData.pass.thresholds];
   ev.pass.rewards=clone(eventData.pass.rewards);
   // Novos conjuntos são enviados junto com o evento. O jogo valida e
@@ -225,12 +255,13 @@ function mount(){
  var extra=document.createElement('style');extra.textContent='.app>.top{gap:7px;padding:0 12px;overflow-x:auto;scrollbar-width:thin}.app>.top>*{flex-shrink:0}.app>.top>.grow{flex-shrink:1;min-width:4px}';document.head.appendChild(extra);
  var actions=$('.top');if(!actions)return;
  var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
- choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
+ choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalAddResourceBtn">＋ Planejar moedas / GV / XP / sementes</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
  actions.insertBefore(choices,$('#saveBtn'));
  var status=document.createElement('small');status.id='natalOnlineStatus';status.style.cssText='font-size:11px;margin:0 9px;color:#386d51';status.textContent='Carregando…';
  var footer=$('.footer');if(footer)footer.appendChild(status);
  $('#natalRewardsBtn').onclick=()=>{try{renderRewards();}catch(err){alert(err.message);}};
  $('#natalAddCosmeticBtn').onclick=registerCosmetic;
+ $('#natalAddResourceBtn').onclick=registerResource;
  $('#natalReloadBtn').onclick=()=>{if(confirm('Descartar alterações locais ainda não publicadas e recarregar do GitHub?'))void refresh();};
  $('#natalPublishBtn').onclick=()=>void publish();
  void refresh();
