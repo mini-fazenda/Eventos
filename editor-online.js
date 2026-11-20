@@ -114,6 +114,43 @@ function registerCosmetic(){
   renderRewards();
  }catch(err){alert(err.message);}
 }
+
+function editEntryScreen(){
+ try{
+  requireReady();
+  if(document.getElementById('natalEntryEditor'))document.getElementById('natalEntryEditor').remove();
+  const p=eventData.entry||{};
+  const wrap=document.createElement('div');
+  wrap.id='natalEntryEditor';
+  wrap.style.cssText='position:fixed;inset:0;z-index:18010;background:#12251cde;display:grid;place-items:center;padding:15px;overflow:auto';
+  wrap.innerHTML='<div class="natalEntryPanel" style="width:min(950px,96vw);max-height:95vh;overflow:auto;padding:20px;background:#fffaf0;border:3px solid #b98545;border-radius:18px;color:#543a26"><header style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 style="margin:0;font-size:21px">🎄 Tela de entrada do Natal</h2><button type="button" id="entryClose" class="btn">✕ Fechar</button></header><p>Esta tela aparece apenas antes da primeira entrada do jogador. O custo de <b>15 moedas</b> é fixo e validado pelo servidor. Você pode alterar o visual e os textos.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="display:flex;flex-direction:column;gap:10px"><label>Título <input id="entryTitle" maxlength="90" style="width:100%"></label><label>Descrição <textarea id="entryDescription" maxlength="380" rows="4" style="width:100%"></textarea></label><label>Texto do botão <input id="entryButton" maxlength="60" style="width:100%"></label><label>Cor do fundo <input id="entryBackground" type="color"></label><label>Cor do cartão <input id="entryAccent" type="color"></label><button type="button" class="btn primary" id="entryApply">Aplicar tela de entrada</button></div><div><div id="entryPreview" style="padding:24px 12px;border-radius:18px;min-height:350px;display:flex;align-items:center;justify-content:center;text-align:center"><div id="entryPreviewCard" style="width:100%;padding:25px 15px;border:4px solid #8b461d;border-radius:18px;box-shadow:0 8px 0 #512a19"><div style="font-size:36px">🎄 🎁 ⭐</div><h2 id="entryPreviewTitle" style="color:#954619;font-size:27px;margin:7px 0 10px;line-height:1.12"></h2><p id="entryPreviewDescription" style="font-size:15px;line-height:1.4"></p><button type="button" id="entryPreviewButton" disabled style="padding:12px 15px;border:2px solid #33671c;border-radius:10px;background:#68ab31;color:white;font-weight:bold"></button></div></div><small>A prévia é apenas visual. Nenhuma moeda é descontada pelo editor.</small></div></div></div>';
+  document.body.append(wrap);
+  const $e=id=>wrap.querySelector('#'+id);
+  $e('entryTitle').value=p.title||'Oficina do Papai Noel';
+  $e('entryDescription').value=p.description||'Entre na oficina de Natal, fabrique presentes e conquiste prêmios especiais. A entrada custa 15 moedas e é permanente.';
+  $e('entryButton').value=p.buttonText||'ACEITAR — 15 MOEDAS';
+  $e('entryBackground').value=/^#[0-9a-f]{6}$/i.test(p.background||'')?p.background:'#814729';
+  $e('entryAccent').value=/^#[0-9a-f]{6}$/i.test(p.accent||'')?p.accent:'#f5d596';
+  function preview(){
+   $e('entryPreview').style.backgroundColor=$e('entryBackground').value;
+   $e('entryPreviewCard').style.backgroundColor=$e('entryAccent').value;
+   $e('entryPreviewTitle').textContent=$e('entryTitle').value;
+   $e('entryPreviewDescription').textContent=$e('entryDescription').value;
+   $e('entryPreviewButton').textContent=$e('entryButton').value;
+  }
+  ['entryTitle','entryDescription','entryButton','entryBackground','entryAccent'].forEach(id=>$e(id).addEventListener('input',preview));
+  preview();
+  $e('entryClose').onclick=()=>wrap.remove();
+  $e('entryApply').onclick=()=>{
+   const title=$e('entryTitle').value.trim(),description=$e('entryDescription').value.trim(),buttonText=$e('entryButton').value.trim();
+   if(!title||!description||!buttonText){alert('Preencha o título, a descrição e o texto do botão.');return;}
+   if(!/15/.test(description+' '+buttonText)){alert('Informe que a entrada custa 15 moedas na descrição ou no botão.');return;}
+   eventData.entry={title,description,buttonText,background:$e('entryBackground').value,accent:$e('entryAccent').value};
+   note('Tela de entrada atualizada localmente. Clique em Publicar online (GitHub) para salvar.');
+   wrap.remove();
+  };
+ }catch(err){alert(err.message);}
+}
 function editPanel(){
  var wrap=document.createElement('div');wrap.id='natalRewardDialog';wrap.hidden=true;
  wrap.innerHTML='<section class="natalRewardCard" role="dialog" aria-modal="true" aria-label="Prêmios do Passe de Natal"><header><h2>🎁 Prêmios e metas do Passe de Natal</h2><button type="button" id="natalCloseRewards">✕ Fechar</button></header><p>Selecione recompensas existentes ou cadastre novos conjuntos de roupas pelo botão ＋ Novo conjunto de roupas. A publicação altera somente <b>Eventos/main</b>. IDs antigos e resgates permanecem no jogo. Recursos cadastrados são publicados no event.json e validados pelo jogo/VPS quando atribuídos a um nível.</p><div class="natalRewardScroll"><table><thead><tr><th>Nível</th><th>Estrelas</th><th>Grátis</th><th>Premium</th></tr></thead><tbody id="natalRewardTable"></tbody></table></div><footer><button type="button" id="natalApplyRewards">Aplicar ao layout</button><button type="button" id="natalCloseRewards2">Fechar</button></footer></section>';
@@ -265,10 +302,11 @@ function mount(){
  var extra=document.createElement('style');extra.textContent='.app>.top{gap:7px;padding:0 12px;overflow-x:auto;scrollbar-width:thin}.app>.top>*{flex-shrink:0}.app>.top>.grow{flex-shrink:1;min-width:4px}';document.head.appendChild(extra);
  var actions=$('.top');if(!actions)return;
  var choices=document.createElement('span');choices.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
- choices.innerHTML='<button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalAddResourceBtn">＋ Cadastrar moedas / GV / XP / sementes</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
+ choices.innerHTML='<button class="btn" type="button" id="natalEntryBtn">🎄 Tela de entrada</button><button class="btn" type="button" id="natalRewardsBtn">🎁 Níveis e prêmios</button><button class="btn" type="button" id="natalAddCosmeticBtn">＋ Novo conjunto de roupas</button><button class="btn" type="button" id="natalAddResourceBtn">＋ Cadastrar moedas / GV / XP / sementes</button><button class="btn" type="button" id="natalReloadBtn">↻ Atualizar do GitHub</button><button class="btn primary" type="button" id="natalPublishBtn">☁ Publicar online (GitHub)</button>';
  actions.insertBefore(choices,$('#saveBtn'));
  var status=document.createElement('small');status.id='natalOnlineStatus';status.style.cssText='font-size:11px;margin:0 9px;color:#386d51';status.textContent='Carregando…';
  var footer=$('.footer');if(footer)footer.appendChild(status);
+ $('#natalEntryBtn').onclick=editEntryScreen;
  $('#natalRewardsBtn').onclick=()=>{try{renderRewards();}catch(err){alert(err.message);}};
  $('#natalAddCosmeticBtn').onclick=registerCosmetic;
  $('#natalAddResourceBtn').onclick=registerResource;
