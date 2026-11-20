@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "version": "2026-11-18-biblioteca-natal-oito-premios",
+  "version": "2026-11-20-biblioteca-natal-doze-premios",
   "event": "natal-2026",
   "gameBranch": "atualizacao-de-natal",
-  "description": "Biblioteca de itens permanentes. Apenas event.json escolhe as trilhas e os níveis. Itens draft não são concedidos.",
+  "description": "Biblioteca permanente de recompensas. Somente event.json define níveis e trilhas; conjuntos novos não são atribuídos automaticamente.",
   "rewards": [
     {
       "id": "natal-2026-roupas-nivel-1",
@@ -94,6 +94,27 @@
       "track": "premium",
       "level": 1,
       "requiredStars": 1
+    },
+    {
+      "id": "natal-2026-conjunto-rena",
+      "name": "Conjunto Rena de Natal (roupa e chapéu)",
+      "type": "cosmetic",
+      "asset": null,
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-conjunto-elfa",
+      "name": "Conjunto Elfa de Natal (roupa e chapéu)",
+      "type": "cosmetic",
+      "asset": null,
+      "assigned": false
+    },
+    {
+      "id": "natal-2026-conjunto-bobo",
+      "name": "Conjunto Bobo de Natal",
+      "type": "cosmetic",
+      "asset": null,
+      "assigned": false
     }
   ]
 }
