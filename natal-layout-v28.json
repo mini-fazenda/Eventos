@@ -1,7 +1,7 @@
 {
   "format": "ateliê-natal-v1",
   "projectName": "Meu Natal - Layout original da Vila da Colheita",
-  "updatedAt": "2026-11-24T15:55:26.309Z",
+  "updatedAt": "2026-11-24T15:57:51.160Z",
   "settings": {
     "factoryBg": "#fff2cc",
     "passBg": "#fff2cc",
@@ -838,7 +838,7 @@
         "id": "yd1zxbx2",
         "type": "image",
         "name": "Novo sprite",
-        "x": 107,
+        "x": -107,
         "y": -145,
         "w": 825,
         "h": 821,
@@ -1997,8 +1997,8 @@
         "id": "a0lvqt5d",
         "type": "image",
         "name": "Novo sprite (cópia)",
-        "x": -107,
-        "y": -145,
+        "x": 303,
+        "y": 179,
         "w": 825,
         "h": 821,
         "z": 1,
