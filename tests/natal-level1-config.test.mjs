@@ -31,3 +31,8 @@ test('IDs do passe existem na biblioteca, sem repetição, e a atribuição acom
  }
  for (const item of library.rewards) assert.equal(item.assigned, assigned.has(item.id), item.id);
 });
+
+test('recursos V2 têm valores novos e IDs históricos fora dos slots',()=>{
+ const changes=[["free",1,"coins",400],["free",3,"xp",400],["free",6,"coins",650],["free",7,"coins",800],["premium",8,"coins",800],["free",10,"coins",1500]];
+ for(const [track,level,type,amount] of changes){const id=event.pass.rewards[track][level-1],item=event.rewardDefinitions[id];assert.ok(id.endsWith('-v2'));assert.equal(item.type,type);assert.equal(item.amount,amount);assert.equal(library.rewards.find(x=>x.id===id.slice(0,-3)).assigned,false);}
+});

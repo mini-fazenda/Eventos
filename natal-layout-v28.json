@@ -1,7 +1,7 @@
 {
   "format": "ateliê-natal-v1",
   "projectName": "Meu Natal - Layout original da Vila da Colheita",
-  "updatedAt": "2026-11-24T15:59:33.948Z",
+  "updatedAt": "2026-11-26T03:00:00.000Z",
   "settings": {
     "factoryBg": "#fff2cc",
     "passBg": "#fff2cc",
@@ -660,7 +660,7 @@
       "level": 1,
       "need": 65,
       "free": {
-        "name": "15 Moedas",
+        "name": "400 Moedas",
         "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙",
         "spriteScale": 0.8
@@ -692,7 +692,7 @@
       "level": 3,
       "need": 205,
       "free": {
-        "name": "20 XP",
+        "name": "400 XP",
         "sprite": "assets/editor/f4556986c6a9fd769ce3329fcb18.png",
         "emoji": "⭐"
       },
@@ -737,7 +737,7 @@
       "level": 6,
       "need": 600,
       "free": {
-        "name": "20 Moedas",
+        "name": "650 Moedas",
         "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙",
         "spriteScale": 0.7
@@ -752,7 +752,7 @@
       "level": 7,
       "need": 645,
       "free": {
-        "name": "25 Moedas",
+        "name": "800 Moedas",
         "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙"
       },
@@ -772,7 +772,7 @@
         "spriteScale": 1
       },
       "premium": {
-        "name": "40 Moedas",
+        "name": "800 Moedas",
         "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
         "emoji": "🪙",
         "spriteScale": 0.4
@@ -797,9 +797,10 @@
       "level": 10,
       "need": 850,
       "free": {
-        "name": "1 sementes de arroz",
-        "sprite": "",
-        "emoji": "🌱"
+        "name": "1.500 Moedas",
+        "sprite": "assets/editor/ffd360086159ad51164a16bfaee1.png",
+        "emoji": "🪙",
+        "spriteScale": 1
       },
       "premium": {
         "name": "Conjunto Rena de Natal (roupa e chapéu)",

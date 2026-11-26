@@ -1,7 +1,7 @@
 {
   "id": "natal-2026",
   "active": true,
-  "version": "editor-online-2026-11-24T15:59:36.773Z",
+  "version": "natal-2026-recursos-v2",
   "title": "Oficina do Fazendeiro Noel",
   "description": "Colha, encontre materiais, fabrique brinquedos e avance no Passe de Natal.",
   "drops": {
@@ -34,16 +34,16 @@
     ],
     "rewards": {
       "free": [
-        "natal-2026-recurso-q703f213qi4gk",
+        "natal-2026-recurso-q703f213qi4gk-v2",
         "natal-2026-poco",
-        "natal-2026-recurso-ak1evd9e4j4v",
+        "natal-2026-recurso-ak1evd9e4j4v-v2",
         "natal-2026-gatinho-bege",
         "natal-2026-recurso-8kqc3r113q7h6",
-        "natal-2026-recurso-1nkh56cr0ey6h",
-        "natal-2026-recurso-1sysn8b1iku5d8",
+        "natal-2026-recurso-1nkh56cr0ey6h-v2",
+        "natal-2026-recurso-1sysn8b1iku5d8-v2",
         "natal-2026-conjunto-bobo",
         "natal-2026-porquinho-saxofone",
-        "natal-2026-recurso-ty4dem1b02bf7"
+        "natal-2026-recurso-ty4dem1b02bf7-v2"
       ],
       "premium": [
         "natal-2026-recurso-sdt0x889bbuf",
@@ -53,7 +53,7 @@
         "natal-2026-treno",
         "natal-2026-conjunto-elfa",
         "natal-2026-roupas-nivel-1",
-        "natal-2026-recurso-aimdbkicucs8",
+        "natal-2026-recurso-aimdbkicucs8-v2",
         "natal-2026-urso-polar",
         "natal-2026-conjunto-rena"
       ]
@@ -265,6 +265,36 @@
       "type": "seed",
       "amount": 1,
       "crop": "arroz"
+    },
+    "natal-2026-recurso-q703f213qi4gk-v2": {
+      "name": "400 Moedas",
+      "type": "coins",
+      "amount": 400
+    },
+    "natal-2026-recurso-ak1evd9e4j4v-v2": {
+      "name": "400 XP",
+      "type": "xp",
+      "amount": 400
+    },
+    "natal-2026-recurso-1nkh56cr0ey6h-v2": {
+      "name": "650 Moedas",
+      "type": "coins",
+      "amount": 650
+    },
+    "natal-2026-recurso-1sysn8b1iku5d8-v2": {
+      "name": "800 Moedas",
+      "type": "coins",
+      "amount": 800
+    },
+    "natal-2026-recurso-aimdbkicucs8-v2": {
+      "name": "800 Moedas",
+      "type": "coins",
+      "amount": 800
+    },
+    "natal-2026-recurso-ty4dem1b02bf7-v2": {
+      "name": "1.500 Moedas",
+      "type": "coins",
+      "amount": 1500
     }
   }
 }

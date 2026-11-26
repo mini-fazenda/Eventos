@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2026-11-20-biblioteca-natal-doze-premios",
+  "version": "2026-11-26-recursos-v2",
   "event": "natal-2026",
   "gameBranch": "atualizacao-de-natal",
   "description": "Biblioteca permanente de recompensas. Somente event.json define níveis e trilhas; conjuntos novos não são atribuídos automaticamente.",
@@ -23,7 +23,13 @@
       "assigned": true,
       "track": "premium",
       "level": 3,
-      "requiredStars": 205
+      "requiredStars": 205,
+      "production": {
+        "directCoins": true,
+        "cycle": 3300000,
+        "saleCoins": 120,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-gatinho-bege",
@@ -33,7 +39,13 @@
       "assigned": true,
       "track": "free",
       "level": 4,
-      "requiredStars": 385
+      "requiredStars": 385,
+      "production": {
+        "directCoins": true,
+        "cycle": 3600000,
+        "saleCoins": 60,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-porquinho-saxofone",
@@ -43,7 +55,13 @@
       "assigned": true,
       "track": "free",
       "level": 9,
-      "requiredStars": 760
+      "requiredStars": 760,
+      "production": {
+        "directCoins": true,
+        "cycle": 8700000,
+        "saleCoins": 250,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-urso-polar",
@@ -53,7 +71,13 @@
       "assigned": true,
       "track": "premium",
       "level": 9,
-      "requiredStars": 760
+      "requiredStars": 760,
+      "production": {
+        "directCoins": true,
+        "cycle": 10800000,
+        "saleCoins": 360,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-elfo",
@@ -63,7 +87,13 @@
       "assigned": true,
       "track": "premium",
       "level": 2,
-      "requiredStars": 145
+      "requiredStars": 145,
+      "production": {
+        "directCoins": true,
+        "cycle": 2100000,
+        "saleCoins": 75,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-elfa",
@@ -73,7 +103,13 @@
       "assigned": true,
       "track": "premium",
       "level": 4,
-      "requiredStars": 385
+      "requiredStars": 385,
+      "production": {
+        "directCoins": true,
+        "cycle": 4500000,
+        "saleCoins": 180,
+        "stars": 0
+      }
     },
     {
       "id": "natal-2026-poco",
@@ -131,11 +167,8 @@
       "type": "coins",
       "amount": 20,
       "asset": null,
-      "assigned": true,
-      "dynamic": true,
-      "track": "free",
-      "level": 6,
-      "requiredStars": 600
+      "assigned": false,
+      "dynamic": true
     },
     {
       "id": "natal-2026-recurso-8kqc3r113q7h6",
@@ -155,11 +188,8 @@
       "type": "xp",
       "amount": 20,
       "asset": null,
-      "assigned": true,
-      "dynamic": true,
-      "track": "free",
-      "level": 3,
-      "requiredStars": 205
+      "assigned": false,
+      "dynamic": true
     },
     {
       "id": "natal-2026-recurso-sdt0x889bbuf",
@@ -179,6 +209,43 @@
       "type": "coins",
       "amount": 15,
       "asset": null,
+      "assigned": false,
+      "dynamic": true
+    },
+    {
+      "id": "natal-2026-recurso-1sysn8b1iku5d8",
+      "name": "25 Moedas",
+      "type": "coins",
+      "amount": 25,
+      "asset": null,
+      "assigned": false,
+      "dynamic": true
+    },
+    {
+      "id": "natal-2026-recurso-aimdbkicucs8",
+      "name": "40 Moedas",
+      "type": "coins",
+      "amount": 40,
+      "asset": null,
+      "assigned": false,
+      "dynamic": true
+    },
+    {
+      "id": "natal-2026-recurso-ty4dem1b02bf7",
+      "name": "1 sementes de arroz",
+      "type": "seed",
+      "amount": 1,
+      "crop": "arroz",
+      "asset": null,
+      "assigned": false,
+      "dynamic": true
+    },
+    {
+      "id": "natal-2026-recurso-q703f213qi4gk-v2",
+      "name": "400 Moedas",
+      "type": "coins",
+      "amount": 400,
+      "asset": null,
       "assigned": true,
       "dynamic": true,
       "track": "free",
@@ -186,10 +253,34 @@
       "requiredStars": 65
     },
     {
-      "id": "natal-2026-recurso-1sysn8b1iku5d8",
-      "name": "25 Moedas",
+      "id": "natal-2026-recurso-ak1evd9e4j4v-v2",
+      "name": "400 XP",
+      "type": "xp",
+      "amount": 400,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 3,
+      "requiredStars": 205
+    },
+    {
+      "id": "natal-2026-recurso-1nkh56cr0ey6h-v2",
+      "name": "650 Moedas",
       "type": "coins",
-      "amount": 25,
+      "amount": 650,
+      "asset": null,
+      "assigned": true,
+      "dynamic": true,
+      "track": "free",
+      "level": 6,
+      "requiredStars": 600
+    },
+    {
+      "id": "natal-2026-recurso-1sysn8b1iku5d8-v2",
+      "name": "800 Moedas",
+      "type": "coins",
+      "amount": 800,
       "asset": null,
       "assigned": true,
       "dynamic": true,
@@ -198,10 +289,10 @@
       "requiredStars": 645
     },
     {
-      "id": "natal-2026-recurso-aimdbkicucs8",
-      "name": "40 Moedas",
+      "id": "natal-2026-recurso-aimdbkicucs8-v2",
+      "name": "800 Moedas",
       "type": "coins",
-      "amount": 40,
+      "amount": 800,
       "asset": null,
       "assigned": true,
       "dynamic": true,
@@ -210,11 +301,10 @@
       "requiredStars": 700
     },
     {
-      "id": "natal-2026-recurso-ty4dem1b02bf7",
-      "name": "1 sementes de arroz",
-      "type": "seed",
-      "amount": 1,
-      "crop": "arroz",
+      "id": "natal-2026-recurso-ty4dem1b02bf7-v2",
+      "name": "1.500 Moedas",
+      "type": "coins",
+      "amount": 1500,
       "asset": null,
       "assigned": true,
       "dynamic": true,
